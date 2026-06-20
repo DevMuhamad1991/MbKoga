@@ -1610,13 +1610,16 @@ function globalSearchFn(q) {
   const products = DB.get('products').filter(p=>p.name.includes(q)||p.brand.includes(q));
   const repairs = DB.get('repairs').filter(r=>r.customerName.includes(q)||r.device.includes(q));
   const sales = DB.get('sales').filter(s=>s.productName.includes(q));
+  const debts = DB.get('debts').filter(d=>d.customerName.includes(q)||d.phone.includes(q));
   let html = '';
   products.slice(0,4).forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand}</div>`);
   repairs.slice(0,3).forEach(r=>html+=`<div class="search-result-item" onclick="navigate(null,'repairs')"><span class="search-result-tag tag-repair">چاکسازی</span>${r.customerName} — ${r.device}</div>`);
   sales.slice(0,3).forEach(s=>html+=`<div class="search-result-item" onclick="navigate(null,'sales')"><span class="search-result-tag tag-sale">فرۆشتن</span>${s.productName}</div>`);
+  debts.slice(0,3).forEach(d=>html+=`<div class="search-result-item" onclick="navigate(null,'debts')"><span class="search-result-tag" style="background:var(--danger-light);color:var(--danger)">قەرز</span>${d.customerName} — ${fmt(debtRemaining(d))}</div>`);
   box.innerHTML = html || '<div style="padding:14px;text-align:center;font-size:13px;color:var(--text3)">هیچ ئەنجامێک نەدۆزرایەوە</div>';
   box.classList.add('open');
 }
+
 function closeSearch() { document.getElementById('searchResults').classList.remove('open'); }
 
 // ══════════════════════════════════════════
