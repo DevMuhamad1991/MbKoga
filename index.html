@@ -854,13 +854,18 @@ select.filter-input { cursor: pointer; }
 	  <div class="nav-item" data-page="sales" onclick="navigate(this)">
 		<i class="ti ti-shopping-cart"></i> فرۆشتن
 	  </div>
-	  <div class="nav-item" data-page="repairs" onclick="navigate(this)">
+<div class="nav-item" data-page="repairs" onclick="navigate(this)">
 		<i class="ti ti-tool"></i> چاکسازی
 		<span class="nav-badge" id="repairBadge">0</span>
+	  </div>
+	  <div class="nav-item" data-page="debts" onclick="navigate(this)">
+		<i class="ti ti-credit-card"></i> قەرزەکان
+		<span class="nav-badge" id="debtBadge">0</span>
 	  </div>
 	</div>
 	<div class="nav-section">
 	  <div class="nav-label">ئەنالیز</div>
+
 	  <div class="nav-item" data-page="reports" onclick="navigate(this)">
 		<i class="ti ti-chart-bar"></i> ڕاپۆرتەکان
 	  </div>
@@ -1089,6 +1094,34 @@ select.filter-input { cursor: pointer; }
 		</div>
 	  </div>
 	</div>
+  
+  	<!-- ═══════════════════════ DEBTS ═══════════════════════ -->
+	<div class="page" id="page-debts">
+	  <div class="page-title">
+		<div><h2>قەرزەکان</h2><p>بەڕێوەبردنی قەرزی کڕیاران</p></div>
+		<button class="btn btn-primary" onclick="openDebtModal()"><i class="ti ti-plus"></i> قەرزی نوێ</button>
+	  </div>
+	  <div class="stats-grid" id="debtStats"></div>
+	  <div class="filters-bar">
+		<input class="filter-input" style="min-width:220px" type="text" placeholder="گەڕان بە ناو یان ژمارە..." id="debtSearch" oninput="renderDebts()">
+		<select class="filter-input" id="debtStatusFilter" onchange="renderDebts()">
+		  <option value="">هەموو ستاتوسەکان</option>
+		  <option value="pending">چاوەڕوان</option>
+		  <option value="paid">دراوەتەوە</option>
+		</select>
+	  </div>
+	  <div class="card">
+		<div class="table-wrap">
+		  <table>
+			<thead><tr>
+			  <th>#</th><th>کڕیار</th><th>ژمارە</th><th>کۆی قەرز</th><th>دراوەتەوە</th><th>ماوە</th><th>بەرواری مۆڵەت</th><th>ستاتوس</th><th>کردار</th>
+			</tr></thead>
+			<tbody id="debtBody"></tbody>
+		  </table>
+		</div>
+	  </div>
+	</div>
+
 
 	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
 	<div class="page" id="page-reports">
@@ -1333,6 +1366,69 @@ select.filter-input { cursor: pointer; }
   </div>
 </div>
 
+<!-- DEBT MODAL (Add new debt) -->
+<div class="modal-overlay" id="debtModal">
+  <div class="modal">
+	<div class="modal-header">
+	  <h3>قەرزی نوێ</h3>
+	  <button class="modal-close" onclick="closeModal('debtModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div class="form-grid">
+		<div class="form-row">
+		  <div class="form-group">
+			<label>ناوی کڕیار *</label>
+			<input class="form-control" id="dName" placeholder="ناوی کڕیار">
+		  </div>
+		  <div class="form-group">
+			<label>ژمارەی تەلەفۆن *</label>
+			<input class="form-control" id="dPhone" placeholder="07xx xxx xxxx">
+		  </div>
+		</div>
+		<div class="form-row">
+		  <div class="form-group">
+			<label>بڕی قەرز (د.ع) *</label>
+			<input class="form-control" id="dAmount" type="number" placeholder="0">
+		  </div>
+		  <div class="form-group">
+			<label>بەرواری مۆڵەت</label>
+			<input class="form-control" id="dDueDate" type="date">
+		  </div>
+		</div>
+		<div class="form-group">
+		  <label>تێبینی</label>
+		  <textarea class="form-control" id="dNotes" placeholder="هۆکاری قەرز یان تێبینی..."></textarea>
+		</div>
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('debtModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-primary" id="dSaveBtn" onclick="saveDebt()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+	</div>
+  </div>
+</div>
+
+<!-- PAY DEBT MODAL -->
+<div class="modal-overlay" id="payDebtModal">
+  <div class="modal" style="max-width:420px">
+	<div class="modal-header">
+	  <h3>پارەدانەوەی قەرز</h3>
+	  <button class="modal-close" onclick="closeModal('payDebtModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div id="payDebtInfo" style="margin-bottom:16px"></div>
+	  <div class="form-group">
+		<label>بڕی پارەدانەوە (د.ع) *</label>
+		<input class="form-control" id="payAmount" type="number" placeholder="0">
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('payDebtModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-success" id="payDebtBtn" onclick="confirmPayDebt()"><i class="ti ti-check"></i> پارەدانەوە</button>
+	</div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════════════
 //  SUPABASE CONNECTION
@@ -1342,7 +1438,8 @@ const SUPABASE_KEY = 'sb_publishable_ErXchFcjhvDF6jDwH5M0SQ_UOpHZ2oJ';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // In-memory cache of data (loaded from Supabase, kept in sync after every change)
-let CACHE = { products: [], sales: [], repairs: [] };
+let CACHE = { products: [], sales: [], repairs: [], debts: [] };
+
 
 function setConnStatus(state) {
   const el = document.getElementById('connStatus');
@@ -1355,22 +1452,25 @@ function setConnStatus(state) {
 // Map DB row (snake_case) <-> App object (camelCase)
 function productFromDb(r) { return { id: r.id, name: r.name, brand: r.brand, model: r.model, category: r.category, buyPrice: Number(r.buy_price), sellPrice: Number(r.sell_price), qty: r.qty, notes: r.notes, createdAt: r.created_at }; }
 function saleFromDb(r) { return { id: r.id, productId: r.product_id, productName: r.product_name, unitPrice: Number(r.unit_price), qty: r.qty, total: Number(r.total), profit: Number(r.profit), createdAt: r.created_at }; }
-function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, device: r.device, deviceType: r.device_type, problem: r.problem, cost: Number(r.cost), status: r.status, notes: r.notes, createdAt: r.created_at }; }
+function debtFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, amount: Number(r.amount), paidAmount: Number(r.paid_amount), source: r.source, notes: r.notes, dueDate: r.due_date, status: r.status, createdAt: r.created_at }; }
 
 async function loadAllData() {
   setConnStatus('loading');
   try {
-	const [pRes, sRes, rRes] = await Promise.all([
+	const [pRes, sRes, rRes, dRes] = await Promise.all([
 	  sb.from('products').select('*').order('created_at', { ascending: false }),
 	  sb.from('sales').select('*').order('created_at', { ascending: false }),
-	  sb.from('repairs').select('*').order('created_at', { ascending: false })
+	  sb.from('repairs').select('*').order('created_at', { ascending: false }),
+	  sb.from('debts').select('*').order('created_at', { ascending: false })
 	]);
 	if (pRes.error) throw pRes.error;
 	if (sRes.error) throw sRes.error;
 	if (rRes.error) throw rRes.error;
+	if (dRes.error) throw dRes.error;
 	CACHE.products = (pRes.data || []).map(productFromDb);
 	CACHE.sales = (sRes.data || []).map(saleFromDb);
 	CACHE.repairs = (rRes.data || []).map(repairFromDb);
+	CACHE.debts = (dRes.data || []).map(debtFromDb);
 	setConnStatus('online');
 	return true;
   } catch (err) {
@@ -1381,6 +1481,7 @@ async function loadAllData() {
   }
 }
 
+
 // DB accessor that mimics the old localStorage-based DB object, but reads from CACHE
 const DB = {
   get(key) { return CACHE[key] || []; },
@@ -1389,7 +1490,8 @@ const DB = {
 // ══════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════
-const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', reports:'ڕاپۆرتەکان' };
+const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان' };
+
 function navigate(el, page) {
   page = page || el.dataset.page;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1406,8 +1508,10 @@ function renderPage(p) {
   else if(p==='inventory') renderInventory();
   else if(p==='sales') renderSales();
   else if(p==='repairs') renderRepairs();
+  else if(p==='debts') renderDebts();
   else if(p==='reports') renderReports();
 }
+
 
 // ══════════════════════════════════════════
 //  SIDEBAR / THEME
@@ -1457,6 +1561,7 @@ document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click
 function buildNotifications() {
   const products = DB.get('products');
   const repairs = DB.get('repairs');
+  const debts = DB.get('debts');
   const notifs = [];
   products.filter(p=>p.qty<=5).forEach(p=>notifs.push({
 	icon:'ti-alert-triangle', bg:'var(--warning-light)', color:'var(--warning)',
@@ -1466,6 +1571,10 @@ function buildNotifications() {
 	icon:'ti-tool', bg:'var(--info-light)', color:'var(--info)',
 	text:`<b>${r.customerName}</b> — ${r.device} — ${repairStatusLabel(r.status)}`, time:'چاکسازی'
   }));
+  debts.filter(d=>d.status==='pending'&&d.dueDate&&new Date(d.dueDate)<new Date()).forEach(d=>notifs.push({
+	icon:'ti-credit-card', bg:'var(--danger-light)', color:'var(--danger)',
+	text:`<b>${d.customerName}</b> — قەرزی تێپەڕیوو (${fmt(debtRemaining(d))})`, time:'قەرز'
+  }));
   const list = document.getElementById('notifList');
   list.innerHTML = notifs.length ? notifs.map(n=>`
 	<div class="notif-item">
@@ -1473,11 +1582,15 @@ function buildNotifications() {
 	  <div class="notif-text"><p>${n.text}</p><span>${n.time}</span></div>
 	</div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">هیچ ئاگادارکردنەوەیەک نیە</div>';
   document.getElementById('notifDot').style.display = notifs.length ? 'block' : 'none';
-  // badge
-  const pending = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
-  document.getElementById('repairBadge').textContent = pending;
-  document.getElementById('repairBadge').style.display = pending ? 'inline-flex' : 'none';
+  // badges
+  const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
+  document.getElementById('repairBadge').textContent = pendingRepairs;
+  document.getElementById('repairBadge').style.display = pendingRepairs ? 'inline-flex' : 'none';
+  const pendingDebts = debts.filter(d=>d.status==='pending').length;
+  document.getElementById('debtBadge').textContent = pendingDebts;
+  document.getElementById('debtBadge').style.display = pendingDebts ? 'inline-flex' : 'none';
 }
+
 function toggleNotif() {
   buildNotifications();
   document.getElementById('notifPanel').classList.toggle('open');
@@ -1548,6 +1661,7 @@ function renderDashboard() {
   const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
   const totalStock = products.reduce((a,p)=>a+p.qty,0);
   const lowStock = products.filter(p=>p.qty<=5).length;
+    const totalPendingDebt = DB.get('debts').filter(d=>d.status==='pending').reduce((a,d)=>a+debtRemaining(d),0);
 
   document.getElementById('dashStats').innerHTML = `
 	<div class="stat-card purple">
@@ -1579,7 +1693,13 @@ function renderDashboard() {
 	  <div class="stat-value text-mono">${lowStock}</div>
 	  <div class="stat-label">کاڵای کەمماو</div>
 	  <div class="stat-sub">کمتر یان ٥ دانە</div>
+	</div>
+	<div class="stat-card red">
+	  <div class="stat-icon"><i class="ti ti-credit-card"></i></div>
+	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(totalPendingDebt)}</div>
+	  <div class="stat-label">کۆی قەرزی چاوەڕوان</div>
 	</div>`;
+
 
   // Charts
   const gc = isDark ? {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
@@ -2070,6 +2190,147 @@ async function updateRepairStatus(id, status) {
 	toast('کێشە لە نوێکردنەوەی ستاتوس: ' + (err.message||err), 'error');
   }
 }
+
+// ══════════════════════════════════════════
+//  DEBTS
+// ══════════════════════════════════════════
+let editDebtId = null;
+let payDebtId = null;
+
+function debtRemaining(d) { return Math.max(0, d.amount - d.paidAmount); }
+
+function renderDebts() {
+  const debts = DB.get('debts');
+  const pending = debts.filter(d=>d.status==='pending');
+  const totalPending = pending.reduce((a,d)=>a+debtRemaining(d),0);
+  const totalPaid = debts.reduce((a,d)=>a+d.paidAmount,0);
+  const overdue = pending.filter(d=>d.dueDate && new Date(d.dueDate) < new Date()).length;
+
+  document.getElementById('debtStats').innerHTML = `
+	<div class="stat-card red"><div class="stat-icon"><i class="ti ti-credit-card"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalPending)}</div><div class="stat-label">کۆی قەرزی چاوەڕوان</div></div>
+	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalPaid)}</div><div class="stat-label">کۆی دراوەتەوە</div></div>
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-users"></i></div><div class="stat-value text-mono">${pending.length}</div><div class="stat-label">کڕیاری قەرزدار</div></div>
+	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-alert-triangle"></i></div><div class="stat-value text-mono">${overdue}</div><div class="stat-label">بەرواری مۆڵەت تێپەڕیوو</div></div>`;
+
+  const q = document.getElementById('debtSearch').value.toLowerCase();
+  const sf = document.getElementById('debtStatusFilter').value;
+  const filtered = debts.filter(d=>(!q||(d.customerName+d.phone).toLowerCase().includes(q))&&(!sf||d.status===sf));
+  const sorted = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const body = document.getElementById('debtBody');
+  body.innerHTML = sorted.length ? sorted.map((d,i)=>{
+	const remaining = debtRemaining(d);
+	const isOverdue = d.dueDate && new Date(d.dueDate) < new Date() && d.status==='pending';
+	return `<tr>
+	  <td class="td-muted">${i+1}</td>
+	  <td><b>${d.customerName}</b></td>
+	  <td class="td-muted">${d.phone}</td>
+	  <td class="text-mono">${fmt(d.amount)}</td>
+	  <td class="text-mono color-green">${fmt(d.paidAmount)}</td>
+	  <td class="text-mono color-red fw-700">${fmt(remaining)}</td>
+	  <td class="td-muted">${d.dueDate ? dateStr(d.dueDate) : '—'} ${isOverdue?'<span class="badge badge-red">تێپەڕیوو</span>':''}</td>
+	  <td>${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
+	  <td>
+		<div style="display:flex;gap:6px">
+		  ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
+		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
+		</div>
+	  </td>
+	</tr>`;
+  }).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-credit-card"></i><p>هیچ قەرزێک نیە</p></div></td></tr>`;
+}
+
+function openDebtModal() {
+  editDebtId = null;
+  ['dName','dPhone','dAmount','dDueDate','dNotes'].forEach(id=>document.getElementById(id).value='');
+  openModal('debtModal');
+}
+
+async function saveDebt() {
+  const name = document.getElementById('dName').value.trim();
+  const phone = document.getElementById('dPhone').value.trim();
+  const amount = parseFloat(document.getElementById('dAmount').value)||0;
+  if(!name||!phone||!amount) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
+
+  const btn = document.getElementById('dSaveBtn');
+  btn.disabled = true;
+  try {
+	const { error } = await sb.from('debts').insert({
+	  customer_name: name, phone, amount, paid_amount: 0,
+	  source: 'other', notes: document.getElementById('dNotes').value,
+	  due_date: document.getElementById('dDueDate').value || null,
+	  status: 'pending'
+	});
+	if(error) throw error;
+	toast('قەرزی نوێ زیادکرا','success');
+	await loadAllData();
+	closeModal('debtModal'); renderDebts(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
+}
+
+function openPayDebtModal(id) {
+  payDebtId = id;
+  const d = DB.get('debts').find(x=>x.id===id);
+  if(!d) return;
+  const remaining = debtRemaining(d);
+  document.getElementById('payDebtInfo').innerHTML = `
+	<div style="background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:14px">
+	  <div style="font-weight:700;margin-bottom:4px">${d.customerName}</div>
+	  <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${d.phone}</div>
+	  <div style="display:flex;justify-content:space-between;font-size:13px">
+		<span class="td-muted">کۆی قەرز:</span><span class="text-mono">${fmt(d.amount)}</span>
+	  </div>
+	  <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+		<span class="td-muted">ماوەی پارەدانەوە:</span><span class="text-mono color-red fw-700">${fmt(remaining)}</span>
+	  </div>
+	</div>`;
+  document.getElementById('payAmount').value = remaining;
+  document.getElementById('payAmount').max = remaining;
+  openModal('payDebtModal');
+}
+
+async function confirmPayDebt() {
+  const d = DB.get('debts').find(x=>x.id===payDebtId);
+  if(!d) return;
+  const payAmt = parseFloat(document.getElementById('payAmount').value)||0;
+  const remaining = debtRemaining(d);
+  if(payAmt<=0 || payAmt>remaining) { toast('بڕی پارە دروست نیە','error'); return; }
+
+  const btn = document.getElementById('payDebtBtn');
+  btn.disabled = true;
+  try {
+	const newPaid = d.paidAmount + payAmt;
+	const newStatus = newPaid >= d.amount ? 'paid' : 'pending';
+	const { error } = await sb.from('debts').update({ paid_amount: newPaid, status: newStatus }).eq('id', d.id);
+	if(error) throw error;
+	toast(newStatus==='paid' ? 'قەرزەکە بە تەواوی دراوەتەوە' : 'پارەدانەوە تۆمارکرا','success');
+	await loadAllData();
+	closeModal('payDebtModal'); renderDebts(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
+}
+
+async function deleteDebt(id) {
+  if(!confirm('دڵنیایت لە سڕینەوەی ئەم قەرزە؟')) return;
+  try {
+	const { error } = await sb.from('debts').delete().eq('id', id);
+	if(error) throw error;
+	await loadAllData();
+	toast('قەرزەکە سڕایەوە','info'); renderDebts(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە سڕینەوە: ' + (err.message||err), 'error');
+  }
+}
+
 
 // ══════════════════════════════════════════
 //  REPORTS
