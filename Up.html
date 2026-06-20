@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Store — سیستەمی بەڕێوەبردنی دوکان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #080d1a;
+  --bg2: #0e1526;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --card-hover: rgba(255,255,255,0.07);
+  --sidebar: rgba(8,13,26,0.95);
+  --primary: #6C63FF;
+  --primary-light: rgba(108,99,255,0.15);
+  --primary-glow: rgba(108,99,255,0.3);
+  --success: #00D9A6;
+  --success-light: rgba(0,217,166,0.12);
+  --danger: #FF6B6B;
+  --danger-light: rgba(255,107,107,0.12);
+  --warning: #F7B731;
+  --warning-light: rgba(247,183,49,0.12);
+  --info: #38BDF8;
+  --info-light: rgba(56,189,248,0.12);
+  --text: #F0F4FF;
+  --text2: #8892A4;
+  --text3: #5A6478;
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+}
+.light {
+  --bg: #F0F4FF;
+  --bg2: #E8EDF8;
+  --card: rgba(255,255,255,0.85);
+  --card-border: rgba(0,0,0,0.06);
+  --card-hover: rgba(255,255,255,0.95);
+  --sidebar: rgba(240,244,255,0.97);
+  --text: #0A0F1E;
+  --text2: #4A5568;
+  --text3: #9AA3B5;
+  --border: rgba(0,0,0,0.06);
+  --shadow: 0 8px 32px rgba(100,120,180,0.15);
+  --shadow-card: 0 4px 24px rgba(100,120,180,0.1);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+	radial-gradient(ellipse 600px 400px at 20% 0%, rgba(108,99,255,0.08) 0%, transparent 60%),
+	radial-gradient(ellipse 400px 300px at 80% 80%, rgba(0,217,166,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+.light body::before {
+  background:
+	radial-gradient(ellipse 600px 400px at 20% 0%, rgba(108,99,255,0.05) 0%, transparent 60%),
+	radial-gradient(ellipse 400px 300px at 80% 80%, rgba(0,217,166,0.03) 0%, transparent 60%);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── LAYOUT ── */
+.app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--sidebar);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid var(--card-border);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform var(--transition), background var(--transition);
+}
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--primary), #9C88FF);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff;
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+.sidebar-logo-text { flex: 1; }
+.sidebar-logo-text h1 { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.sidebar-logo-text p { font-size: 11px; color: var(--text2); }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 10px; }
+.nav-section { margin-bottom: 8px; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; padding: 8px 10px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all var(--transition);
+  position: relative;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 20px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+.nav-item i { font-size: 18px; flex-shrink: 0; }
+.nav-badge {
+  margin-right: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.footer-btn {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--transition);
+  border: none; background: transparent;
+}
+.footer-btn:hover { background: var(--card); color: var(--text); }
+.footer-btn i { font-size: 16px; }
+
+/* ── MAIN ── */
+.main {
+  margin-right: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  transition: margin var(--transition);
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  height: var(--header-h);
+  background: rgba(8,13,26,0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  transition: background var(--transition);
+}
+.light .header { background: rgba(240,244,255,0.85); }
+.menu-btn {
+  display: none;
+  width: 36px; height: 36px;
+  border: none; background: var(--card);
+  border-radius: 8px; cursor: pointer;
+  color: var(--text2);
+  align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition);
+}
+.menu-btn:hover { background: var(--card-hover); color: var(--text); }
+.header-search {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+.header-search input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 9px 16px 9px 40px;
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+  transition: all var(--transition);
+  outline: none;
+}
+.header-search input::placeholder { color: var(--text3); }
+.header-search input:focus { border-color: var(--primary); background: var(--card-hover); box-shadow: 0 0 0 3px var(--primary-light); }
+.header-search i {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 16px;
+  pointer-events: none;
+}
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 200;
+  display: none;
+}
+.search-results.open { display: block; }
+.search-result-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background var(--transition);
+  font-size: 13px;
+}
+.search-result-item:hover { background: var(--card); }
+.search-result-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.tag-product { background: var(--primary-light); color: var(--primary); }
+.tag-repair { background: var(--warning-light); color: var(--warning); }
+.tag-sale { background: var(--success-light); color: var(--success); }
+.header-end { margin-right: auto; display: flex; align-items: center; gap: 8px; }
+.header-page-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.notif-btn {
+  position: relative;
+  width: 36px; height: 36px;
+  border: none; background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px; cursor: pointer;
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition);
+}
+.notif-btn:hover { background: var(--card-hover); color: var(--text); }
+.notif-dot {
+  position: absolute;
+  top: 7px; left: 7px;
+  width: 8px; height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+}
+.theme-btn {
+  width: 36px; height: 36px;
+  border: none; background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px; cursor: pointer;
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition);
+}
+.theme-btn:hover { background: var(--card-hover); color: var(--text); }
+
+/* ── CONTENT ── */
+.content { flex: 1; padding: 24px; overflow-x: hidden; }
+.page { display: none; animation: fadeUp 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── PAGE HEADER ── */
+.page-title {
+  margin-bottom: 24px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title h2 { font-size: 22px; font-weight: 700; color: var(--text); }
+.page-title p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 600;
+  font-family: inherit;
+  cursor: pointer; border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 16px var(--primary-glow); }
+.btn-primary:hover { background: #7B73FF; transform: translateY(-1px); box-shadow: 0 6px 20px var(--primary-glow); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-ghost { background: var(--card); color: var(--text2); border: 1px solid var(--card-border); }
+.btn-ghost:hover { background: var(--card-hover); color: var(--text); }
+.btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid rgba(255,107,107,0.2); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success-light); color: var(--success); border: 1px solid rgba(0,217,166,0.2); }
+.btn-success:hover { background: var(--success); color: #fff; }
+.btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { padding: 8px; gap: 0; }
+.btn i { font-size: 16px; }
+
+/* ── GLASS CARD ── */
+.card {
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  transition: all var(--transition);
+}
+.card:hover { border-color: rgba(255,255,255,0.12); }
+.card-body { padding: 20px; }
+
+/* ── STAT CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition);
+  cursor: default;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: 0.12;
+  transform: translate(20%, -20%);
+}
+.stat-card.purple::before { background: var(--primary); }
+.stat-card.green::before { background: var(--success); }
+.stat-card.red::before { background: var(--danger); }
+.stat-card.yellow::before { background: var(--warning); }
+.stat-card.blue::before { background: var(--info); }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); border-color: rgba(255,255,255,0.12); }
+.stat-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+.stat-card.purple .stat-icon { background: var(--primary-light); color: var(--primary); }
+.stat-card.green .stat-icon { background: var(--success-light); color: var(--success); }
+.stat-card.red .stat-icon { background: var(--danger-light); color: var(--danger); }
+.stat-card.yellow .stat-icon { background: var(--warning-light); color: var(--warning); }
+.stat-card.blue .stat-icon { background: var(--info-light); color: var(--info); }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--text); font-family: 'Space Grotesk', sans-serif; line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text2); margin-top: 6px; }
+.stat-sub { font-size: 11.5px; color: var(--text3); margin-top: 4px; }
+.stat-trend {
+  position: absolute;
+  top: 16px; left: 16px;
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 3px;
+}
+.trend-up { color: var(--success); }
+.trend-down { color: var(--danger); }
+
+/* ── CHARTS ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.chart-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.chart-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.chart-wrap { position: relative; height: 200px; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  text-align: right;
+  white-space: nowrap;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 13px 16px;
+  font-size: 13.5px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  background: var(--card);
+  transition: background var(--transition);
+}
+tbody tr:hover td { background: var(--card-hover); }
+tbody tr:last-child td { border-bottom: none; }
+.td-muted { color: var(--text2); font-size: 12.5px; }
+
+/* ── BADGE / STATUS ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px; font-weight: 600;
+  white-space: nowrap;
+}
+.badge-purple { background: var(--primary-light); color: var(--primary); }
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+.badge-yellow { background: var(--warning-light); color: var(--warning); }
+.badge-blue { background: var(--info-light); color: var(--info); }
+.badge-gray { background: rgba(255,255,255,0.06); color: var(--text2); }
+
+/* ── FORM ── */
+.form-grid { display: grid; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12.5px; font-weight: 600; color: var(--text2); }
+.form-control {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+  transition: all var(--transition);
+  width: 100%;
+}
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-control::placeholder { color: var(--text3); }
+select.form-control { cursor: pointer; appearance: none; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close {
+  width: 32px; height: 32px;
+  border: none; background: var(--card);
+  border-radius: 8px; cursor: pointer;
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition);
+}
+.modal-close:hover { background: var(--danger-light); color: var(--danger); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+
+/* ── FILTERS BAR ── */
+.filters-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-input {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: all var(--transition);
+  min-width: 180px;
+}
+.filter-input:focus { border-color: var(--primary); }
+.filter-input::placeholder { color: var(--text3); }
+select.filter-input { cursor: pointer; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+.empty-state i { font-size: 48px; margin-bottom: 12px; display: block; opacity: 0.4; }
+.empty-state p { font-size: 14px; }
+
+/* ── QUICK SALE ── */
+.sale-select-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.product-search-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.product-pick-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--transition);
+  gap: 12px;
+}
+.product-pick-item:hover { background: var(--card-hover); }
+.product-pick-item.selected { background: var(--primary-light); }
+.sale-cart { margin-top: 16px; }
+.cart-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.cart-item-name { flex: 1; font-size: 13px; font-weight: 500; }
+.cart-qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn {
+  width: 26px; height: 26px;
+  border: 1px solid var(--card-border);
+  background: var(--card-hover);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px; color: var(--text);
+  transition: all var(--transition);
+}
+.qty-btn:hover { background: var(--primary-light); color: var(--primary); }
+.qty-display { font-size: 14px; font-weight: 700; min-width: 24px; text-align: center; }
+.sale-total-box {
+  background: var(--primary-light);
+  border: 1px solid rgba(108,99,255,0.25);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-top: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.sale-total-label { font-size: 13px; color: var(--text2); }
+.sale-total-val { font-size: 20px; font-weight: 700; color: var(--primary); font-family: 'Space Grotesk', sans-serif; }
+
+/* ── REPAIR STATUS TIMELINE ── */
+.status-steps {
+  display: flex;
+  gap: 0;
+  margin: 12px 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.status-step {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 1; min-width: 80px;
+  position: relative;
+  cursor: pointer;
+}
+.status-step::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: calc(50% + 16px);
+  left: calc(-50% + 16px);
+  height: 2px;
+  background: var(--border);
+}
+.status-step:first-child::before { display: none; }
+.status-step.done::before { background: var(--success); }
+.step-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--text3);
+  position: relative; z-index: 1;
+  transition: all var(--transition);
+}
+.status-step.done .step-dot { background: var(--success); border-color: var(--success); color: #fff; }
+.status-step.current .step-dot { background: var(--primary-light); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
+.step-label { font-size: 10.5px; color: var(--text3); margin-top: 6px; text-align: center; line-height: 1.3; }
+.status-step.done .step-label { color: var(--success); }
+.status-step.current .step-label { color: var(--primary); font-weight: 600; }
+
+/* ── NOTIFICATION PANEL ── */
+.notif-panel {
+  position: fixed;
+  top: var(--header-h); left: 16px;
+  width: 320px;
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 200;
+  transform: translateY(-8px);
+  opacity: 0; pointer-events: none;
+  transition: all 0.2s ease;
+}
+.notif-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+.notif-panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; font-weight: 700; }
+.notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition);
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.notif-item:hover { background: var(--card); }
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.notif-text { flex: 1; }
+.notif-text p { font-size: 12.5px; color: var(--text); line-height: 1.4; }
+.notif-text span { font-size: 11px; color: var(--text3); }
+
+/* ── REPORTS PAGE ── */
+.report-period-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.period-tab {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--card-border);
+  background: var(--card); color: var(--text2);
+  transition: all var(--transition);
+}
+.period-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* ── LOW STOCK TABLE ── */
+.low-stock-row td:first-child { border-right: 3px solid var(--danger); }
+
+/* ── OVERLAY for mobile ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* ── CONNECTION STATUS ── */
+.conn-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.conn-status.online { background: var(--success-light); color: var(--success); }
+.conn-status.offline { background: var(--danger-light); color: var(--danger); }
+.conn-status.loading { background: var(--warning-light); color: var(--warning); }
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 5000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px;
+}
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--card-border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay { display: block; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .sidebar-overlay.open { opacity: 1; pointer-events: all; }
+  .main { margin-right: 0; }
+  .menu-btn { display: flex; }
+  .form-row { grid-template-columns: 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .content { padding: 16px; }
+  .modal { max-height: 95vh; }
+  .status-steps { gap: 0; }
+  .header-search { max-width: none; flex: 1; }
+  .header-page-title { display: none; }
+}
+
+/* ── TOAST ── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: 8px;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  pointer-events: all;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--primary); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+/* ── MISC ── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+.text-mono { font-family: 'Space Grotesk', monospace; }
+.color-green { color: var(--success); }
+.color-red { color: var(--danger); }
+.color-yellow { color: var(--warning); }
+.color-primary { color: var(--primary); }
+.fw-700 { font-weight: 700; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-10 { gap: 10px; }
+.gap-16 { gap: 16px; }
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+	<div class="sidebar-logo-icon"><i class="ti ti-device-mobile"></i></div>
+	<div class="sidebar-logo-text">
+	  <h1>Mobile Store</h1>
+	  <p>سیستەمی بەڕێوەبردن</p>
+	</div>
+  </div>
+  <nav class="sidebar-nav">
+	<div class="nav-section">
+	  <div class="nav-label">سەرەکی</div>
+	  <div class="nav-item active" data-page="dashboard" onclick="navigate(this)">
+		<i class="ti ti-layout-dashboard"></i> داشبۆرد
+	  </div>
+	</div>
+	<div class="nav-section">
+	  <div class="nav-label">بەڕێوەبردن</div>
+	  <div class="nav-item" data-page="inventory" onclick="navigate(this)">
+		<i class="ti ti-package"></i> ئەمبار
+	  </div>
+	  <div class="nav-item" data-page="sales" onclick="navigate(this)">
+		<i class="ti ti-shopping-cart"></i> فرۆشتن
+	  </div>
+	  <div class="nav-item" data-page="repairs" onclick="navigate(this)">
+		<i class="ti ti-tool"></i> چاکسازی
+		<span class="nav-badge" id="repairBadge">0</span>
+	  </div>
+	</div>
+	<div class="nav-section">
+	  <div class="nav-label">ئەنالیز</div>
+	  <div class="nav-item" data-page="reports" onclick="navigate(this)">
+		<i class="ti ti-chart-bar"></i> ڕاپۆرتەکان
+	  </div>
+	</div>
+  </nav>
+<div class="sidebar-footer" style="flex-direction:column;gap:10px;align-items:stretch">
+	<div class="flex items-center" style="justify-content:center">
+	  <span class="conn-status loading" id="connStatus"><span class="conn-dot"></span> پەیوەندی...</span>
+	</div>
+	<button class="footer-btn" onclick="toggleTheme()">
+	  <i class="ti ti-sun" id="themeIcon"></i>
+	  <span id="themeLabel">ڕووناک</span>
+	</button>
+	<div style="text-align:center;font-size:10.5px;color:var(--text3)">دروستکراوە لەلایەن @Dev.Muhamad</div>
+</div>
+
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- HEADER -->
+  <header class="header">
+	<button class="menu-btn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
+	<div class="header-search">
+	  <i class="ti ti-search"></i>
+	  <input type="text" placeholder="گەڕان لە کاڵا، چاکسازی، فرۆشتن..." id="globalSearch" oninput="globalSearchFn(this.value)" onblur="setTimeout(()=>closeSearch(),200)">
+	  <div class="search-results" id="searchResults"></div>
+	</div>
+	<div class="header-end">
+	  <span class="header-page-title" id="headerPageTitle">داشبۆرد</span>
+	</div>
+	<div style="position:relative">
+	  <button class="notif-btn" onclick="toggleNotif()">
+		<i class="ti ti-bell"></i>
+		<span class="notif-dot" id="notifDot"></span>
+	  </button>
+	  <div class="notif-panel" id="notifPanel">
+		<div class="notif-panel-header">ئاگادارکردنەوەکان</div>
+		<div id="notifList"></div>
+	  </div>
+	</div>
+	<button class="theme-btn" onclick="toggleTheme()" title="گۆڕینی تیم">
+	  <i class="ti ti-sun" id="themeIcon2"></i>
+	</button>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+	<!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+	<div class="page active" id="page-dashboard">
+	  <div class="page-title">
+		<div>
+		  <h2>داشبۆرد</h2>
+		  <p id="dashDate"></p>
+		</div>
+	  </div>
+
+	  <!-- STATS -->
+	  <div class="stats-grid" id="dashStats"></div>
+
+	  <!-- CHARTS -->
+	  <div class="charts-grid">
+		<div class="chart-card">
+		  <div class="chart-header">
+			<div>
+			  <div class="chart-title">فرۆشتنی ڕۆژانە</div>
+			  <div class="chart-sub">٧ ڕۆژی ڕابردوو</div>
+			</div>
+		  </div>
+		  <div class="chart-wrap"><canvas id="chartDaily"></canvas></div>
+		</div>
+		<div class="chart-card">
+		  <div class="chart-header">
+			<div>
+			  <div class="chart-title">فرۆشتنی مانگانە</div>
+			  <div class="chart-sub">١٢ مانگی ڕابردوو</div>
+			</div>
+		  </div>
+		  <div class="chart-wrap"><canvas id="chartMonthly"></canvas></div>
+		</div>
+		<div class="chart-card">
+		  <div class="chart-header">
+			<div>
+			  <div class="chart-title">قازانجی مانگانە</div>
+			  <div class="chart-sub">ئەم ساڵە</div>
+			</div>
+		  </div>
+		  <div class="chart-wrap"><canvas id="chartProfit"></canvas></div>
+		</div>
+		<div class="chart-card">
+		  <div class="chart-header">
+			<div>
+			  <div class="chart-title">باشترین کاڵاکان</div>
+			  <div class="chart-sub">لەپێی فرۆشتن</div>
+			</div>
+		  </div>
+		  <div class="chart-wrap"><canvas id="chartTop"></canvas></div>
+		</div>
+	  </div>
+
+	  <!-- LOW STOCK -->
+	  <div class="card mb-24">
+		<div class="card-body">
+		  <div class="flex items-center gap-10 mb-16">
+			<i class="ti ti-alert-triangle color-yellow" style="font-size:20px"></i>
+			<span style="font-size:14px;font-weight:700">کاڵای کەمماو</span>
+		  </div>
+		  <div class="table-wrap">
+			<table id="lowStockTable">
+			  <thead><tr>
+				<th>کاڵا</th><th>بڕ</th><th>کاتیگۆری</th><th>نرخی فرۆشتن</th>
+			  </tr></thead>
+			  <tbody id="lowStockBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+
+	  <!-- RECENT SALES -->
+	  <div class="card">
+		<div class="card-body">
+		  <div class="flex items-center gap-10 mb-16">
+			<i class="ti ti-receipt color-primary" style="font-size:20px"></i>
+			<span style="font-size:14px;font-weight:700">فرۆشتنی دوایین</span>
+		  </div>
+		  <div class="table-wrap">
+			<table>
+			  <thead><tr>
+				<th>کاڵا</th><th>بڕ</th><th>نرخ</th><th>قازانج</th><th>بەروار</th>
+			  </tr></thead>
+			  <tbody id="recentSalesBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+	<!-- ═══════════════════════ INVENTORY ═══════════════════════ -->
+	<div class="page" id="page-inventory">
+	  <div class="page-title">
+		<div><h2>ئەمبار</h2><p>بەڕێوەبردنی کاڵاکان</p></div>
+		<button class="btn btn-primary" onclick="openProductModal()"><i class="ti ti-plus"></i> کاڵای نوێ</button>
+	  </div>
+	  <div class="stats-grid" id="invStats"></div>
+	  <div class="filters-bar">
+		<input class="filter-input" style="min-width:220px" type="text" placeholder="گەڕان..." id="productSearch" oninput="renderProducts()">
+		<select class="filter-input" id="catFilter" onchange="renderProducts()">
+		  <option value="">هەموو کاتیگۆریەکان</option>
+		</select>
+		<select class="filter-input" id="stockFilter" onchange="renderProducts()">
+		  <option value="">هەموو کاڵاکان</option>
+		  <option value="low">کەمماو (≤5)</option>
+		  <option value="ok">بەردەست</option>
+		</select>
+	  </div>
+	  <div class="card">
+		<div class="table-wrap">
+		  <table>
+			<thead><tr>
+			  <th>#</th><th>ناوی کاڵا</th><th>بران</th><th>کاتیگۆری</th>
+			  <th>نرخی کڕین</th><th>نرخی فرۆشتن</th><th>قازانج</th><th>بڕ</th><th>کردار</th>
+			</tr></thead>
+			<tbody id="productBody"></tbody>
+		  </table>
+		</div>
+	  </div>
+	</div>
+
+	<!-- ═══════════════════════ SALES ═══════════════════════ -->
+	<div class="page" id="page-sales">
+	  <div class="page-title">
+		<div><h2>فرۆشتن</h2><p>تۆمارکردن و مێژووی فرۆشتن</p></div>
+		<button class="btn btn-primary" onclick="openSaleModal()"><i class="ti ti-shopping-cart-plus"></i> فرۆشتنی نوێ</button>
+	  </div>
+	  <div class="stats-grid" id="saleStats"></div>
+	  <div class="report-period-tabs" id="salePeriodTabs">
+		<div class="period-tab active" data-p="today" onclick="setSalePeriod(this)">ئەمڕۆ</div>
+		<div class="period-tab" data-p="week" onclick="setSalePeriod(this)">ئەم هەفتەیە</div>
+		<div class="period-tab" data-p="month" onclick="setSalePeriod(this)">ئەم مانگە</div>
+		<div class="period-tab" data-p="year" onclick="setSalePeriod(this)">ئەم ساڵە</div>
+		<div class="period-tab" data-p="all" onclick="setSalePeriod(this)">هەموو</div>
+	  </div>
+	  <div class="filters-bar">
+		<input class="filter-input" style="min-width:220px" type="text" placeholder="گەڕان بە ناوی کاڵا..." id="saleSearch" oninput="renderSales()">
+	  </div>
+	  <div class="card">
+		<div class="table-wrap">
+		  <table>
+			<thead><tr>
+			  <th>#</th><th>کاڵا</th><th>بڕ</th><th>نرخی یەکە</th><th>کۆی نرخ</th><th>قازانج</th><th>بەروار</th>
+			</tr></thead>
+			<tbody id="saleBody"></tbody>
+		  </table>
+		</div>
+	  </div>
+	</div>
+
+	<!-- ═══════════════════════ REPAIRS ═══════════════════════ -->
+	<div class="page" id="page-repairs">
+	  <div class="page-title">
+		<div><h2>چاکسازی</h2><p>بەڕێوەبردنی ئامێرەکانی چاکسازی</p></div>
+		<button class="btn btn-primary" onclick="openRepairModal()"><i class="ti ti-plus"></i> چاکسازی نوێ</button>
+	  </div>
+	  <div class="stats-grid" id="repairStats"></div>
+	  <div class="filters-bar">
+		<input class="filter-input" style="min-width:220px" type="text" placeholder="گەڕان بە ناو یان ژمارە..." id="repairSearch" oninput="renderRepairs()">
+		<select class="filter-input" id="repairStatusFilter" onchange="renderRepairs()">
+		  <option value="">هەموو ستاتوسەکان</option>
+		  <option value="received">وەرگیراو</option>
+		  <option value="under_repair">لەژێر چاکسازی</option>
+		  <option value="waiting_parts">چاوەڕوانی پارچە</option>
+		  <option value="completed">تەواوبوو</option>
+		  <option value="delivered">دراوەتەوە</option>
+		</select>
+	  </div>
+	  <div class="card">
+		<div class="table-wrap">
+		  <table>
+			<thead><tr>
+			  <th>#</th><th>کڕیار</th><th>ژمارە</th><th>ئامێر</th><th>کێشە</th><th>هزینە</th><th>ستاتوس</th><th>بەروار</th><th>کردار</th>
+			</tr></thead>
+			<tbody id="repairBody"></tbody>
+		  </table>
+		</div>
+	  </div>
+	</div>
+
+	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
+	<div class="page" id="page-reports">
+	  <div class="page-title">
+		<div><h2>ڕاپۆرتەکان</h2><p>ئەنالیزی فرۆشتن، قازانج و چاکسازی</p></div>
+	  </div>
+	  <div class="report-period-tabs">
+		<div class="period-tab active" data-p="today" onclick="setReportPeriod(this)">ئەمڕۆ</div>
+		<div class="period-tab" data-p="week" onclick="setReportPeriod(this)">ئەم هەفتەیە</div>
+		<div class="period-tab" data-p="month" onclick="setReportPeriod(this)">ئەم مانگە</div>
+		<div class="period-tab" data-p="year" onclick="setReportPeriod(this)">ئەم ساڵە</div>
+		<div class="period-tab" data-p="all" onclick="setReportPeriod(this)">هەموو</div>
+	  </div>
+	  <div class="stats-grid" id="reportStats"></div>
+	  <div class="grid-2 mb-24">
+		<div class="chart-card">
+		  <div class="chart-header"><div class="chart-title">فرۆشتن بەپێی کاتیگۆری</div></div>
+		  <div class="chart-wrap"><canvas id="rptCatChart"></canvas></div>
+		</div>
+		<div class="chart-card">
+		  <div class="chart-header"><div class="chart-title">قازانجی ڕۆژانە</div></div>
+		  <div class="chart-wrap"><canvas id="rptProfitChart"></canvas></div>
+		</div>
+	  </div>
+	  <div class="card mb-16">
+		<div class="card-body">
+		  <div class="flex items-center gap-10 mb-16">
+			<span style="font-size:14px;font-weight:700">ڕاپۆرتی فرۆشتن</span>
+		  </div>
+		  <div class="table-wrap">
+			<table>
+			  <thead><tr><th>کاڵا</th><th>کۆی فرۆشتن</th><th>کۆی قازانج</th><th>دووبارەی فرۆشتن</th></tr></thead>
+			  <tbody id="rptSalesBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	  <div class="card">
+		<div class="card-body">
+		  <div class="flex items-center gap-10 mb-16">
+			<span style="font-size:14px;font-weight:700">ڕاپۆرتی چاکسازی</span>
+		  </div>
+		  <div class="table-wrap">
+			<table>
+			  <thead><tr><th>کڕیار</th><th>ئامێر</th><th>هزینە</th><th>ستاتوس</th><th>بەروار</th></tr></thead>
+			  <tbody id="rptRepairBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════════════════════════ MODALS ══════════════════════════════ -->
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+	<div class="modal-header">
+	  <h3 id="productModalTitle">کاڵای نوێ زیاد بکە</h3>
+	  <button class="modal-close" onclick="closeModal('productModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div class="form-grid">
+		<div class="form-row">
+		  <div class="form-group">
+			<label>ناوی کاڵا *</label>
+			<input class="form-control" id="pName" placeholder="iPhone 15 Pro">
+		  </div>
+		  <div class="form-group">
+			<label>بران *</label>
+			<input class="form-control" id="pBrand" placeholder="Apple">
+		  </div>
+		</div>
+		<div class="form-row">
+		  <div class="form-group">
+			<label>مۆدێل</label>
+			<input class="form-control" id="pModel" placeholder="A3101">
+		  </div>
+		  <div class="form-group">
+			<label>کاتیگۆری *</label>
+			<select class="form-control" id="pCategory">
+			  <option value="">هەڵبژێرە...</option>
+			  <option>مۆبایل</option>
+			  <option>چارجەر</option>
+			  <option>هێدفۆن</option>
+			  <option>کەیس</option>
+			  <option>شووشەی پاراستن</option>
+			  <option>پاوەربانک</option>
+			  <option>سمارت واچ</option>
+			  <option>ئەکسسۆار</option>
+			</select>
+		  </div>
+		</div>
+		<div class="form-row">
+		  <div class="form-group">
+			<label>نرخی کڕین (د.ع) *</label>
+			<input class="form-control" id="pBuyPrice" type="number" placeholder="0">
+		  </div>
+		  <div class="form-group">
+			<label>نرخی فرۆشتن (د.ع) *</label>
+			<input class="form-control" id="pSellPrice" type="number" placeholder="0">
+		  </div>
+		</div>
+		<div class="form-group">
+		  <label>بڕ *</label>
+		  <input class="form-control" id="pQty" type="number" placeholder="0" min="0">
+		</div>
+		<div class="form-group">
+		  <label>تێبینی</label>
+		  <textarea class="form-control" id="pNotes" placeholder="تێبینی دیاری..."></textarea>
+		</div>
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('productModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-primary" id="pSaveBtn" onclick="saveProduct()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+	</div>
+  </div>
+</div>
+
+<!-- SALE MODAL -->
+<div class="modal-overlay" id="saleModal">
+  <div class="modal" style="max-width:600px">
+	<div class="modal-header">
+	  <h3>فرۆشتنی نوێ</h3>
+	  <button class="modal-close" onclick="closeModal('saleModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div class="form-group mb-16">
+		<label>گەڕان و هەڵبژاردنی کاڵا</label>
+		<input class="form-control" id="saleProductSearch" placeholder="ناوی کاڵا بنووسە..." oninput="filterSaleProducts()">
+	  </div>
+	  <div class="product-search-list" id="saleProductList"></div>
+	  <div class="sale-cart" id="saleCart"></div>
+	  <div id="saleTotalBox" style="display:none">
+		<div class="sale-total-box">
+		  <div class="sale-total-label">کۆی گشتی</div>
+		  <div class="sale-total-val text-mono" id="saleTotalVal">0 د.ع</div>
+		</div>
+		<div style="display:flex;gap:10px;margin-top:8px">
+		  <div style="flex:1;background:var(--success-light);border:1px solid rgba(0,217,166,0.2);border-radius:10px;padding:10px;text-align:center">
+			<div style="font-size:11px;color:var(--text2)">قازانج</div>
+			<div class="text-mono" style="font-size:16px;font-weight:700;color:var(--success)" id="saleProfitVal">0</div>
+		  </div>
+		  <div style="flex:1;background:var(--info-light);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;text-align:center">
+			<div style="font-size:11px;color:var(--text2)">کۆی بڕ</div>
+			<div class="text-mono" style="font-size:16px;font-weight:700;color:var(--info)" id="saleTotalQty">0</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردنی فرۆشتن</button>
+	</div>
+  </div>
+</div>
+
+<!-- REPAIR MODAL -->
+<div class="modal-overlay" id="repairModal">
+  <div class="modal">
+	<div class="modal-header">
+	  <h3 id="repairModalTitle">چاکسازی نوێ</h3>
+	  <button class="modal-close" onclick="closeModal('repairModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div class="form-grid">
+		<div class="form-row">
+		  <div class="form-group">
+			<label>ناوی کڕیار *</label>
+			<input class="form-control" id="rName" placeholder="ناوی کڕیار">
+		  </div>
+		  <div class="form-group">
+			<label>ژمارەی تەلەفۆن *</label>
+			<input class="form-control" id="rPhone" placeholder="07xx xxx xxxx">
+		  </div>
+		</div>
+		<div class="form-row">
+		  <div class="form-group">
+			<label>ناوی ئامێر *</label>
+			<input class="form-control" id="rDevice" placeholder="Samsung S24">
+		  </div>
+		  <div class="form-group">
+			<label>جۆری ئامێر</label>
+			<select class="form-control" id="rDeviceType">
+			  <option>مۆبایل</option>
+			  <option>تابلێت</option>
+			  <option>لاپتۆپ</option>
+			  <option>سمارت واچ</option>
+			  <option>هیتر</option>
+			  <option>تر</option>
+			</select>
+		  </div>
+		</div>
+		<div class="form-group">
+		  <label>کێشە *</label>
+		  <textarea class="form-control" id="rProblem" placeholder="وەسفی کێشەکە..."></textarea>
+		</div>
+		<div class="form-row">
+		  <div class="form-group">
+			<label>هزینەی چاکسازی (د.ع)</label>
+			<input class="form-control" id="rCost" type="number" placeholder="0">
+		  </div>
+		  <div class="form-group">
+			<label>ستاتوس</label>
+			<select class="form-control" id="rStatus">
+			  <option value="received">وەرگیراو</option>
+			  <option value="under_repair">لەژێر چاکسازی</option>
+			  <option value="waiting_parts">چاوەڕوانی پارچە</option>
+			  <option value="completed">تەواوبوو</option>
+			  <option value="delivered">دراوەتەوە</option>
+			</select>
+		  </div>
+		</div>
+		<div class="form-group">
+		  <label>تێبینی</label>
+		  <textarea class="form-control" id="rNotes" placeholder="تێبینی زیاتر..."></textarea>
+		</div>
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('repairModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-primary" id="rSaveBtn" onclick="saveRepair()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+	</div>
+  </div>
+</div>
+
+<!-- REPAIR DETAIL MODAL -->
+<div class="modal-overlay" id="repairDetailModal">
+  <div class="modal" style="max-width:520px">
+	<div class="modal-header">
+	  <h3>وردەکاری چاکسازی</h3>
+	  <button class="modal-close" onclick="closeModal('repairDetailModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body" id="repairDetailBody"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SUPABASE CONNECTION
+// ══════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://lrnosgetxksbfhxpbcvy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ErXchFcjhvDF6jDwH5M0SQ_UOpHZ2oJ';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// In-memory cache of data (loaded from Supabase, kept in sync after every change)
+let CACHE = { products: [], sales: [], repairs: [] };
+
+function setConnStatus(state) {
+  const el = document.getElementById('connStatus');
+  if (!el) return;
+  if (state === 'online') { el.className = 'conn-status online'; el.innerHTML = '<span class="conn-dot"></span> سەرکەوتوو پەیوەستە'; }
+  else if (state === 'offline') { el.className = 'conn-status offline'; el.innerHTML = '<span class="conn-dot"></span> پەیوەندی نیە'; }
+  else { el.className = 'conn-status loading'; el.innerHTML = '<span class="conn-dot"></span> پەیوەندی...'; }
+}
+
+// Map DB row (snake_case) <-> App object (camelCase)
+function productFromDb(r) { return { id: r.id, name: r.name, brand: r.brand, model: r.model, category: r.category, buyPrice: Number(r.buy_price), sellPrice: Number(r.sell_price), qty: r.qty, notes: r.notes, createdAt: r.created_at }; }
+function saleFromDb(r) { return { id: r.id, productId: r.product_id, productName: r.product_name, unitPrice: Number(r.unit_price), qty: r.qty, total: Number(r.total), profit: Number(r.profit), createdAt: r.created_at }; }
+function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, device: r.device, deviceType: r.device_type, problem: r.problem, cost: Number(r.cost), status: r.status, notes: r.notes, createdAt: r.created_at }; }
+
+async function loadAllData() {
+  setConnStatus('loading');
+  try {
+	const [pRes, sRes, rRes] = await Promise.all([
+	  sb.from('products').select('*').order('created_at', { ascending: false }),
+	  sb.from('sales').select('*').order('created_at', { ascending: false }),
+	  sb.from('repairs').select('*').order('created_at', { ascending: false })
+	]);
+	if (pRes.error) throw pRes.error;
+	if (sRes.error) throw sRes.error;
+	if (rRes.error) throw rRes.error;
+	CACHE.products = (pRes.data || []).map(productFromDb);
+	CACHE.sales = (sRes.data || []).map(saleFromDb);
+	CACHE.repairs = (rRes.data || []).map(repairFromDb);
+	setConnStatus('online');
+	return true;
+  } catch (err) {
+	console.error('Supabase load error:', err);
+	setConnStatus('offline');
+	toast('کێشە لە پەیوەندیکردن بە داتابەیس: ' + (err.message || err), 'error');
+	return false;
+  }
+}
+
+// DB accessor that mimics the old localStorage-based DB object, but reads from CACHE
+const DB = {
+  get(key) { return CACHE[key] || []; },
+};
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', reports:'ڕاپۆرتەکان' };
+function navigate(el, page) {
+  page = page || el.dataset.page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const ni = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if(ni) ni.classList.add('active');
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.getElementById('headerPageTitle').textContent = pageNames[page]||'';
+  closeSidebar();
+  renderPage(page);
+}
+function renderPage(p) {
+  if(p==='dashboard') renderDashboard();
+  else if(p==='inventory') renderInventory();
+  else if(p==='sales') renderSales();
+  else if(p==='repairs') renderRepairs();
+  else if(p==='reports') renderReports();
+}
+
+// ══════════════════════════════════════════
+//  SIDEBAR / THEME
+// ══════════════════════════════════════════
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  const ico = isDark ? 'ti-sun' : 'ti-moon';
+  const lbl = isDark ? 'ڕووناک' : 'تاریک';
+  document.getElementById('themeIcon').className = 'ti '+ico;
+  document.getElementById('themeIcon2').className = 'ti '+ico;
+  document.getElementById('themeLabel').textContent = lbl;
+  renderDashboard();
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function toast(msg, type='info') {
+  const icons = { success:'ti-circle-check', error:'ti-circle-x', info:'ti-info-circle' };
+  const c = document.createElement('div');
+  c.className = `toast ${type}`;
+  c.innerHTML = `<i class="ti ${icons[type]||icons.info}"></i> ${msg}`;
+  document.getElementById('toastContainer').appendChild(c);
+  setTimeout(()=>c.remove(), 3200);
+}
+
+// ══════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+// ══════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════
+function buildNotifications() {
+  const products = DB.get('products');
+  const repairs = DB.get('repairs');
+  const notifs = [];
+  products.filter(p=>p.qty<=5).forEach(p=>notifs.push({
+	icon:'ti-alert-triangle', bg:'var(--warning-light)', color:'var(--warning)',
+	text:`<b>${p.name}</b> — کاڵای کەمماو (${p.qty} دانە بەردەستە)`, time:'ئێستا'
+  }));
+  repairs.filter(r=>r.status==='waiting_parts'||r.status==='under_repair').forEach(r=>notifs.push({
+	icon:'ti-tool', bg:'var(--info-light)', color:'var(--info)',
+	text:`<b>${r.customerName}</b> — ${r.device} — ${repairStatusLabel(r.status)}`, time:'چاکسازی'
+  }));
+  const list = document.getElementById('notifList');
+  list.innerHTML = notifs.length ? notifs.map(n=>`
+	<div class="notif-item">
+	  <div class="notif-icon" style="background:${n.bg};color:${n.color}"><i class="ti ${n.icon}"></i></div>
+	  <div class="notif-text"><p>${n.text}</p><span>${n.time}</span></div>
+	</div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">هیچ ئاگادارکردنەوەیەک نیە</div>';
+  document.getElementById('notifDot').style.display = notifs.length ? 'block' : 'none';
+  // badge
+  const pending = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
+  document.getElementById('repairBadge').textContent = pending;
+  document.getElementById('repairBadge').style.display = pending ? 'inline-flex' : 'none';
+}
+function toggleNotif() {
+  buildNotifications();
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('[onclick="toggleNotif()"]')&&!e.target.closest('#notifPanel'))
+	document.getElementById('notifPanel').classList.remove('open');
+});
+
+// ══════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════
+function globalSearchFn(q) {
+  const box = document.getElementById('searchResults');
+  if(!q.trim()) { box.classList.remove('open'); return; }
+  const products = DB.get('products').filter(p=>p.name.includes(q)||p.brand.includes(q));
+  const repairs = DB.get('repairs').filter(r=>r.customerName.includes(q)||r.device.includes(q));
+  const sales = DB.get('sales').filter(s=>s.productName.includes(q));
+  let html = '';
+  products.slice(0,4).forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand}</div>`);
+  repairs.slice(0,3).forEach(r=>html+=`<div class="search-result-item" onclick="navigate(null,'repairs')"><span class="search-result-tag tag-repair">چاکسازی</span>${r.customerName} — ${r.device}</div>`);
+  sales.slice(0,3).forEach(s=>html+=`<div class="search-result-item" onclick="navigate(null,'sales')"><span class="search-result-tag tag-sale">فرۆشتن</span>${s.productName}</div>`);
+  box.innerHTML = html || '<div style="padding:14px;text-align:center;font-size:13px;color:var(--text3)">هیچ ئەنجامێک نەدۆزرایەوە</div>';
+  box.classList.add('open');
+}
+function closeSearch() { document.getElementById('searchResults').classList.remove('open'); }
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const fmt = n => Number(n||0).toLocaleString('en') + ' د.ع';
+const fmtN = n => Number(n||0).toLocaleString('en');
+function repairStatusLabel(s) {
+  return {received:'وەرگیراو',under_repair:'لەژێر چاکسازی',waiting_parts:'چاوەڕوانی پارچە',completed:'تەواوبوو',delivered:'دراوەتەوە'}[s]||s;
+}
+function repairStatusBadge(s) {
+  const map = { received:'badge-blue', under_repair:'badge-yellow', waiting_parts:'badge-red', completed:'badge-green', delivered:'badge-gray' };
+  return `<span class="badge ${map[s]||'badge-gray'}">${repairStatusLabel(s)}</span>`;
+}
+function dateStr(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ku',{year:'numeric',month:'short',day:'numeric'});
+}
+function isInPeriod(iso, period) {
+  const d = new Date(iso), now = new Date();
+  if(period==='today') { return d.toDateString()===now.toDateString(); }
+  if(period==='week') { const w=new Date(now); w.setDate(now.getDate()-7); return d>=w; }
+  if(period==='month') { return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); }
+  if(period==='year') { return d.getFullYear()===now.getFullYear(); }
+  return true;
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+let chartInstances = {};
+function destroyChart(id) { if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; } }
+function renderDashboard() {
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('ku',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const products = DB.get('products');
+  const sales = DB.get('sales');
+  const repairs = DB.get('repairs');
+
+  const todaySales = sales.filter(s=>isInPeriod(s.createdAt,'today'));
+  const monthSales = sales.filter(s=>isInPeriod(s.createdAt,'month'));
+  const totalProfit = sales.reduce((a,s)=>a+(s.profit||0),0);
+  const monthProfit = monthSales.reduce((a,s)=>a+(s.profit||0),0);
+  const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
+  const totalStock = products.reduce((a,p)=>a+p.qty,0);
+  const lowStock = products.filter(p=>p.qty<=5).length;
+
+  document.getElementById('dashStats').innerHTML = `
+	<div class="stat-card purple">
+	  <div class="stat-icon"><i class="ti ti-package"></i></div>
+	  <div class="stat-value text-mono">${fmtN(products.length)}</div>
+	  <div class="stat-label">کۆی کاڵاکان</div>
+	  <div class="stat-sub">کۆی ئەمبار: ${fmtN(totalStock)}</div>
+	</div>
+	<div class="stat-card green">
+	  <div class="stat-icon"><i class="ti ti-cash"></i></div>
+	  <div class="stat-value text-mono">${fmtN(monthSales.reduce((a,s)=>a+s.total,0))}</div>
+	  <div class="stat-label">فرۆشتنی مانگانە</div>
+	  <div class="stat-sub">ئەمڕۆ: ${fmtN(todaySales.reduce((a,s)=>a+s.total,0))} د.ع</div>
+	</div>
+	<div class="stat-card blue">
+	  <div class="stat-icon"><i class="ti ti-trending-up"></i></div>
+	  <div class="stat-value text-mono">${fmtN(totalProfit)}</div>
+	  <div class="stat-label">کۆی قازانج</div>
+	  <div class="stat-sub">ئەم مانگە: ${fmtN(monthProfit)} د.ع</div>
+	</div>
+	<div class="stat-card yellow">
+	  <div class="stat-icon"><i class="ti ti-tool"></i></div>
+	  <div class="stat-value text-mono">${pendingRepairs}</div>
+	  <div class="stat-label">چاکسازی چاوەڕوان</div>
+	  <div class="stat-sub">کۆی: ${repairs.length} چاکسازی</div>
+	</div>
+	<div class="stat-card red">
+	  <div class="stat-icon"><i class="ti ti-alert-triangle"></i></div>
+	  <div class="stat-value text-mono">${lowStock}</div>
+	  <div class="stat-label">کاڵای کەمماو</div>
+	  <div class="stat-sub">کمتر یان ٥ دانە</div>
+	</div>`;
+
+  // Charts
+  const gc = isDark ? {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
+
+  // Daily chart
+  destroyChart('chartDaily');
+  const days7 = Array.from({length:7},(_,i)=>{
+	const d=new Date(); d.setDate(d.getDate()-6+i);
+	return { label: d.toLocaleDateString('ku',{weekday:'short'}), date: d.toDateString() };
+  });
+  const dailyData = days7.map(d=>sales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
+  chartInstances['chartDaily'] = new Chart(document.getElementById('chartDaily'), {
+	type:'line',
+	data:{ labels:days7.map(d=>d.label), datasets:[{ data:dailyData, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.1)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#6C63FF', pointRadius:4 }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{
+	  x:{ grid:{color:gc.grid}, ticks:{color:gc.text,font:{size:11}} },
+	  y:{ grid:{color:gc.grid}, ticks:{color:gc.text,font:{size:11}, callback:v=>fmtN(v)} }
+	}}
+  });
+
+  // Monthly chart
+  destroyChart('chartMonthly');
+  const months = ['کان١','شوبات','ئازار','نیسان','ئایار','حوزەیران','تەمموز','ئاب','ئەیلوول','تشرینی١','تشرینی٢','کانونی١'];
+  const monthlyData = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
+  chartInstances['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
+	type:'bar',
+	data:{ labels:months, datasets:[{ data:monthlyData, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:6, borderSkipped:false }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{
+	  x:{ grid:{display:false}, ticks:{color:gc.text,font:{size:10}} },
+	  y:{ grid:{color:gc.grid}, ticks:{color:gc.text,font:{size:11}, callback:v=>fmtN(v)} }
+	}}
+  });
+
+  // Profit chart
+  destroyChart('chartProfit');
+  const profitMonthly = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
+  chartInstances['chartProfit'] = new Chart(document.getElementById('chartProfit'), {
+	type:'line',
+	data:{ labels:months, datasets:[{ data:profitMonthly, borderColor:'#F7B731', backgroundColor:'rgba(247,183,49,0.08)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#F7B731', pointRadius:3 }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{
+	  x:{ grid:{display:false}, ticks:{color:gc.text,font:{size:10}} },
+	  y:{ grid:{color:gc.grid}, ticks:{color:gc.text,font:{size:11}, callback:v=>fmtN(v)} }
+	}}
+  });
+
+  // Top products chart
+  destroyChart('chartTop');
+  const topMap = {};
+  sales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
+  const topArr = Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  chartInstances['chartTop'] = new Chart(document.getElementById('chartTop'), {
+	type:'doughnut',
+	data:{ labels:topArr.map(x=>x[0]), datasets:[{ data:topArr.map(x=>x[1]), backgroundColor:['#6C63FF','#00D9A6','#F7B731','#FF6B6B','#38BDF8','#A78BFA'], borderWidth:0, hoverOffset:6 }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{color:gc.text,font:{size:11},padding:12}}} }
+  });
+
+  // Low stock
+  const lowP = products.filter(p=>p.qty<=5);
+  document.getElementById('lowStockBody').innerHTML = lowP.length ? lowP.map(p=>`
+	<tr class="low-stock-row">
+	  <td><b>${p.name}</b> <span class="td-muted">${p.brand}</span></td>
+	  <td><span class="badge badge-red">${p.qty} دانە</span></td>
+	  <td>${p.category}</td>
+	  <td class="text-mono">${fmt(p.sellPrice)}</td>
+	</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>هیچ کاڵایەکی کەمماو نییە</p></div></td></tr>';
+
+  // Recent sales
+  const recent = [...sales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+  document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
+	<tr>
+	  <td><b>${s.productName}</b></td>
+	  <td class="td-muted">${s.qty}</td>
+	  <td class="text-mono color-primary">${fmt(s.total)}</td>
+	  <td class="text-mono color-green">${fmt(s.profit)}</td>
+	  <td class="td-muted">${dateStr(s.createdAt)}</td>
+	</tr>`).join('') : '<tr><td colspan="5"><div class="empty-state" style="padding:20px"><i class="ti ti-receipt"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>';
+
+  buildNotifications();
+}
+
+// ══════════════════════════════════════════
+//  INVENTORY
+// ══════════════════════════════════════════
+let editProductId = null;
+function renderInventory() {
+  const products = DB.get('products');
+  // Stats
+  const totalVal = products.reduce((a,p)=>a+p.sellPrice*p.qty,0);
+  const totalCost = products.reduce((a,p)=>a+p.buyPrice*p.qty,0);
+  const lowP = products.filter(p=>p.qty<=5);
+  document.getElementById('invStats').innerHTML = `
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${products.length}</div><div class="stat-label">کۆی کاڵاکان</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-stack-2"></i></div><div class="stat-value text-mono">${fmtN(products.reduce((a,p)=>a+p.qty,0))}</div><div class="stat-label">کۆی ئەمبار</div></div>
+	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-coin"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal)}</div><div class="stat-label">نرخی فرۆشتنی گشتی</div></div>
+	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal-totalCost)}</div><div class="stat-label">قازانجی ئەگەری</div></div>
+	<div class="stat-card red"><div class="stat-icon"><i class="ti ti-alert-triangle"></i></div><div class="stat-value text-mono">${lowP.length}</div><div class="stat-label">کاڵای کەمماو</div></div>`;
+
+  // Category options
+  const cats = [...new Set(products.map(p=>p.category))];
+  const catSel = document.getElementById('catFilter');
+  const curCat = catSel.value;
+  catSel.innerHTML = '<option value="">هەموو کاتیگۆریەکان</option>' + cats.map(c=>`<option${c===curCat?' selected':''}>${c}</option>`).join('');
+  renderProducts();
+}
+function renderProducts() {
+  const products = DB.get('products');
+  const q = document.getElementById('productSearch').value.toLowerCase();
+  const cat = document.getElementById('catFilter').value;
+  const stock = document.getElementById('stockFilter').value;
+  const filtered = products.filter(p=>{
+	const matchQ = !q || p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
+	const matchCat = !cat || p.category===cat;
+	const matchStock = !stock || (stock==='low'?p.qty<=5:p.qty>5);
+	return matchQ && matchCat && matchStock;
+  });
+  const body = document.getElementById('productBody');
+  if(!filtered.length) { body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="ti ti-package"></i><p>هیچ کاڵایەک نەدۆزرایەوە</p></div></td></tr>`; return; }
+  body.innerHTML = filtered.map((p,i)=>{
+	const profit = p.sellPrice - p.buyPrice;
+	const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
+	const low = p.qty<=5;
+	return `<tr>
+	  <td class="td-muted">${i+1}</td>
+	  <td><div style="font-weight:600">${p.name}</div><div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
+	  <td class="td-muted">${p.brand}</td>
+	  <td><span class="badge badge-purple">${p.category}</span></td>
+	  <td class="text-mono td-muted">${fmt(p.buyPrice)}</td>
+	  <td class="text-mono fw-700">${fmt(p.sellPrice)}</td>
+	  <td class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
+	  <td><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
+	  <td>
+		<div style="display:flex;gap:6px">
+		  <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
+		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
+		</div>
+	  </td>
+	</tr>`;
+  }).join('');
+}
+function openProductModal(id) {
+  editProductId = id||null;
+  document.getElementById('productModalTitle').textContent = id ? 'دەستکاریکردنی کاڵا' : 'کاڵای نوێ زیاد بکە';
+  if(id) {
+	const p = DB.get('products').find(x=>x.id===id);
+	if(p) { document.getElementById('pName').value=p.name; document.getElementById('pBrand').value=p.brand; document.getElementById('pModel').value=p.model||''; document.getElementById('pCategory').value=p.category; document.getElementById('pBuyPrice').value=p.buyPrice; document.getElementById('pSellPrice').value=p.sellPrice; document.getElementById('pQty').value=p.qty; document.getElementById('pNotes').value=p.notes||''; }
+  } else {
+	['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes'].forEach(id=>document.getElementById(id).value='');
+	document.getElementById('pCategory').value='';
+  }
+  openModal('productModal');
+}
+function editProduct(id) { openProductModal(id); }
+async function saveProduct() {
+  const name=document.getElementById('pName').value.trim();
+  const brand=document.getElementById('pBrand').value.trim();
+  const cat=document.getElementById('pCategory').value;
+  const buy=parseFloat(document.getElementById('pBuyPrice').value)||0;
+  const sell=parseFloat(document.getElementById('pSellPrice').value)||0;
+  const qty=parseInt(document.getElementById('pQty').value)||0;
+  if(!name||!cat||!sell) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
+
+  const btn = document.getElementById('pSaveBtn');
+  btn.disabled = true;
+  try {
+	if(editProductId) {
+	  const { error } = await sb.from('products').update({
+		name, brand, model: document.getElementById('pModel').value, category: cat,
+		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
+	  }).eq('id', editProductId);
+	  if(error) throw error;
+	  toast('کاڵاکە نوێ کرایەوە','success');
+	} else {
+	  const { error } = await sb.from('products').insert({
+		name, brand, model: document.getElementById('pModel').value, category: cat,
+		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
+	  });
+	  if(error) throw error;
+	  toast('کاڵای نوێ زیادکرا','success');
+	}
+	await loadAllData();
+	closeModal('productModal'); renderInventory(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
+}
+async function deleteProduct(id) {
+  if(!confirm('دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')) return;
+  try {
+	const { error } = await sb.from('products').delete().eq('id', id);
+	if(error) throw error;
+	await loadAllData();
+	toast('کاڵاکە سڕایەوە','info'); renderInventory();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە سڕینەوە: ' + (err.message||err), 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+//  SALES
+// ══════════════════════════════════════════
+let saleCart = [];
+let salePeriod = 'today';
+function setSalePeriod(el) {
+  document.querySelectorAll('#salePeriodTabs .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  salePeriod = el.dataset.p;
+  renderSales();
+}
+function renderSales() {
+  const sales = DB.get('sales');
+  const filtered = sales.filter(s=>isInPeriod(s.createdAt,salePeriod));
+  const q = document.getElementById('saleSearch').value.toLowerCase();
+  const shown = filtered.filter(s=>!q||s.productName.toLowerCase().includes(q));
+  const totalRev = filtered.reduce((a,s)=>a+s.total,0);
+  const totalProf = filtered.reduce((a,s)=>a+(s.profit||0),0);
+  const totalQty = filtered.reduce((a,s)=>a+s.qty,0);
+  document.getElementById('saleStats').innerHTML = `
+	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalRev)}</div><div class="stat-label">کۆی فرۆشتن</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalProf)}</div><div class="stat-label">کۆی قازانج</div></div>
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-shopping-cart"></i></div><div class="stat-value text-mono">${filtered.length}</div><div class="stat-label">ژمارەی فرۆشتن</div></div>
+	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${fmtN(totalQty)}</div><div class="stat-label">کۆی کاڵای فرۆشراو</div></div>`;
+  const body = document.getElementById('saleBody');
+  const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr>
+	<td class="td-muted">${i+1}</td>
+	<td><b>${s.productName}</b></td>
+	<td class="td-muted">${s.qty}</td>
+	<td class="text-mono td-muted">${fmt(s.unitPrice)}</td>
+	<td class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
+	<td class="text-mono color-green">${fmt(s.profit)}</td>
+	<td class="td-muted">${dateStr(s.createdAt)}</td>
+  </tr>`).join('') : `<tr><td colspan="7"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
+}
+function openSaleModal() {
+  saleCart = [];
+  document.getElementById('saleProductSearch').value = '';
+  renderSaleProducts();
+  renderSaleCart();
+  openModal('saleModal');
+}
+function filterSaleProducts() { renderSaleProducts(); }
+function renderSaleProducts() {
+  const q = document.getElementById('saleProductSearch').value.toLowerCase();
+  const products = DB.get('products').filter(p=>p.qty>0&&(!q||p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)));
+  const el = document.getElementById('saleProductList');
+  el.innerHTML = products.slice(0,10).map(p=>{
+	const inCart = saleCart.find(c=>c.id===p.id);
+	return `<div class="product-pick-item ${inCart?'selected':''}" onclick="addToCart('${p.id}')">
+	  <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11.5px;color:var(--text2)">${p.brand} — ${fmt(p.sellPrice)}</div></div>
+	  <div style="display:flex;align-items:center;gap:8px">
+		<span class="badge badge-blue">${p.qty} بەردەست</span>
+		${inCart?`<i class="ti ti-check color-green" style="font-size:18px"></i>`:''}
+	  </div>
+	</div>`;
+  }).join('') || '<div style="padding:14px;text-align:center;color:var(--text3);font-size:13px">هیچ کاڵایەک نەدۆزرایەوە</div>';
+}
+function addToCart(id) {
+  const p = DB.get('products').find(x=>x.id===id);
+  if(!p) return;
+  const ex = saleCart.find(c=>c.id===id);
+  if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('ئەمبار بەسەر چووە','error'); return; } }
+  else saleCart.push({id, name:p.name, qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
+  renderSaleProducts(); renderSaleCart();
+}
+function renderSaleCart() {
+  const c = document.getElementById('saleCart');
+  if(!saleCart.length) { c.innerHTML=''; document.getElementById('saleTotalBox').style.display='none'; return; }
+  c.innerHTML = saleCart.map(item=>`
+	<div class="cart-item">
+	  <div class="cart-item-name">${item.name}</div>
+	  <div class="cart-qty-ctrl">
+		<div class="qty-btn" onclick="adjustCart('${item.id}',-1)"><i class="ti ti-minus"></i></div>
+		<div class="qty-display">${item.qty}</div>
+		<div class="qty-btn" onclick="adjustCart('${item.id}',1)"><i class="ti ti-plus"></i></div>
+	  </div>
+	  <div class="text-mono" style="font-size:13px;min-width:100px;text-align:left">${fmt(item.unitPrice*item.qty)}</div>
+	  <div class="qty-btn" onclick="removeFromCart('${item.id}')" style="color:var(--danger)"><i class="ti ti-x"></i></div>
+	</div>`).join('');
+  const total = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
+  const profit = saleCart.reduce((a,i)=>a+(i.unitPrice-i.buyPrice)*i.qty,0);
+  const totalQty = saleCart.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('saleTotalBox').style.display='block';
+  document.getElementById('saleTotalVal').textContent = fmtN(total) + ' د.ع';
+  document.getElementById('saleProfitVal').textContent = fmtN(profit) + ' د.ع';
+  document.getElementById('saleTotalQty').textContent = totalQty;
+}
+function adjustCart(id, delta) {
+  const item = saleCart.find(c=>c.id===id);
+  if(!item) return;
+  item.qty = Math.max(1, Math.min(item.qty+delta, item.maxQty));
+  renderSaleCart();
+}
+function removeFromCart(id) {
+  saleCart = saleCart.filter(c=>c.id!==id);
+  renderSaleProducts(); renderSaleCart();
+}
+async function completeSale() {
+  if(!saleCart.length) { toast('تکایە کاڵایەک هەڵبژێرە','error'); return; }
+  const btn = document.getElementById('saleCompleteBtn');
+  btn.disabled = true;
+  try {
+	// Insert all sale rows
+	const saleRows = saleCart.map(item => ({
+	  product_id: item.id,
+	  product_name: item.name,
+	  unit_price: item.unitPrice,
+	  qty: item.qty,
+	  total: item.unitPrice*item.qty,
+	  profit: (item.unitPrice-item.buyPrice)*item.qty
+	}));
+	const { error: saleErr } = await sb.from('sales').insert(saleRows);
+	if(saleErr) throw saleErr;
+
+	// Update product quantities
+	for (const item of saleCart) {
+	  const p = DB.get('products').find(x=>x.id===item.id);
+	  const newQty = Math.max(0, (p?p.qty:0) - item.qty);
+	  const { error: qtyErr } = await sb.from('products').update({ qty: newQty }).eq('id', item.id);
+	  if(qtyErr) throw qtyErr;
+	}
+
+	const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
+	await loadAllData();
+	toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
+	closeModal('saleModal'); saleCart=[];
+	renderSales(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════
+//  REPAIRS
+// ══════════════════════════════════════════
+let editRepairId = null;
+function renderRepairs() {
+  const repairs = DB.get('repairs');
+  const pending = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
+  const completed = repairs.filter(r=>r.status==='completed'||r.status==='delivered').length;
+  const revenue = repairs.reduce((a,r)=>a+(parseFloat(r.cost)||0),0);
+  document.getElementById('repairStats').innerHTML = `
+	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-clock"></i></div><div class="stat-value text-mono">${pending}</div><div class="stat-label">چاکسازی چاوەڕوان</div></div>
+	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-circle-check"></i></div><div class="stat-value text-mono">${completed}</div><div class="stat-label">تەواوبووەکان</div></div>
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-tool"></i></div><div class="stat-value text-mono">${repairs.length}</div><div class="stat-label">کۆی چاکسازییەکان</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(revenue)}</div><div class="stat-label">داهاتی چاکسازی</div></div>`;
+
+  const q = document.getElementById('repairSearch').value.toLowerCase();
+  const sf = document.getElementById('repairStatusFilter').value;
+  const filtered = repairs.filter(r=>(!q||(r.customerName+r.device+r.phone).toLowerCase().includes(q))&&(!sf||r.status===sf));
+  const sorted = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const body = document.getElementById('repairBody');
+  body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
+	<td class="td-muted">${i+1}</td>
+	<td><b>${r.customerName}</b></td>
+	<td class="td-muted">${r.phone}</td>
+	<td>${r.device} <span class="td-muted">(${r.deviceType})</span></td>
+	<td class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
+	<td class="text-mono color-primary">${fmt(r.cost)}</td>
+	<td>${repairStatusBadge(r.status)}</td>
+	<td class="td-muted">${dateStr(r.createdAt)}</td>
+	<td>
+	  <div style="display:flex;gap:6px">
+		<button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')" title="بینین"><i class="ti ti-eye"></i></button>
+		<button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
+		<button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
+	  </div>
+	</td>
+  </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
+}
+function openRepairModal(id) {
+  editRepairId = id||null;
+  document.getElementById('repairModalTitle').textContent = id ? 'دەستکاریکردنی چاکسازی' : 'چاکسازی نوێ';
+  if(id) {
+	const r = DB.get('repairs').find(x=>x.id===id);
+	if(r) { document.getElementById('rName').value=r.customerName; document.getElementById('rPhone').value=r.phone; document.getElementById('rDevice').value=r.device; document.getElementById('rDeviceType').value=r.deviceType; document.getElementById('rProblem').value=r.problem; document.getElementById('rCost').value=r.cost||''; document.getElementById('rStatus').value=r.status; document.getElementById('rNotes').value=r.notes||''; }
+  } else { ['rName','rPhone','rDevice','rProblem','rCost','rNotes'].forEach(x=>document.getElementById(x).value=''); document.getElementById('rStatus').value='received'; }
+  openModal('repairModal');
+}
+function editRepair(id) { openRepairModal(id); }
+async function saveRepair() {
+  const name=document.getElementById('rName').value.trim();
+  const phone=document.getElementById('rPhone').value.trim();
+  const device=document.getElementById('rDevice').value.trim();
+  const problem=document.getElementById('rProblem').value.trim();
+  if(!name||!phone||!device||!problem) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
+
+  const btn = document.getElementById('rSaveBtn');
+  btn.disabled = true;
+  const data = {
+	customer_name: name, phone, device, device_type: document.getElementById('rDeviceType').value,
+	problem, cost: parseFloat(document.getElementById('rCost').value)||0,
+	status: document.getElementById('rStatus').value, notes: document.getElementById('rNotes').value
+  };
+  try {
+	if(editRepairId) {
+	  const { error } = await sb.from('repairs').update(data).eq('id', editRepairId);
+	  if(error) throw error;
+	  toast('چاکسازیەکە نوێ کرایەوە','success');
+	} else {
+	  const { error } = await sb.from('repairs').insert(data);
+	  if(error) throw error;
+	  toast('چاکسازی نوێ زیادکرا','success');
+	}
+	await loadAllData();
+	closeModal('repairModal'); renderRepairs(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
+}
+async function deleteRepair(id) {
+  if(!confirm('دڵنیایت لە سڕینەوەی ئەم چاکسازییە؟')) return;
+  try {
+	const { error } = await sb.from('repairs').delete().eq('id', id);
+	if(error) throw error;
+	await loadAllData();
+	toast('چاکسازیەکە سڕایەوە','info'); renderRepairs(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە سڕینەوە: ' + (err.message||err), 'error');
+  }
+}
+function viewRepair(id) {
+  const r = DB.get('repairs').find(x=>x.id===id);
+  if(!r) return;
+  const steps = ['received','under_repair','waiting_parts','completed','delivered'];
+  const stepLabels = ['وەرگیراو','لەژێر چاکسازی','چاوەڕوانی پارچە','تەواوبوو','دراوەتەوە'];
+  const stepIcons = ['ti-inbox','ti-tool','ti-clock','ti-circle-check','ti-package-export'];
+  const curIdx = steps.indexOf(r.status);
+  document.getElementById('repairDetailBody').innerHTML = `
+	<div style="display:grid;gap:10px;margin-bottom:20px">
+	  <div style="display:flex;gap:10px">
+		<div style="flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px">
+		  <div style="font-size:11px;color:var(--text3);margin-bottom:4px">کڕیار</div>
+		  <div style="font-weight:700">${r.customerName}</div>
+		  <div style="font-size:12px;color:var(--text2)">${r.phone}</div>
+		</div>
+		<div style="flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px">
+		  <div style="font-size:11px;color:var(--text3);margin-bottom:4px">ئامێر</div>
+		  <div style="font-weight:700">${r.device}</div>
+		  <div style="font-size:12px;color:var(--text2)">${r.deviceType}</div>
+		</div>
+	  </div>
+	  <div style="background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px">
+		<div style="font-size:11px;color:var(--text3);margin-bottom:4px">کێشە</div>
+		<div style="font-size:13px">${r.problem}</div>
+	  </div>
+	  ${r.notes?`<div style="background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">تێبینی</div><div style="font-size:13px">${r.notes}</div></div>`:''}
+	  <div style="display:flex;gap:10px">
+		<div style="flex:1;background:var(--primary-light);border:1px solid rgba(108,99,255,0.2);border-radius:10px;padding:12px;text-align:center">
+		  <div style="font-size:11px;color:var(--text2);margin-bottom:4px">هزینە</div>
+		  <div class="text-mono" style="font-weight:700;color:var(--primary)">${fmt(r.cost)}</div>
+		</div>
+		<div style="flex:1;background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px;text-align:center">
+		  <div style="font-size:11px;color:var(--text2);margin-bottom:4px">بەروار</div>
+		  <div style="font-weight:600;font-size:13px">${dateStr(r.createdAt)}</div>
+		</div>
+	  </div>
+	</div>
+	<div style="font-size:13px;font-weight:600;margin-bottom:12px">ستاتوسی چاکسازی</div>
+	<div class="status-steps">
+	  ${steps.map((s,i)=>`
+		<div class="status-step ${i<curIdx?'done':i===curIdx?'current':''}" onclick="updateRepairStatus('${r.id}','${s}')">
+		  <div class="step-dot"><i class="ti ${stepIcons[i]}"></i></div>
+		  <div class="step-label">${stepLabels[i]}</div>
+		</div>`).join('')}
+	</div>`;
+  openModal('repairDetailModal');
+}
+async function updateRepairStatus(id, status) {
+  try {
+	const { error } = await sb.from('repairs').update({ status }).eq('id', id);
+	if(error) throw error;
+	await loadAllData();
+	toast('ستاتوسەکە نوێ کرایەوە','success');
+	viewRepair(id); renderRepairs(); buildNotifications();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە نوێکردنەوەی ستاتوس: ' + (err.message||err), 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+//  REPORTS
+// ══════════════════════════════════════════
+let reportPeriod = 'month';
+function setReportPeriod(el) {
+  document.querySelectorAll('.page#page-reports .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  reportPeriod = el.dataset.p;
+  renderReports();
+}
+function renderReports() {
+  const sales = DB.get('sales').filter(s=>isInPeriod(s.createdAt,reportPeriod));
+  const repairs = DB.get('repairs').filter(r=>isInPeriod(r.createdAt,reportPeriod));
+  const totalSale = sales.reduce((a,s)=>a+s.total,0);
+  const totalProfit = sales.reduce((a,s)=>a+(s.profit||0),0);
+  const repairRev = repairs.reduce((a,r)=>a+(parseFloat(r.cost)||0),0);
+  const totalRev = totalSale + repairRev;
+  document.getElementById('reportStats').innerHTML = `
+	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalRev)}</div><div class="stat-label">کۆی داهات</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalProfit)}</div><div class="stat-label">قازانجی فرۆشتن</div></div>
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-shopping-cart"></i></div><div class="stat-value text-mono">${sales.length}</div><div class="stat-label">ژمارەی فرۆشتن</div></div>
+	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-tool"></i></div><div class="stat-value text-mono">${fmtN(repairRev)}</div><div class="stat-label">داهاتی چاکسازی</div></div>`;
+
+  // Cat chart
+  destroyChart('rptCatChart');
+  const catMap = {};
+  sales.forEach(s=>{ const p=DB.get('products').find(x=>x.id===s.productId); if(p) catMap[p.category]=(catMap[p.category]||0)+s.total; });
+  const catArr = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const gc = isDark ? {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
+  chartInstances['rptCatChart'] = new Chart(document.getElementById('rptCatChart'), {
+	type:'doughnut',
+	data:{ labels:catArr.map(x=>x[0])||['هیچ'], datasets:[{ data:catArr.map(x=>x[1])||[1], backgroundColor:['#6C63FF','#00D9A6','#F7B731','#FF6B6B','#38BDF8','#A78BFA','#FB923C'], borderWidth:0, hoverOffset:4 }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:gc.text,font:{size:11},padding:10}}} }
+  });
+
+  // Profit chart
+  destroyChart('rptProfitChart');
+  const days14 = Array.from({length:14},(_,i)=>{const d=new Date();d.setDate(d.getDate()-13+i);return d;});
+  const dProfit = days14.map(d=>sales.filter(s=>new Date(s.createdAt).toDateString()===d.toDateString()).reduce((a,s)=>a+(s.profit||0),0));
+  chartInstances['rptProfitChart'] = new Chart(document.getElementById('rptProfitChart'), {
+	type:'bar',
+	data:{ labels:days14.map(d=>d.toLocaleDateString('ku',{month:'short',day:'numeric'})), datasets:[{ data:dProfit, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:5, borderSkipped:false }] },
+	options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{
+	  x:{grid:{display:false},ticks:{color:gc.text,font:{size:10}}},
+	  y:{grid:{color:gc.grid},ticks:{color:gc.text,font:{size:10},callback:v=>fmtN(v)}}
+	}}
+  });
+
+  // Sales report table
+  const saleMap = {};
+  sales.forEach(s=>{ if(!saleMap[s.productName]) saleMap[s.productName]={total:0,profit:0,qty:0,count:0}; saleMap[s.productName].total+=s.total; saleMap[s.productName].profit+=s.profit||0; saleMap[s.productName].qty+=s.qty; saleMap[s.productName].count++; });
+  const saleArr = Object.entries(saleMap).sort((a,b)=>b[1].total-a[1].total);
+  document.getElementById('rptSalesBody').innerHTML = saleArr.length ? saleArr.map(([name,d])=>`<tr>
+	<td><b>${name}</b></td>
+	<td class="text-mono color-primary">${fmt(d.total)}</td>
+	<td class="text-mono color-green">${fmt(d.profit)}</td>
+	<td class="td-muted">${d.count} جار</td>
+  </tr>`).join('') : '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>هیچ فرۆشتنێک نیە</p></div></td></tr>';
+
+  // Repair report table
+  const sorted = [...repairs].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  document.getElementById('rptRepairBody').innerHTML = sorted.length ? sorted.map(r=>`<tr>
+	<td><b>${r.customerName}</b></td>
+	<td>${r.device}</td>
+	<td class="text-mono color-primary">${fmt(r.cost)}</td>
+	<td>${repairStatusBadge(r.status)}</td>
+	<td class="td-muted">${dateStr(r.createdAt)}</td>
+  </tr>`).join('') : '<tr><td colspan="5"><div class="empty-state" style="padding:20px"><p>هیچ چاکسازییەک نیە</p></div></td></tr>';
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+async function init() {
+  const ok = await loadAllData();
+  renderDashboard();
+  buildNotifications();
+  document.getElementById('loadingOverlay').style.display = 'none';
+  if (!ok) {
+	toast('نەتوانرا پەیوەندی بە داتابەیس بکرێت. تکایە بەستنەوەی Supabase و خشتەکان بپشکنە.', 'error');
+  }
+}
+init();
+</script>
+</body>
+</html>
