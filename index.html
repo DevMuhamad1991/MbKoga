@@ -1056,10 +1056,11 @@ select.filter-input { cursor: pointer; }
 	  <div class="card">
 		<div class="table-wrap">
 		  <table>
-			<thead><tr>
-			  <th>#</th><th>کاڵا</th><th>بڕ</th><th>نرخی یەکە</th><th>کۆی نرخ</th><th>قازانج</th><th>بەروار</th>
+<thead><tr>
+			  <th>#</th><th>کاڵا</th><th>بڕ</th><th>نرخی یەکە</th><th>کۆی نرخ</th><th>قازانج</th><th>بەروار</th><th>کردار</th>
 			</tr></thead>
 			<tbody id="saleBody"></tbody>
+
 		  </table>
 		</div>
 	  </div>
@@ -1451,7 +1452,7 @@ function setConnStatus(state) {
 
 // Map DB row (snake_case) <-> App object (camelCase)
 function productFromDb(r) { return { id: r.id, name: r.name, brand: r.brand, model: r.model, category: r.category, buyPrice: Number(r.buy_price), sellPrice: Number(r.sell_price), qty: r.qty, notes: r.notes, createdAt: r.created_at }; }
-function saleFromDb(r) { return { id: r.id, productId: r.product_id, productName: r.product_name, unitPrice: Number(r.unit_price), qty: r.qty, total: Number(r.total), profit: Number(r.profit), createdAt: r.created_at }; }
+function saleFromDb(r) { return { id: r.id, productId: r.product_id, productName: r.product_name, unitPrice: Number(r.unit_price), qty: r.qty, total: Number(r.total), profit: Number(r.profit), returned: r.returned||false, returnedAt: r.returned_at, createdAt: r.created_at }; }
 function debtFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, amount: Number(r.amount), paidAmount: Number(r.paid_amount), source: r.source, notes: r.notes, dueDate: r.due_date, status: r.status, createdAt: r.created_at }; }
 function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, device: r.device, deviceType: r.device_type, problem: r.problem, cost: Number(r.cost), status: r.status, notes: r.notes, createdAt: r.created_at }; }
 
@@ -1658,9 +1659,10 @@ function renderDashboard() {
   const sales = DB.get('sales');
   const repairs = DB.get('repairs');
 
-  const todaySales = sales.filter(s=>isInPeriod(s.createdAt,'today'));
-  const monthSales = sales.filter(s=>isInPeriod(s.createdAt,'month'));
-  const totalProfit = sales.reduce((a,s)=>a+(s.profit||0),0);
+const activeSales = sales.filter(s=>!s.returned);
+  const todaySales = activeSales.filter(s=>isInPeriod(s.createdAt,'today'));
+  const monthSales = activeSales.filter(s=>isInPeriod(s.createdAt,'month'));
+  const totalProfit = activeSales.reduce((a,s)=>a+(s.profit||0),0);
   const monthProfit = monthSales.reduce((a,s)=>a+(s.profit||0),0);
   const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
   const totalStock = products.reduce((a,p)=>a+p.qty,0);
@@ -1770,8 +1772,8 @@ function renderDashboard() {
 	  <td class="text-mono">${fmt(p.sellPrice)}</td>
 	</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>هیچ کاڵایەکی کەمماو نییە</p></div></td></tr>';
 
-  // Recent sales
-  const recent = [...sales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+// Recent sales
+  const recent = [...activeSales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
   document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
 	<tr>
 	  <td><b>${s.productName}</b></td>
@@ -1921,26 +1923,29 @@ function renderSales() {
   const filtered = sales.filter(s=>isInPeriod(s.createdAt,salePeriod));
   const q = document.getElementById('saleSearch').value.toLowerCase();
   const shown = filtered.filter(s=>!q||s.productName.toLowerCase().includes(q));
-  const totalRev = filtered.reduce((a,s)=>a+s.total,0);
-  const totalProf = filtered.reduce((a,s)=>a+(s.profit||0),0);
-  const totalQty = filtered.reduce((a,s)=>a+s.qty,0);
+  const active = filtered.filter(s=>!s.returned);
+  const totalRev = active.reduce((a,s)=>a+s.total,0);
+  const totalProf = active.reduce((a,s)=>a+(s.profit||0),0);
+  const totalQty = active.reduce((a,s)=>a+s.qty,0);
   document.getElementById('saleStats').innerHTML = `
 	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalRev)}</div><div class="stat-label">کۆی فرۆشتن</div></div>
 	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalProf)}</div><div class="stat-label">کۆی قازانج</div></div>
-	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-shopping-cart"></i></div><div class="stat-value text-mono">${filtered.length}</div><div class="stat-label">ژمارەی فرۆشتن</div></div>
+	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-shopping-cart"></i></div><div class="stat-value text-mono">${active.length}</div><div class="stat-label">ژمارەی فرۆشتن</div></div>
 	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${fmtN(totalQty)}</div><div class="stat-label">کۆی کاڵای فرۆشراو</div></div>`;
   const body = document.getElementById('saleBody');
   const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-  body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr>
+  body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr style="${s.returned?'opacity:0.5':''}">
 	<td class="td-muted">${i+1}</td>
-	<td><b>${s.productName}</b></td>
+	<td><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
 	<td class="td-muted">${s.qty}</td>
 	<td class="text-mono td-muted">${fmt(s.unitPrice)}</td>
 	<td class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
 	<td class="text-mono color-green">${fmt(s.profit)}</td>
 	<td class="td-muted">${dateStr(s.createdAt)}</td>
-  </tr>`).join('') : `<tr><td colspan="7"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
+	<td>${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
+  </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
 }
+
 function openSaleModal() {
   saleCart = [];
   document.getElementById('saleProductSearch').value = '';
@@ -2021,6 +2026,7 @@ async function completeSale() {
 	const { error: saleErr } = await sb.from('sales').insert(saleRows);
 	if(saleErr) throw saleErr;
 
+  
 	// Update product quantities
 	for (const item of saleCart) {
 	  const p = DB.get('products').find(x=>x.id===item.id);
@@ -2039,6 +2045,34 @@ async function completeSale() {
 	toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
   } finally {
 	btn.disabled = false;
+  }
+}
+
+async function returnSale(id) {
+  const s = DB.get('sales').find(x=>x.id===id);
+  if(!s) return;
+  if(!confirm(`دڵنیایت لە گەڕاندنەوەی "${s.productName}"؟ کاڵاکە دەگەڕێتەوە ئەمبار.`)) return;
+
+  try {
+	// 1. Mark sale as returned
+	const { error: saleErr } = await sb.from('sales').update({ returned: true, returned_at: new Date().toISOString() }).eq('id', id);
+	if(saleErr) throw saleErr;
+
+	// 2. Return qty to product stock (if product still exists)
+	if(s.productId) {
+	  const p = DB.get('products').find(x=>x.id===s.productId);
+	  if(p) {
+		const { error: qtyErr } = await sb.from('products').update({ qty: p.qty + s.qty }).eq('id', s.productId);
+		if(qtyErr) throw qtyErr;
+	  }
+	}
+
+	await loadAllData();
+	toast('کاڵاکە گەڕایەوە و ئەمبار نوێ کرایەوە','success');
+	renderSales(); renderInventory();
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە گەڕاندنەوە: ' + (err.message||err), 'error');
   }
 }
 
@@ -2347,7 +2381,7 @@ function setReportPeriod(el) {
   renderReports();
 }
 function renderReports() {
-  const sales = DB.get('sales').filter(s=>isInPeriod(s.createdAt,reportPeriod));
+  const sales = DB.get('sales').filter(s=>isInPeriod(s.createdAt,reportPeriod) && !s.returned);
   const repairs = DB.get('repairs').filter(r=>isInPeriod(r.createdAt,reportPeriod));
   const totalSale = sales.reduce((a,s)=>a+s.total,0);
   const totalProfit = sales.reduce((a,s)=>a+(s.profit||0),0);
