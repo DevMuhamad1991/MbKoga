@@ -2669,19 +2669,14 @@ const SESSION_KEY = 'ms_unlocked';
 function checkPin(val) {
   if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
   if(val === APP_PIN) {
-    localStorage.setItem(SESSION_KEY, '1');
     document.getElementById('lockOverlay').style.display = 'none';
-    document.documentElement.requestFullscreen().catch(()=>{});  // ← ئەمە زیاد بکە
+    document.documentElement.requestFullscreen().catch(()=>{});
   } else {
     document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
     document.getElementById('pinInput').value = '';
   }
 }
 
-
-if(localStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('lockOverlay').style.display = 'none';
-}
 
 init();
 </script>
