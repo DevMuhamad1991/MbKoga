@@ -853,6 +853,28 @@ select.filter-input { cursor: pointer; }
 }
 .pin-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
+.settings-menu-item {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.settings-menu-item:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.12); transform: translateY(-1px); }
+.settings-menu-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.settings-menu-text { flex: 1; }
+.settings-menu-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.settings-menu-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.settings-menu-arrow { font-size: 18px; color: var(--text3); }
+
 </style>
 </head>
 <body>
@@ -1195,16 +1217,63 @@ select.filter-input { cursor: pointer; }
     <div><h2>ڕێکخستن</h2><p>ڕێکخستنی گشتی سیستەم</p></div>
   </div>
 
-  <div class="report-period-tabs" id="settingsTabs">
-    <div class="period-tab active" data-s="store" onclick="setSettingsTab(this)">زانیاری دوکان</div>
-    <div class="period-tab" data-s="system" onclick="setSettingsTab(this)">ڕێکخستنی سیستەم</div>
-    <div class="period-tab" data-s="design" onclick="setSettingsTab(this)">ڕێکخستنی دیزاین</div>
-    <div class="period-tab" data-s="info" onclick="setSettingsTab(this)">زانیاری سیستەم</div>
-    <div class="period-tab" data-s="backup" onclick="setSettingsTab(this)">پشتگیری داتا</div>
+<!-- لیستی هەڵبژاردنی ڕێکخستن -->
+<div id="settingsMenu">
+  <div class="settings-menu-item" data-s="store" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--primary-light);color:var(--primary)"><i class="ti ti-building-store"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">زانیاری دوکان</div>
+      <div class="settings-menu-desc">ناو، تەلەفۆن و ناونیشانی دوکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
   </div>
 
+  <div class="settings-menu-item" data-s="system" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--warning-light);color:var(--warning)"><i class="ti ti-lock"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">ڕێکخستنی سیستەم</div>
+      <div class="settings-menu-desc">گۆڕینی پاسۆرد و کۆدی سڕینەوە</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="design" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--info-light);color:var(--info)"><i class="ti ti-palette"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">ڕێکخستنی دیزاین</div>
+      <div class="settings-menu-desc">ڕەنگ و دۆخی ڕووناکی</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="info" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--success-light);color:var(--success)"><i class="ti ti-info-circle"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">زانیاری سیستەم</div>
+      <div class="settings-menu-desc">وەرژن و تایبەتمەندییەکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="backup" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--danger-light);color:var(--danger)"><i class="ti ti-database-export"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">پشتگیری داتا</div>
+      <div class="settings-menu-desc">دابگرتنی هەموو داتاکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+</div>
+
+<!-- دوگمەی گەڕانەوە -->
+<div id="settingsBackBtn" style="display:none;margin-bottom:16px">
+  <button class="btn btn-ghost" onclick="closeSettingsSection()"><i class="ti ti-arrow-right"></i> گەڕانەوە بۆ ڕێکخستن</button>
+</div>
+
+
   <!-- ١. زانیاری دوکان -->
-  <div class="settings-section" data-section="store">
+<div class="settings-section" data-section="store" style="display:none">
+
     <div class="card">
       <div class="card-body">
         <div class="form-grid">
@@ -2056,14 +2125,21 @@ function renderPlans() {
 // ══════════════════════════════════════════
 //  SETTINGS
 // ══════════════════════════════════════════
-function setSettingsTab(el) {
-  document.querySelectorAll('#settingsTabs .period-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+function openSettingsSection(el) {
   const tab = el.dataset.s;
+  document.getElementById('settingsMenu').style.display = 'none';
+  document.getElementById('settingsBackBtn').style.display = 'block';
   document.querySelectorAll('.settings-section').forEach(s=>{
     s.style.display = s.dataset.section===tab ? 'block' : 'none';
   });
 }
+
+function closeSettingsSection() {
+  document.getElementById('settingsMenu').style.display = 'block';
+  document.getElementById('settingsBackBtn').style.display = 'none';
+  document.querySelectorAll('.settings-section').forEach(s=> s.style.display='none');
+}
+
 
 function renderSettings() {
   document.getElementById('setStoreName').value = SETTINGS.store_name || '';
