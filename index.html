@@ -1686,6 +1686,7 @@ function buildNotifications() {
 
 function toggleNotif() {
   buildNotifications();
+  playAlert();
   document.getElementById('notifPanel').classList.toggle('open');
 }
 document.addEventListener('click',e=>{
