@@ -2413,6 +2413,13 @@ document.addEventListener('keydown', function(e) {
   else if(document.getElementById('payDebtModal').classList.contains('open')) confirmPayDebt();
 });
 
+document.getElementById('globalSearch').addEventListener('keydown', function(e) {
+  if(e.key === 'Enter') {
+    const first = document.querySelector('.search-result-item');
+    if(first) first.click();
+  }
+});
+
 document.addEventListener('keydown', function(e) {
   if(e.ctrlKey && e.key === 'f') {
     e.preventDefault();
