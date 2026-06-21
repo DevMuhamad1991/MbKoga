@@ -1384,16 +1384,26 @@ select.filter-input { cursor: pointer; }
   </div>
 
   <!-- ٥. پشتگیری داتا -->
-  <div class="settings-section" data-section="backup" style="display:none">
-    <div class="card">
-      <div class="card-body" style="text-align:center">
-        <i class="ti ti-database-export color-primary" style="font-size:32px"></i>
-        <div style="font-size:14px;font-weight:700;margin-top:10px">دابگرتنی هەموو داتاکان</div>
-        <div style="font-size:12.5px;color:var(--text2);margin:8px 0 16px">هەموو کاڵا، فرۆشتن، چاکسازی، قەرز و پلانەکان بکەوێتە فایلێکی JSON</div>
-        <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابگرتنی داتا (JSON)</button>
-      </div>
+<div class="settings-section" data-section="backup" style="display:none">
+  <div class="card mb-16">
+    <div class="card-body" style="text-align:center">
+      <i class="ti ti-database-export color-primary" style="font-size:32px"></i>
+      <div style="font-size:14px;font-weight:700;margin-top:10px">دابگرتنی هەموو داتاکان</div>
+      <div style="font-size:12.5px;color:var(--text2);margin:8px 0 16px">هەموو کاڵا، فرۆشتن، چاکسازی، قەرز و پلانەکان بکەوێتە فایلێکی JSON</div>
+      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابگرتنی داتا (JSON)</button>
     </div>
   </div>
+
+  <div class="card" style="border-color:rgba(255,107,107,0.25)">
+    <div class="card-body" style="text-align:center">
+      <i class="ti ti-alert-triangle color-red" style="font-size:28px"></i>
+      <div style="font-size:14px;font-weight:700;margin-top:8px">ناوچەی مەترسیدار</div>
+      <div style="font-size:12.5px;color:var(--text2);margin:6px 0 14px">سڕینەوەی هەموو داتاکانی دوکان — کردارێکی ناگەڕاوەتەوە</div>
+      <button class="btn btn-danger" onclick="openResetAllModal()"><i class="ti ti-trash"></i> سڕینەوەی هەموو داتاکان</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 
@@ -1446,16 +1456,6 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		</div>
 	  </div>
-
-	  <div class="card" style="border-color:rgba(255,107,107,0.25);margin-top:16px">
-		<div class="card-body" style="text-align:center">
-		  <i class="ti ti-alert-triangle color-red" style="font-size:28px"></i>
-		  <div style="font-size:14px;font-weight:700;margin-top:8px">ناوچەی مەترسیدار</div>
-		  <div style="font-size:12.5px;color:var(--text2);margin:6px 0 14px">سڕینەوەی هەموو داتاکانی دوکان — کردارێکی ناگەڕاوەتەوە</div>
-		  <button class="btn btn-danger" onclick="openResetAllModal()"><i class="ti ti-trash"></i> سڕینەوەی هەموو داتاکان</button>
-		</div>
-	  </div>
-	</div>
 
 
   </div><!-- /content -->
