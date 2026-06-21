@@ -2410,6 +2410,21 @@ document.addEventListener('keydown', function(e) {
     navigate(null, 'sales');
     setTimeout(() => openSaleModal(), 300);
   }
+  if(e.ctrlKey && e.key === 'k') {
+    e.preventDefault();
+    navigate(null, 'inventory');
+    setTimeout(() => openProductModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'm') {
+    e.preventDefault();
+    navigate(null, 'repairs');
+    setTimeout(() => openRepairModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'q') {
+    e.preventDefault();
+    navigate(null, 'debts');
+    setTimeout(() => openDebtModal(), 300);
+  }
 });
 
 
