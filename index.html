@@ -1716,7 +1716,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	const d=new Date(); d.setDate(d.getDate()-6+i);
 	return { label: d.toLocaleDateString('ku',{weekday:'short'}), date: d.toDateString() };
   });
-  const dailyData = days7.map(d=>sales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
+const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
   chartInstances['chartDaily'] = new Chart(document.getElementById('chartDaily'), {
 	type:'line',
 	data:{ labels:days7.map(d=>d.label), datasets:[{ data:dailyData, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.1)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#6C63FF', pointRadius:4 }] },
@@ -1729,7 +1729,8 @@ const activeSales = sales.filter(s=>!s.returned);
   // Monthly chart
   destroyChart('chartMonthly');
   const months = ['کان١','شوبات','ئازار','نیسان','ئایار','حوزەیران','تەمموز','ئاب','ئەیلوول','تشرینی١','تشرینی٢','کانونی١'];
-  const monthlyData = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
+const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
+
   chartInstances['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
 	type:'bar',
 	data:{ labels:months, datasets:[{ data:monthlyData, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:6, borderSkipped:false }] },
@@ -1741,7 +1742,7 @@ const activeSales = sales.filter(s=>!s.returned);
 
   // Profit chart
   destroyChart('chartProfit');
-  const profitMonthly = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
+const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
   chartInstances['chartProfit'] = new Chart(document.getElementById('chartProfit'), {
 	type:'line',
 	data:{ labels:months, datasets:[{ data:profitMonthly, borderColor:'#F7B731', backgroundColor:'rgba(247,183,49,0.08)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#F7B731', pointRadius:3 }] },
@@ -1753,8 +1754,8 @@ const activeSales = sales.filter(s=>!s.returned);
 
   // Top products chart
   destroyChart('chartTop');
-  const topMap = {};
-  sales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
+const topMap = {};
+  activeSales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
   const topArr = Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
   chartInstances['chartTop'] = new Chart(document.getElementById('chartTop'), {
 	type:'doughnut',
