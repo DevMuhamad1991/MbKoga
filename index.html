@@ -2583,6 +2583,7 @@ document.addEventListener('keydown', function(e) {
   else if(document.getElementById('repairModal').classList.contains('open')) saveRepair();
   else if(document.getElementById('debtModal').classList.contains('open')) saveDebt();
   else if(document.getElementById('payDebtModal').classList.contains('open')) confirmPayDebt();
+  else if(document.getElementById('planModal').classList.contains('open')) savePlan();
 });
 
 document.getElementById('globalSearch').addEventListener('keydown', function(e) {
@@ -2598,6 +2599,12 @@ document.addEventListener('keydown', function(e) {
     navigate(null, 'sales');
     setTimeout(() => openSaleModal(), 300);
   }
+  if(e.ctrlKey && e.key === 'p') {
+  e.preventDefault();
+  navigate(null, 'plans');
+  setTimeout(() => openPlanModal(), 300);
+}
+
   if(e.ctrlKey && e.key === 'k') {
     e.preventDefault();
     navigate(null, 'inventory');
@@ -2801,11 +2808,14 @@ async function confirmResetAll() {
 	if(debtsErr) throw debtsErr;
 	const { error: productsErr } = await sb.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 	if(productsErr) throw productsErr;
+  const { error: plansErr } = await sb.from('plans').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+if(plansErr) throw plansErr;
+
 
 	await loadAllData();
 	closeModal('resetAllModal');
 	toast('هەموو داتاکان سڕانەوە','success');
-	renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports();
+renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans();
 	navigate(null, 'dashboard');
   } catch(err) {
 	console.error(err);
