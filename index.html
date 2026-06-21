@@ -2405,6 +2405,15 @@ async function saveDebt() {
 }
 
 document.addEventListener('keydown', function(e) {
+  if(e.key !== 'Enter') return;
+  if(document.getElementById('productModal').classList.contains('open')) saveProduct();
+  else if(document.getElementById('saleModal').classList.contains('open')) completeSale();
+  else if(document.getElementById('repairModal').classList.contains('open')) saveRepair();
+  else if(document.getElementById('debtModal').classList.contains('open')) saveDebt();
+  else if(document.getElementById('payDebtModal').classList.contains('open')) confirmPayDebt();
+});
+
+document.addEventListener('keydown', function(e) {
   if(e.ctrlKey && e.key === 'f') {
     e.preventDefault();
     navigate(null, 'sales');
@@ -2425,6 +2434,9 @@ document.addEventListener('keydown', function(e) {
     navigate(null, 'debts');
     setTimeout(() => openDebtModal(), 300);
   }
+  if(e.key === 'Escape') {
+  ['productModal','saleModal','repairModal','debtModal','payDebtModal','repairDetailModal','resetAllModal'].forEach(id => closeModal(id));
+}
 });
 
 
