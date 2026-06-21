@@ -2441,6 +2441,10 @@ document.addEventListener('keydown', function(e) {
     navigate(null, 'debts');
     setTimeout(() => openDebtModal(), 300);
   }
+  if(e.ctrlKey && e.key === 'g') {
+  e.preventDefault();
+  document.getElementById('globalSearch').focus();
+  }
   if(e.key === 'Escape') {
   ['productModal','saleModal','repairModal','debtModal','payDebtModal','repairDetailModal','resetAllModal'].forEach(id => closeModal(id));
 }
