@@ -2559,17 +2559,7 @@ async function saveDebt() {
   }
 }
 
-document.addEventListener('fullscreenchange', function() {
-  if(!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-});
 
-document.addEventListener('click', function() {
-  if(!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-});
 
 
 function toggleFullscreen() {
