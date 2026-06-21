@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<audio id="alertSound" src="https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3" preload="auto"></audio>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6C63FF">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -818,9 +821,51 @@ select.filter-input { cursor: pointer; }
 .ml-auto { margin-left: auto; }
 .mr-auto { margin-right: auto; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lock-box {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.pin-input {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  color: var(--text);
+  font-size: 28px;
+  font-family: 'Space Grotesk', monospace;
+  letter-spacing: 12px;
+  text-align: center;
+  width: 160px;
+  outline: none;
+}
+.pin-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
 </style>
 </head>
 <body>
+
+<div class="lock-overlay" id="lockOverlay">
+  <div class="lock-box">
+    <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
+    <div style="font-size:15px;font-weight:700">Mobile Store</div>
+    <div style="font-size:12px;color:var(--text2)">پینکۆد بنووسە</div>
+    <input class="pin-input" id="pinInput" type="password" maxlength="4" inputmode="numeric" autofocus oninput="checkPin(this.value)">
+    <div style="font-size:12px;color:var(--danger);min-height:18px" id="pinError"></div>
+  </div>
+</div>
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -869,6 +914,11 @@ select.filter-input { cursor: pointer; }
 	  <div class="nav-item" data-page="reports" onclick="navigate(this)">
 		<i class="ti ti-chart-bar"></i> ڕاپۆرتەکان
 	  </div>
+    
+   <div class="nav-item" data-page="plans" onclick="navigate(this)">
+  <i class="ti ti-notebook"></i> پلانەکان
+</div>
+
 	</div>
   </nav>
 <div class="sidebar-footer" style="flex-direction:column;gap:10px;align-items:stretch">
@@ -892,7 +942,7 @@ select.filter-input { cursor: pointer; }
 	<button class="menu-btn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
 	<div class="header-search">
 	  <i class="ti ti-search"></i>
-	  <input type="text" placeholder="گەڕان لە کاڵا، چاکسازی، فرۆشتن..." id="globalSearch" oninput="globalSearchFn(this.value)" onblur="setTimeout(()=>closeSearch(),200)">
+<input type="text" placeholder="گەرانی گشتی..." id="globalSearch" oninput="globalSearchFn(this.value)" onfocus="globalSearchFn('')" onblur="setTimeout(()=>closeSearch(),200)">
 	  <div class="search-results" id="searchResults"></div>
 	</div>
 	<div class="header-end">
@@ -911,6 +961,9 @@ select.filter-input { cursor: pointer; }
 	<button class="theme-btn" onclick="toggleTheme()" title="گۆڕینی تیم">
 	  <i class="ti ti-sun" id="themeIcon2"></i>
 	</button>
+<!--  <button class="theme-btn" onclick="toggleFullscreen()" title="تەواو سکرین">
+  <i class="ti ti-maximize" id="fullscreenIcon"></i>
+</button>-->
   </header>
 
   <!-- CONTENT -->
@@ -1123,6 +1176,14 @@ select.filter-input { cursor: pointer; }
 	  </div>
 	</div>
 
+<!-- ═══════════════════════ PLANS ═══════════════════════ -->
+<div class="page" id="page-plans">
+  <div class="page-title">
+    <div><h2>پلانەکان</h2><p>تێبینی و پلانی داهاتوو</p></div>
+    <button class="btn btn-primary" onclick="openPlanModal()"><i class="ti ti-plus"></i> پلانی نوێ</button>
+  </div>
+  <div id="plansList"></div>
+</div>
 
 	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
 	<div class="page" id="page-reports">
@@ -1187,6 +1248,30 @@ select.filter-input { cursor: pointer; }
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- PLAN MODAL -->
+<div class="modal-overlay" id="planModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3 id="planModalTitle">پلانی نوێ</h3>
+      <button class="modal-close" onclick="closeModal('planModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:12px">
+        <label>ناوی پلان *</label>
+        <input class="form-control" id="planTitle" placeholder="نموونە: پلانی مانگی ١">
+      </div>
+      <div class="form-group">
+        <label>تێبینی ئازاد</label>
+        <textarea class="form-control" id="planContent" placeholder="هەر چی دەتەوێت بنووسە..." style="min-height:200px;font-size:14px;line-height:1.8"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('planModal')">هەڵوەشاندنەوە</button>
+      <button class="btn btn-primary" id="planSaveBtn" onclick="savePlan()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+    </div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
@@ -1475,6 +1560,10 @@ select.filter-input { cursor: pointer; }
 </div>
 
 <script>
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
 // ══════════════════════════════════════════════════════════════
 //  SUPABASE CONNECTION
 // ══════════════════════════════════════════════════════════════
@@ -1503,20 +1592,27 @@ function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, pho
 async function loadAllData() {
   setConnStatus('loading');
   try {
-	const [pRes, sRes, rRes, dRes] = await Promise.all([
-	  sb.from('products').select('*').order('created_at', { ascending: false }),
-	  sb.from('sales').select('*').order('created_at', { ascending: false }),
-	  sb.from('repairs').select('*').order('created_at', { ascending: false }),
-	  sb.from('debts').select('*').order('created_at', { ascending: false })
-	]);
+	const [pRes, sRes, rRes, dRes, plRes] = await Promise.all([
+  sb.from('products').select('*').order('created_at', { ascending: false }),
+  sb.from('sales').select('*').order('created_at', { ascending: false }),
+  sb.from('repairs').select('*').order('created_at', { ascending: false }),
+  sb.from('debts').select('*').order('created_at', { ascending: false }),
+  sb.from('plans').select('*').order('created_at', { ascending: false })
+]);
+
 	if (pRes.error) throw pRes.error;
 	if (sRes.error) throw sRes.error;
 	if (rRes.error) throw rRes.error;
-	if (dRes.error) throw dRes.error;
+if (plRes.error) throw plRes.error;
+CACHE.debts = (dRes.data || []).map(debtFromDb);
+
 	CACHE.products = (pRes.data || []).map(productFromDb);
 	CACHE.sales = (sRes.data || []).map(saleFromDb);
 	CACHE.repairs = (rRes.data || []).map(repairFromDb);
-	CACHE.debts = (dRes.data || []).map(debtFromDb);
+CACHE.plans = (plRes.data || []).map(r => ({
+  id: r.id, title: r.title, content: r.content,
+  status: r.status, createdAt: r.created_at
+}));
 	setConnStatus('online');
 	return true;
   } catch (err) {
@@ -1536,7 +1632,8 @@ const DB = {
 // ══════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════
-const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان' };
+const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان'
+ };
 
 function navigate(el, page) {
   page = page || el.dataset.page;
@@ -1556,6 +1653,8 @@ function renderPage(p) {
   else if(p==='repairs') renderRepairs();
   else if(p==='debts') renderDebts();
   else if(p==='reports') renderReports();
+  else if(p==='plans') renderPlans();
+
 }
 
 
@@ -1609,6 +1708,7 @@ function buildNotifications() {
   const repairs = DB.get('repairs');
   const debts = DB.get('debts');
   const notifs = [];
+  const hadNotifs = document.getElementById('notifDot').style.display === 'block';
   products.filter(p=>p.qty<=5).forEach(p=>notifs.push({
 	icon:'ti-alert-triangle', bg:'var(--warning-light)', color:'var(--warning)',
 	text:`<b>${p.name}</b> — کاڵای کەمماو (${p.qty} دانە بەردەستە)`, time:'ئێستا'
@@ -1635,10 +1735,14 @@ function buildNotifications() {
   const pendingDebts = debts.filter(d=>d.status==='pending').length;
   document.getElementById('debtBadge').textContent = pendingDebts;
   document.getElementById('debtBadge').style.display = pendingDebts ? 'inline-flex' : 'none';
+  const hasNotifs = notifs.length > 0;
+  if(hasNotifs && !hadNotifs) playAlert();
+
 }
 
 function toggleNotif() {
   buildNotifications();
+  playAlert();
   document.getElementById('notifPanel').classList.toggle('open');
 }
 document.addEventListener('click',e=>{
@@ -1651,7 +1755,19 @@ document.addEventListener('click',e=>{
 // ══════════════════════════════════════════
 function globalSearchFn(q) {
   const box = document.getElementById('searchResults');
-  if(!q.trim()) { box.classList.remove('open'); return; }
+if(!q.trim()) {
+  const products = DB.get('products').slice(0,3);
+  const repairs = DB.get('repairs').filter(r=>!['completed','delivered'].includes(r.status)).slice(0,2);
+  const debts = DB.get('debts').filter(d=>d.status==='pending').slice(0,2);
+  let html = '';
+  products.forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand} <span class="td-muted" style="margin-right:auto">${fmt(p.sellPrice)}</span></div>`);
+  repairs.forEach(r=>html+=`<div class="search-result-item" onclick="navigate(null,'repairs')"><span class="search-result-tag tag-repair">چاکسازی</span>${r.customerName} — ${r.device} <span class="td-muted" style="margin-right:auto">${repairStatusLabel(r.status)}</span></div>`);
+  debts.forEach(d=>html+=`<div class="search-result-item" onclick="navigate(null,'debts')"><span class="search-result-tag" style="background:var(--danger-light);color:var(--danger)">قەرز</span>${d.customerName} <span class="td-muted" style="margin-right:auto">${fmt(debtRemaining(d))}</span></div>`);
+  box.innerHTML = html || '<div style="padding:14px;text-align:center;font-size:13px;color:var(--text3)">هیچ داتایەک نیە</div>';
+  box.classList.add('open');
+  return;
+}
+
   const products = DB.get('products').filter(p=>p.name.includes(q)||p.brand.includes(q));
   const repairs = DB.get('repairs').filter(r=>r.customerName.includes(q)||r.device.includes(q));
   const sales = DB.get('sales').filter(s=>s.productName.includes(q));
@@ -1691,6 +1807,98 @@ function isInPeriod(iso, period) {
   if(period==='year') { return d.getFullYear()===now.getFullYear(); }
   return true;
 }
+
+
+
+let editPlanId = null;
+
+function openPlanModal(id) {
+  editPlanId = id || null;
+  document.getElementById('planModalTitle').textContent = id ? 'دەستکاریکردنی پلان' : 'پلانی نوێ';
+  if(id) {
+    const p = CACHE.plans.find(x=>x.id===id);
+    if(p) { document.getElementById('planTitle').value=p.title; document.getElementById('planContent').value=p.content; }
+  } else {
+    document.getElementById('planTitle').value='';
+    document.getElementById('planContent').value='';
+  }
+  openModal('planModal');
+}
+
+async function savePlan() {
+  const title = document.getElementById('planTitle').value.trim();
+  const content = document.getElementById('planContent').value.trim();
+  if(!title||!content) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
+  const btn = document.getElementById('planSaveBtn');
+  btn.disabled = true;
+  try {
+    if(editPlanId) {
+      const { error } = await sb.from('plans').update({ title, content }).eq('id', editPlanId);
+      if(error) throw error;
+      toast('پلانەکە نوێ کرایەوە','success');
+    } else {
+      const { error } = await sb.from('plans').insert({ title, content, status:'active' });
+      if(error) throw error;
+      toast('پلانی نوێ زیادکرا','success');
+    }
+    await loadAllData();
+    closeModal('planModal'); renderPlans();
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled=false; }
+}
+
+async function deletePlan(id) {
+  if(!confirm('دڵنیایت لە سڕینەوەی ئەم پلانە؟')) return;
+  try {
+    const { error } = await sb.from('plans').delete().eq('id', id);
+    if(error) throw error;
+    await loadAllData(); toast('پلانەکە سڕایەوە','info'); renderPlans();
+  } catch(err) { toast('کێشە: '+(err.message||err),'error'); }
+}
+
+async function togglePlanStatus(id) {
+  const p = CACHE.plans.find(x=>x.id===id);
+  if(!p) return;
+  const newStatus = p.status==='active' ? 'done' : 'active';
+  try {
+    const { error } = await sb.from('plans').update({ status: newStatus }).eq('id', id);
+    if(error) throw error;
+    await loadAllData(); renderPlans();
+    toast(newStatus==='done' ? 'پلانەکە تەواوبوو ✓' : 'پلانەکە دووبارە چالاکبوو','success');
+  } catch(err) { toast('کێشە: '+(err.message||err),'error'); }
+}
+
+function renderPlans() {
+  const plans = CACHE.plans || [];
+  const el = document.getElementById('plansList');
+  if(!plans.length) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-notebook"></i><p>هیچ پلانێک نیە</p></div>';
+    return;
+  }
+  el.innerHTML = plans.map(p=>`
+    <div class="card mb-16" style="${p.status==='done'?'opacity:0.6':''}">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:15px;font-weight:700;${p.status==='done'?'text-decoration:line-through;color:var(--text2)':''}">${p.title}</span>
+            ${p.status==='done' ? '<span class="badge badge-green">تەواوبوو</span>' : '<span class="badge badge-blue">چالاک</span>'}
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="togglePlanStatus('${p.id}')">
+              <i class="ti ${p.status==='done'?'ti-refresh':'ti-circle-check'}"></i>
+              ${p.status==='done'?'دووبارە چالاک بکە':'تەواوکرا'}
+            </button>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="openPlanModal('${p.id}')"><i class="ti ti-edit"></i></button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deletePlan('${p.id}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div style="font-size:13.5px;line-height:1.9;color:var(--text2);white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:14px">${p.content}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px">${dateStr(p.createdAt)}</div>
+      </div>
+    </div>`).join('');
+}
+
 
 // ══════════════════════════════════════════
 //  DASHBOARD
@@ -2356,6 +2564,104 @@ async function saveDebt() {
   }
 }
 
+
+document.addEventListener('fullscreenchange', function() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+});
+
+document.addEventListener('click', function() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+});
+
+
+function toggleFullscreen() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    document.getElementById('fullscreenIcon').className = 'ti ti-minimize';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('fullscreenIcon').className = 'ti ti-maximize';
+  }
+}
+
+document.addEventListener('fullscreenchange', function() {
+  if(!document.fullscreenElement) {
+    document.getElementById('fullscreenIcon').className = 'ti ti-maximize';
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if(e.key !== 'Enter') return;
+  if(document.getElementById('productModal').classList.contains('open')) saveProduct();
+  else if(document.getElementById('saleModal').classList.contains('open')) completeSale();
+  else if(document.getElementById('repairModal').classList.contains('open')) saveRepair();
+  else if(document.getElementById('debtModal').classList.contains('open')) saveDebt();
+  else if(document.getElementById('payDebtModal').classList.contains('open')) confirmPayDebt();
+  else if(document.getElementById('planModal').classList.contains('open')) savePlan();
+});
+
+document.getElementById('globalSearch').addEventListener('keydown', function(e) {
+  if(e.key === 'Enter') {
+    const first = document.querySelector('.search-result-item');
+    if(first) first.click();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey && e.key === 'f') {
+    e.preventDefault();
+    navigate(null, 'sales');
+    setTimeout(() => openSaleModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'p') {
+  e.preventDefault();
+  navigate(null, 'plans');
+  setTimeout(() => openPlanModal(), 300);
+}
+
+  if(e.ctrlKey && e.key === 'k') {
+    e.preventDefault();
+    navigate(null, 'inventory');
+    setTimeout(() => openProductModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'm') {
+    e.preventDefault();
+    navigate(null, 'repairs');
+    setTimeout(() => openRepairModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'q') {
+    e.preventDefault();
+    navigate(null, 'debts');
+    setTimeout(() => openDebtModal(), 300);
+  }
+  if(e.ctrlKey && e.key === 'g') {
+  e.preventDefault();
+  document.getElementById('globalSearch').focus();
+  }
+if(e.ctrlKey && e.key === 'Enter') {
+  e.preventDefault();
+  toggleFullscreen();
+}
+
+if(e.key === 'Escape') {
+  const anyOpen = ['productModal','saleModal','repairModal','debtModal','payDebtModal','repairDetailModal','resetAllModal']
+    .some(id => document.getElementById(id).classList.contains('open'));
+  
+  if(anyOpen) {
+    ['productModal','saleModal','repairModal','debtModal','payDebtModal','repairDetailModal','resetAllModal']
+      .forEach(id => closeModal(id));
+  } else {
+    if(document.fullscreenElement) document.exitFullscreen();
+  }
+}
+
+});
+
+
 function openPayDebtModal(id) {
   payDebtId = id;
   const d = DB.get('debts').find(x=>x.id===id);
@@ -2415,6 +2721,11 @@ async function deleteDebt(id) {
   }
 }
 
+function playAlert() {
+  const sound = document.getElementById('alertSound');
+  sound.currentTime = 0;
+  sound.play().catch(()=>{});
+}
 
 // ══════════════════════════════════════════
 //  REPORTS
@@ -2515,11 +2826,14 @@ async function confirmResetAll() {
 	if(debtsErr) throw debtsErr;
 	const { error: productsErr } = await sb.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 	if(productsErr) throw productsErr;
+  const { error: plansErr } = await sb.from('plans').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+if(plansErr) throw plansErr;
+
 
 	await loadAllData();
 	closeModal('resetAllModal');
 	toast('هەموو داتاکان سڕانەوە','success');
-	renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports();
+renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans();
 	navigate(null, 'dashboard');
   } catch(err) {
 	console.error(err);
@@ -2541,6 +2855,23 @@ async function init() {
 	toast('نەتوانرا پەیوەندی بە داتابەیس بکرێت. تکایە بەستنەوەی Supabase و خشتەکان بپشکنە.', 'error');
   }
 }
+
+const APP_PIN = '1887';
+const SESSION_KEY = 'ms_unlocked';
+
+function checkPin(val) {
+  if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
+  if(val === APP_PIN) {
+    document.getElementById('lockOverlay').style.display = 'none';
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
+    document.getElementById('pinInput').value = '';
+  }
+}
+
+
+
 init();
 </script>
 </body>
