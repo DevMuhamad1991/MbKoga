@@ -959,10 +959,9 @@ select.filter-input { cursor: pointer; }
 	<button class="theme-btn" onclick="toggleTheme()" title="گۆڕینی تیم">
 	  <i class="ti ti-sun" id="themeIcon2"></i>
 	</button>
-  <button class="theme-btn" onclick="toggleFullscreen()" title="تەواو سکرین">
+<!--  <button class="theme-btn" onclick="toggleFullscreen()" title="تەواو سکرین">
   <i class="ti ti-maximize" id="fullscreenIcon"></i>
-</button>
-
+</button>-->
   </header>
 
   <!-- CONTENT -->
@@ -2560,6 +2559,17 @@ async function saveDebt() {
 }
 
 
+document.addEventListener('fullscreenchange', function() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+});
+
+document.addEventListener('click', function() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+});
 
 
 function toggleFullscreen() {
