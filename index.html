@@ -2404,6 +2404,15 @@ async function saveDebt() {
   }
 }
 
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey && e.key === 'f') {
+    e.preventDefault();
+    navigate(null, 'sales');
+    setTimeout(() => openSaleModal(), 300);
+  }
+});
+
+
 function openPayDebtModal(id) {
   payDebtId = id;
   const d = DB.get('debts').find(x=>x.id===id);
