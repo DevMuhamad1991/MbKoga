@@ -1160,7 +1160,7 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		</div>
 	  </div>
-	  <div class="card">
+<div class="card">
 		<div class="card-body">
 		  <div class="flex items-center gap-10 mb-16">
 			<span style="font-size:14px;font-weight:700">ڕاپۆرتی چاکسازی</span>
@@ -1173,7 +1173,17 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		</div>
 	  </div>
+
+	  <div class="card" style="border-color:rgba(255,107,107,0.25);margin-top:16px">
+		<div class="card-body" style="text-align:center">
+		  <i class="ti ti-alert-triangle color-red" style="font-size:28px"></i>
+		  <div style="font-size:14px;font-weight:700;margin-top:8px">ناوچەی مەترسیدار</div>
+		  <div style="font-size:12.5px;color:var(--text2);margin:6px 0 14px">سڕینەوەی هەموو داتاکانی دوکان — کردارێکی ناگەڕاوەتەوە</div>
+		  <button class="btn btn-danger" onclick="openResetAllModal()"><i class="ti ti-trash"></i> سڕینەوەی هەموو داتاکان</button>
+		</div>
+	  </div>
 	</div>
+
 
   </div><!-- /content -->
 </div><!-- /main -->
@@ -1426,6 +1436,40 @@ select.filter-input { cursor: pointer; }
 	<div class="modal-footer">
 	  <button class="btn btn-ghost" onclick="closeModal('payDebtModal')">هەڵوەشاندنەوە</button>
 	  <button class="btn btn-success" id="payDebtBtn" onclick="confirmPayDebt()"><i class="ti ti-check"></i> پارەدانەوە</button>
+	</div>
+  </div>
+</div>
+
+<!-- RESET ALL DATA MODAL -->
+<div class="modal-overlay" id="resetAllModal">
+  <div class="modal" style="max-width:440px">
+	<div class="modal-header">
+	  <h3 style="color:var(--danger)"><i class="ti ti-alert-triangle"></i> سڕینەوەی هەموو داتاکان</h3>
+	  <button class="modal-close" onclick="closeModal('resetAllModal')"><i class="ti ti-x"></i></button>
+	</div>
+	<div class="modal-body">
+	  <div style="background:var(--danger-light);border:1px solid rgba(255,107,107,0.3);border-radius:10px;padding:14px;margin-bottom:16px">
+		<p style="font-size:13px;line-height:1.6;color:var(--text)">
+		  ئەم کردارە <b>هەموو</b> داتاکانی دوکان دەسڕێتەوە:
+		</p>
+		<ul style="font-size:12.5px;color:var(--text2);margin-top:8px;padding-right:18px;line-height:1.8">
+		  <li>هەموو کاڵاکانی ئەمبار</li>
+		  <li>هەموو مێژووی فرۆشتن</li>
+		  <li>هەموو چاکسازییەکان</li>
+		  <li>هەموو قەرزەکان</li>
+		</ul>
+		<p style="font-size:12.5px;color:var(--danger);margin-top:8px;font-weight:600">
+		  ئەم کردارە ناگەڕێتەوە و ناتوانرێت هەڵبوەشێتەوە!
+		</p>
+	  </div>
+	  <div class="form-group">
+		<label>کۆدی پاسۆرد (٤ ژمارە) *</label>
+		<input class="form-control" id="resetPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="text-align:center;font-size:20px;letter-spacing:8px">
+	  </div>
+	</div>
+	<div class="modal-footer">
+	  <button class="btn btn-ghost" onclick="closeModal('resetAllModal')">هەڵوەشاندنەوە</button>
+	  <button class="btn btn-danger" id="resetAllBtn" onclick="confirmResetAll()"><i class="ti ti-trash"></i> سڕینەوەی هەمووی</button>
 	</div>
   </div>
 </div>
@@ -1716,7 +1760,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	const d=new Date(); d.setDate(d.getDate()-6+i);
 	return { label: d.toLocaleDateString('ku',{weekday:'short'}), date: d.toDateString() };
   });
-  const dailyData = days7.map(d=>sales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
+const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
   chartInstances['chartDaily'] = new Chart(document.getElementById('chartDaily'), {
 	type:'line',
 	data:{ labels:days7.map(d=>d.label), datasets:[{ data:dailyData, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.1)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#6C63FF', pointRadius:4 }] },
@@ -1729,7 +1773,8 @@ const activeSales = sales.filter(s=>!s.returned);
   // Monthly chart
   destroyChart('chartMonthly');
   const months = ['کان١','شوبات','ئازار','نیسان','ئایار','حوزەیران','تەمموز','ئاب','ئەیلوول','تشرینی١','تشرینی٢','کانونی١'];
-  const monthlyData = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
+const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
+
   chartInstances['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
 	type:'bar',
 	data:{ labels:months, datasets:[{ data:monthlyData, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:6, borderSkipped:false }] },
@@ -1741,7 +1786,7 @@ const activeSales = sales.filter(s=>!s.returned);
 
   // Profit chart
   destroyChart('chartProfit');
-  const profitMonthly = Array.from({length:12},(_,i)=>sales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
+const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
   chartInstances['chartProfit'] = new Chart(document.getElementById('chartProfit'), {
 	type:'line',
 	data:{ labels:months, datasets:[{ data:profitMonthly, borderColor:'#F7B731', backgroundColor:'rgba(247,183,49,0.08)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#F7B731', pointRadius:3 }] },
@@ -1753,8 +1798,8 @@ const activeSales = sales.filter(s=>!s.returned);
 
   // Top products chart
   destroyChart('chartTop');
-  const topMap = {};
-  sales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
+const topMap = {};
+  activeSales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
   const topArr = Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
   chartInstances['chartTop'] = new Chart(document.getElementById('chartTop'), {
 	type:'doughnut',
@@ -2069,12 +2114,13 @@ async function returnSale(id) {
 
 	await loadAllData();
 	toast('کاڵاکە گەڕایەوە و ئەمبار نوێ کرایەوە','success');
-	renderSales(); renderInventory();
+	renderSales(); renderInventory(); renderDashboard();
   } catch(err) {
 	console.error(err);
 	toast('کێشە لە گەڕاندنەوە: ' + (err.message||err), 'error');
   }
 }
+
 
 // ══════════════════════════════════════════
 //  REPAIRS
@@ -2438,6 +2484,49 @@ function renderReports() {
 	<td>${repairStatusBadge(r.status)}</td>
 	<td class="td-muted">${dateStr(r.createdAt)}</td>
   </tr>`).join('') : '<tr><td colspan="5"><div class="empty-state" style="padding:20px"><p>هیچ چاکسازییەک نیە</p></div></td></tr>';
+}
+
+// ══════════════════════════════════════════
+//  RESET ALL DATA
+// ══════════════════════════════════════════
+const RESET_PIN = '1991'; // دەتوانیت ئەم ژمارەیە بگۆڕیت بۆ هەر ژمارەیەکی ٤ ڕەقەمی کە حەزت لێیەتی
+
+function openResetAllModal() {
+  document.getElementById('resetPin').value = '';
+  openModal('resetAllModal');
+}
+
+async function confirmResetAll() {
+  const pin = document.getElementById('resetPin').value.trim();
+  if(pin.length !== 4) { toast('تکایە کۆدێکی ٤ ژمارەیی بنووسە','error'); return; }
+  if(pin !== RESET_PIN) { toast('کۆدی پاسۆرد هەڵەیە','error'); return; }
+
+  if(!confirm('دڵنیایت؟ ئەم کردارە هەموو داتاکان دەسڕێتەوە و ناگەڕێتەوە!')) return;
+
+  const btn = document.getElementById('resetAllBtn');
+  btn.disabled = true;
+  try {
+	// Delete all rows from each table (order matters due to foreign keys)
+	const { error: salesErr } = await sb.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+	if(salesErr) throw salesErr;
+	const { error: repairsErr } = await sb.from('repairs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+	if(repairsErr) throw repairsErr;
+	const { error: debtsErr } = await sb.from('debts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+	if(debtsErr) throw debtsErr;
+	const { error: productsErr } = await sb.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+	if(productsErr) throw productsErr;
+
+	await loadAllData();
+	closeModal('resetAllModal');
+	toast('هەموو داتاکان سڕانەوە','success');
+	renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports();
+	navigate(null, 'dashboard');
+  } catch(err) {
+	console.error(err);
+	toast('کێشە لە سڕینەوە: ' + (err.message||err), 'error');
+  } finally {
+	btn.disabled = false;
+  }
 }
 
 // ══════════════════════════════════════════
