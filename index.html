@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<audio id="alertSound" src="https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3" preload="auto"></audio>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -1651,6 +1652,7 @@ function buildNotifications() {
   const repairs = DB.get('repairs');
   const debts = DB.get('debts');
   const notifs = [];
+  const hadNotifs = document.getElementById('notifDot').style.display === 'block';
   products.filter(p=>p.qty<=5).forEach(p=>notifs.push({
 	icon:'ti-alert-triangle', bg:'var(--warning-light)', color:'var(--warning)',
 	text:`<b>${p.name}</b> — کاڵای کەمماو (${p.qty} دانە بەردەستە)`, time:'ئێستا'
@@ -1677,6 +1679,9 @@ function buildNotifications() {
   const pendingDebts = debts.filter(d=>d.status==='pending').length;
   document.getElementById('debtBadge').textContent = pendingDebts;
   document.getElementById('debtBadge').style.display = pendingDebts ? 'inline-flex' : 'none';
+  const hasNotifs = notifs.length > 0;
+  if(hasNotifs && !hadNotifs) playAlert();
+
 }
 
 function toggleNotif() {
@@ -2457,6 +2462,11 @@ async function deleteDebt(id) {
   }
 }
 
+function playAlert() {
+  const sound = document.getElementById('alertSound');
+  sound.currentTime = 0;
+  sound.play().catch(()=>{});
+}
 
 // ══════════════════════════════════════════
 //  REPORTS
