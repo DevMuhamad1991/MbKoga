@@ -1334,6 +1334,18 @@ select.filter-input { cursor: pointer; }
         </div>
       </div>
     </div>
+    
+    <div class="card">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">بەڕێوەبردنی کاتیگۆری کاڵا</div>
+    <div id="categoryList" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px">
+      <input class="form-control" id="newCategoryName" placeholder="ناوی کاتیگۆریی نوێ">
+      <button class="btn btn-primary" id="addCategoryBtn" onclick="addCategory()" style="white-space:nowrap"><i class="ti ti-plus"></i> زیادکردن</button>
+    </div>
+  </div>
+</div>
+    
   </div>
 
   <!-- ٣. ڕێکخستنی دیزاین -->
@@ -1619,14 +1631,10 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		  <div class="form-group">
 			<label>جۆری ئامێر</label>
-			<select class="form-control" id="rDeviceType">
-			  <option>مۆبایل</option>
-			  <option>تابلێت</option>
-			  <option>لاپتۆپ</option>
-			  <option>سمارت واچ</option>
-			  <option>هیتر</option>
-			  <option>تر</option>
-			</select>
+<select class="form-control" id="pCategory">
+  <option value="">هەڵبژێرە...</option>
+</select>
+
 		  </div>
 		</div>
 		<div class="form-group">
@@ -1805,14 +1813,16 @@ function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, pho
 async function loadAllData() {
   setConnStatus('loading');
   try {
-	const [pRes, sRes, rRes, dRes, plRes, stRes] = await Promise.all([
+	const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
   sb.from('products').select('*').order('created_at', { ascending: false }),
   sb.from('sales').select('*').order('created_at', { ascending: false }),
   sb.from('repairs').select('*').order('created_at', { ascending: false }),
   sb.from('debts').select('*').order('created_at', { ascending: false }),
   sb.from('plans').select('*').order('created_at', { ascending: false }),
-  sb.from('settings').select('*').eq('id',1).single()
+  sb.from('settings').select('*').eq('id',1).single(),
+  sb.from('categories').select('*').order('name', { ascending: true })
 ]);
+
 
 	if (pRes.error) throw pRes.error;
 	if (sRes.error) throw sRes.error;
@@ -1829,6 +1839,9 @@ CACHE.plans = (plRes.data || []).map(r => ({
 }));
 	CACHE.settings = stRes.data || SETTINGS;
 	SETTINGS = CACHE.settings;
+  if(catRes.error) throw catRes.error;
+CACHE.categories = catRes.data || [];
+
 	setConnStatus('online');
 	return true;
   } catch (err) {
@@ -2206,6 +2219,70 @@ async function changeResetPin() {
   } finally { btn.disabled=false; }
 }
 
+function renderCategoryList() {
+  const cats = CACHE.categories || [];
+  const el = document.getElementById('categoryList');
+  if(!cats.length) { el.innerHTML = '<div style="font-size:12.5px;color:var(--text3)">هیچ کاتیگۆریەک نیە</div>'; return; }
+  el.innerHTML = cats.map(c => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:8px">
+      <span style="flex:1;font-size:13.5px;font-weight:500" id="catLabel-${c.id}">${c.name}</span>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editCategory('${c.id}','${c.name.replace(/'/g,"\\'")}')"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCategory('${c.id}','${c.name.replace(/'/g,"\\'")}')"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+async function addCategory() {
+  const input = document.getElementById('newCategoryName');
+  const name = input.value.trim();
+  if(!name) { toast('ناوی کاتیگۆری بنووسە','error'); return; }
+  const btn = document.getElementById('addCategoryBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('categories').insert({ name });
+    if(error) throw error;
+    toast('کاتیگۆری زیادکرا','success');
+    input.value = '';
+    await loadAllData();
+    renderCategoryList();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  } finally { btn.disabled = false; }
+}
+
+async function editCategory(id, oldName) {
+  const newName = prompt('ناوی نوێی کاتیگۆری بنووسە:', oldName);
+  if(!newName || !newName.trim() || newName.trim()===oldName) return;
+  try {
+    const { error: catErr } = await sb.from('categories').update({ name: newName.trim() }).eq('id', id);
+    if(catErr) throw catErr;
+    // نوێکردنەوەی ناوی کاتیگۆری لە هەموو کاڵاکانی پەیوەست
+    const { error: prodErr } = await sb.from('products').update({ category: newName.trim() }).eq('category', oldName);
+    if(prodErr) throw prodErr;
+    toast('کاتیگۆری نوێ کرایەوە','success');
+    await loadAllData();
+    renderCategoryList(); renderInventory();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+async function deleteCategory(id, name) {
+  const usedCount = CACHE.products.filter(p=>p.category===name).length;
+  const msg = usedCount > 0
+    ? `${usedCount} کاڵا ئەم کاتیگۆریەیان بەکاردەهێنێت. دڵنیایت لە سڕینەوە؟`
+    : 'دڵنیایت لە سڕینەوەی ئەم کاتیگۆریە؟';
+  if(!confirm(msg)) return;
+  try {
+    const { error } = await sb.from('categories').delete().eq('id', id);
+    if(error) throw error;
+    toast('کاتیگۆری سڕایەوە','info');
+    await loadAllData();
+    renderCategoryList();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
 async function saveDesignSettings() {
   const primary_color = document.getElementById('setPrimaryColor').value;
   const theme_mode = document.getElementById('setThemeMode').value;
@@ -2450,6 +2527,10 @@ function openProductModal(id) {
 	['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes'].forEach(id=>document.getElementById(id).value='');
 	document.getElementById('pCategory').value='';
   }
+  const catSelect = document.getElementById('pCategory');
+catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
+  (CACHE.categories||[]).map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+
   openModal('productModal');
 }
 function editProduct(id) { openProductModal(id); }
