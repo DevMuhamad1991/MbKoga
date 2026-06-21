@@ -959,6 +959,10 @@ select.filter-input { cursor: pointer; }
 	<button class="theme-btn" onclick="toggleTheme()" title="گۆڕینی تیم">
 	  <i class="ti ti-sun" id="themeIcon2"></i>
 	</button>
+  <button class="theme-btn" onclick="toggleFullscreen()" title="تەواو سکرین">
+  <i class="ti ti-maximize" id="fullscreenIcon"></i>
+</button>
+
   </header>
 
   <!-- CONTENT -->
@@ -1594,7 +1598,9 @@ async function loadAllData() {
 	if (pRes.error) throw pRes.error;
 	if (sRes.error) throw sRes.error;
 	if (rRes.error) throw rRes.error;
-	if (dRes.error) throw dRes.error;
+if (plRes.error) throw plRes.error;
+CACHE.debts = (dRes.data || []).map(debtFromDb);
+
 	CACHE.products = (pRes.data || []).map(productFromDb);
 	CACHE.sales = (sRes.data || []).map(saleFromDb);
 	CACHE.repairs = (rRes.data || []).map(repairFromDb);
