@@ -2404,6 +2404,23 @@ async function saveDebt() {
   }
 }
 
+
+function toggleFullscreen() {
+  if(!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    document.getElementById('fullscreenIcon').className = 'ti ti-minimize';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('fullscreenIcon').className = 'ti ti-maximize';
+  }
+}
+
+document.addEventListener('fullscreenchange', function() {
+  if(!document.fullscreenElement) {
+    document.getElementById('fullscreenIcon').className = 'ti ti-maximize';
+  }
+});
+
 document.addEventListener('keydown', function(e) {
   if(e.key !== 'Enter') return;
   if(document.getElementById('productModal').classList.contains('open')) saveProduct();
@@ -2445,6 +2462,10 @@ document.addEventListener('keydown', function(e) {
   e.preventDefault();
   document.getElementById('globalSearch').focus();
   }
+  if(e.key === 'F11') {
+  e.preventDefault();
+  toggleFullscreen();
+}
   if(e.key === 'Escape') {
   ['productModal','saleModal','repairModal','debtModal','payDebtModal','repairDetailModal','resetAllModal'].forEach(id => closeModal(id));
 }
