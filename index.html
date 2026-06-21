@@ -2069,12 +2069,13 @@ async function returnSale(id) {
 
 	await loadAllData();
 	toast('کاڵاکە گەڕایەوە و ئەمبار نوێ کرایەوە','success');
-	renderSales(); renderInventory();
+	renderSales(); renderInventory(); renderDashboard();
   } catch(err) {
 	console.error(err);
 	toast('کێشە لە گەڕاندنەوە: ' + (err.message||err), 'error');
   }
 }
+
 
 // ══════════════════════════════════════════
 //  REPAIRS
