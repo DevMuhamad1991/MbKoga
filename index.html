@@ -914,9 +914,8 @@ select.filter-input { cursor: pointer; }
 	  </div>
 	</div>
 	<div class="nav-section">
-	  <div class="nav-label">بەڕێوەبردن</div>
 	  <div class="nav-item" data-page="inventory" onclick="navigate(this)">
-		<i class="ti ti-package"></i> ئەمبار
+		<i class="ti ti-package"></i> کاڵا
 	  </div>
 	  <div class="nav-item" data-page="sales" onclick="navigate(this)">
 		<i class="ti ti-shopping-cart"></i> فرۆشتن
@@ -931,7 +930,7 @@ select.filter-input { cursor: pointer; }
 	  </div>
 	</div>
 	<div class="nav-section">
-	  <div class="nav-label">ئەنالیز</div>
+
 
 	  <div class="nav-item" data-page="reports" onclick="navigate(this)">
 		<i class="ti ti-chart-bar"></i> ڕاپۆرتەکان
@@ -1087,7 +1086,7 @@ select.filter-input { cursor: pointer; }
 	<!-- ═══════════════════════ INVENTORY ═══════════════════════ -->
 	<div class="page" id="page-inventory">
 	  <div class="page-title">
-		<div><h2>ئەمبار</h2><p>بەڕێوەبردنی کاڵاکان</p></div>
+		<div><h2>دوکان</h2><p>بەڕێوەبردنی کاڵاکان</p></div>
 		<button class="btn btn-primary" onclick="openProductModal()"><i class="ti ti-plus"></i> کاڵای نوێ</button>
 	  </div>
 	  <div class="stats-grid" id="invStats"></div>
@@ -1750,10 +1749,11 @@ select.filter-input { cursor: pointer; }
 		  ئەم کردارە <b>هەموو</b> داتاکانی دوکان دەسڕێتەوە:
 		</p>
 		<ul style="font-size:12.5px;color:var(--text2);margin-top:8px;padding-right:18px;line-height:1.8">
-		  <li>هەموو کاڵاکانی ئەمبار</li>
+		  <li>هەموو کاڵاکانی دوکان</li>
 		  <li>هەموو مێژووی فرۆشتن</li>
 		  <li>هەموو چاکسازییەکان</li>
 		  <li>هەموو قەرزەکان</li>
+      <li>هەموو پلانەکان</li>
 		</ul>
 		<p style="font-size:12.5px;color:var(--danger);margin-top:8px;font-weight:600">
 		  ئەم کردارە ناگەڕێتەوە و ناتوانرێت هەڵبوەشێتەوە!
@@ -1850,7 +1850,7 @@ const DB = {
 //  NAVIGATION
 // ══════════════════════════════════════════
 
-const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان', settings:'ڕێکخستن'
+const pageNames = { dashboard:'داشبۆرد', inventory:'کاڵا', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان', settings:'ڕێکخستن'
  };
 
 
@@ -2268,7 +2268,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	  <div class="stat-icon"><i class="ti ti-package"></i></div>
 	  <div class="stat-value text-mono">${fmtN(products.length)}</div>
 	  <div class="stat-label">کۆی کاڵاکان</div>
-	  <div class="stat-sub">کۆی ئەمبار: ${fmtN(totalStock)}</div>
+	  <div class="stat-sub">کۆی حەدەد: ${fmtN(totalStock)}</div>
 	</div>
 	<div class="stat-card green">
 	  <div class="stat-icon"><i class="ti ti-cash"></i></div>
@@ -2393,7 +2393,7 @@ function renderInventory() {
   const lowP = products.filter(p=>p.qty<=5);
   document.getElementById('invStats').innerHTML = `
 	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${products.length}</div><div class="stat-label">کۆی کاڵاکان</div></div>
-	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-stack-2"></i></div><div class="stat-value text-mono">${fmtN(products.reduce((a,p)=>a+p.qty,0))}</div><div class="stat-label">کۆی ئەمبار</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-stack-2"></i></div><div class="stat-value text-mono">${fmtN(products.reduce((a,p)=>a+p.qty,0))}</div><div class="stat-label">کۆی حەدەد</div></div>
 	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-coin"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal)}</div><div class="stat-label">نرخی فرۆشتنی گشتی</div></div>
 	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal-totalCost)}</div><div class="stat-label">قازانجی ئەگەری</div></div>
 	<div class="stat-card red"><div class="stat-icon"><i class="ti ti-alert-triangle"></i></div><div class="stat-value text-mono">${lowP.length}</div><div class="stat-label">کاڵای کەمماو</div></div>`;
@@ -2568,7 +2568,7 @@ function addToCart(id) {
   const p = DB.get('products').find(x=>x.id===id);
   if(!p) return;
   const ex = saleCart.find(c=>c.id===id);
-  if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('ئەمبار بەسەر چووە','error'); return; } }
+  if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('کاڵا بەسەر چووە','error'); return; } }
   else saleCart.push({id, name:p.name, qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
   renderSaleProducts(); renderSaleCart();
 }
@@ -2646,7 +2646,7 @@ async function completeSale() {
 async function returnSale(id) {
   const s = DB.get('sales').find(x=>x.id===id);
   if(!s) return;
-  if(!confirm(`دڵنیایت لە گەڕاندنەوەی "${s.productName}"؟ کاڵاکە دەگەڕێتەوە ئەمبار.`)) return;
+  if(!confirm(`دڵنیایت لە گەڕاندنەوەی "${s.productName}"؟ کاڵاکە دەگەڕێتەوە دوکان.`)) return;
 
   try {
 	// 1. Mark sale as returned
@@ -2663,7 +2663,7 @@ async function returnSale(id) {
 	}
 
 	await loadAllData();
-	toast('کاڵاکە گەڕایەوە و ئەمبار نوێ کرایەوە','success');
+	toast('کاڵاکە گەڕایەوە دوکان و نوێ کرایەوە','success');
 	renderSales(); renderInventory(); renderDashboard();
   } catch(err) {
 	console.error(err);
