@@ -1135,6 +1135,102 @@ body.bg-none::before { background: none; }
 }
 .offline-banner.show { display: flex; }
 
+/* ── HELP MODAL ── */
+.help-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.help-tab:hover { color: var(--text); }
+.help-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.help-tab i { font-size: 16px; }
+
+.help-feature-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: all var(--transition);
+}
+.help-feature-card:hover {
+  background: var(--card-hover);
+  transform: translateY(-1px);
+}
+.help-feature-card i { font-size: 22px; flex-shrink: 0; }
+
+.help-section-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  transition: all var(--transition);
+}
+.help-section-item:hover { border-color: rgba(255,255,255,0.12); }
+.help-section-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+.shortcut-row:hover { background: var(--card-hover); }
+.shortcut-row > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+kbd {
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Space Grotesk', monospace;
+  box-shadow: 0 2px 0 var(--border);
+}
+
+.help-tip-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: all var(--transition);
+}
+.help-tip-card:hover { transform: translateY(-1px); }
+
 </style>
 </head>
 <body>
@@ -1213,11 +1309,14 @@ body.bg-none::before { background: none; }
   </nav>
 
 <div class="sidebar-footer" style="flex-direction:column;gap:10px;align-items:stretch">
-	<div class="flex items-center" style="justify-content:center">
-	  <span class="conn-status loading" id="connStatus"><span class="conn-dot"></span> پەیوەندی...</span>
-	</div>
-  
+  <div class="flex items-center" style="justify-content:center">
+    <span class="conn-status loading" id="connStatus"><span class="conn-dot"></span> پەیوەندی...</span>
+  </div>
+  <button class="footer-btn" onclick="openHelpModal()">
+    <i class="ti ti-help-circle"></i> چۆن بەکاربێنم؟
+  </button>
 </div>
+
 
   </div>
 </div>
@@ -1912,6 +2011,319 @@ body.bg-none::before { background: none; }
       <button class="btn btn-primary" id="exSaveBtn" onclick="saveExpense()">
         <i class="ti ti-check"></i> پاشەکەوتکردن
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h3><i class="ti ti-help-circle" style="color:var(--primary)"></i> چۆن سیستەم بەکاربێنم؟</h3>
+      <button class="modal-close" onclick="closeModal('helpModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" style="padding:0">
+
+      <!-- TABS -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto">
+        <div class="help-tab active" data-tab="overview" onclick="switchHelpTab(this)">
+          <i class="ti ti-layout-dashboard"></i> گشتی
+        </div>
+        <div class="help-tab" data-tab="sections" onclick="switchHelpTab(this)">
+          <i class="ti ti-apps"></i> بەشەکان
+        </div>
+        <div class="help-tab" data-tab="shortcuts" onclick="switchHelpTab(this)">
+          <i class="ti ti-keyboard"></i> شۆرتکەت
+        </div>
+        <div class="help-tab" data-tab="tips" onclick="switchHelpTab(this)">
+          <i class="ti ti-bulb"></i> تێبینی
+        </div>
+      </div>
+
+      <!-- TAB: گشتی -->
+      <div class="help-content active" id="help-overview" style="padding:24px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:32px;color:var(--primary)">
+            <i class="ti ti-device-mobile"></i>
+          </div>
+          <div style="font-size:16px;font-weight:700">Mobile Store</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">سیستەمی بەڕێوەبردنی دوکانی مۆبایل</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="help-feature-card">
+            <i class="ti ti-package" style="color:var(--primary)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">کاڵا</div>
+              <div style="font-size:12px;color:var(--text2)">بەڕێوەبردنی موجودی دوکان</div>
+            </div>
+          </div>
+          <div class="help-feature-card">
+            <i class="ti ti-shopping-cart" style="color:var(--success)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">فرۆشتن</div>
+              <div style="font-size:12px;color:var(--text2)">تۆمارکردنی فرۆشتن و مێژوو</div>
+            </div>
+          </div>
+          <div class="help-feature-card">
+            <i class="ti ti-tool" style="color:var(--warning)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">چاکسازی</div>
+              <div style="font-size:12px;color:var(--text2)">شوێنکەوتنی ئامێرەکان</div>
+            </div>
+          </div>
+          <div class="help-feature-card">
+            <i class="ti ti-credit-card" style="color:var(--danger)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">قەرز</div>
+              <div style="font-size:12px;color:var(--text2)">بەڕێوەبردنی قەرزی کڕیاران</div>
+            </div>
+          </div>
+          <div class="help-feature-card">
+            <i class="ti ti-wallet" style="color:var(--info)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">خەرجی</div>
+              <div style="font-size:12px;color:var(--text2)">تۆمارکردنی خەرجی دوکان</div>
+            </div>
+          </div>
+          <div class="help-feature-card">
+            <i class="ti ti-chart-bar" style="color:var(--primary)"></i>
+            <div>
+              <div style="font-weight:700;font-size:13px">ڕاپۆرت</div>
+              <div style="font-size:12px;color:var(--text2)">ئەنالیز و ئامارەکان</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: بەشەکان -->
+      <div class="help-content" id="help-sections" style="padding:24px;display:none">
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--primary-light);color:var(--primary)">
+            <i class="ti ti-package"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">کاڵا (Inventory)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • زیادکردنی کاڵای نوێ بە ناو، بران، نرخ و بڕ<br>
+              • دەستکاری و سڕینەوەی کاڵا<br>
+              • ئاگادارکردنەوەی کاڵای کەمماو (کەمتر لە ٥)<br>
+              • فلتەرکردن بەپێی کاتیگۆری و ستوکی
+            </div>
+          </div>
+        </div>
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--success-light);color:var(--success)">
+            <i class="ti ti-shopping-cart"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">فرۆشتن (Sales)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • هەڵبژاردنی چەندین کاڵا لە یەک فرۆشتن<br>
+              • کۆیلەکردنی قازانج و گشتی بە خۆکاری<br>
+              • گەڕاندنەوەی کاڵا ئەگەر پێویست بوو<br>
+              • فلتەرکردن بەپێی ئەمڕۆ، هەفتە، مانگ و ساڵ
+            </div>
+          </div>
+        </div>
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--warning-light);color:var(--warning)">
+            <i class="ti ti-tool"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">چاکسازی (Repairs)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • تۆمارکردنی ناو، ژمارە، ئامێر و کێشە<br>
+              • شوێنکەوتنی ستاتوس: وەرگیراو → چاکسازی → تەواو → دراوەتەوە<br>
+              • نیشاندانی هزینەی چاکسازی<br>
+              • کلیک لە چاو بکە بۆ گۆڕینی ستاتوس بە خێرایی
+            </div>
+          </div>
+        </div>
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--danger-light);color:var(--danger)">
+            <i class="ti ti-credit-card"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">قەرز (Debts)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • زیادکردنی قەرزی کڕیار بە بەرواری مۆڵەت<br>
+              • تۆمارکردنی پارەدانەوەی پارچەپارچە<br>
+              • ئاگادارکردنەوە ئەگەر بەروار تێپەڕیبوو<br>
+              • ئۆتۆماتیک دابەشت دەبێت کاتێک تەواو درایەوە
+            </div>
+          </div>
+        </div>
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--info-light);color:var(--info)">
+            <i class="ti ti-wallet"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">خەرجی (Expenses)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • تۆمارکردنی خەرجی دوکان: کرێ، بریشتی، مووچە...<br>
+              • چارتی خەرجی بەپێی کاتیگۆری و ڕۆژ<br>
+              • قازانجی ڕاستەقینە = داهات - خەرجی<br>
+              • دیمەنی ئایینەیی لە داشبۆرد
+            </div>
+          </div>
+        </div>
+        <div class="help-section-item">
+          <div class="help-section-icon" style="background:var(--primary-light);color:var(--primary)">
+            <i class="ti ti-notebook"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">پلانەکان (Plans)</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
+              • نووسینی تێبینی و پلانی داهاتوو<br>
+              • نیشانکردنی پلان وەک تەواوبوو<br>
+              • دەستکاری و سڕینەوەی پلان<br>
+              • بەکارهێنانی ئازادانە بۆ هەر بابەتێک
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: شۆرتکەت -->
+      <div class="help-content" id="help-shortcuts" style="padding:24px;display:none">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          <i class="ti ti-info-circle"></i> ئەم شۆرتکەتانە لە هەموو کاتێکدا کار دەکەن
+        </div>
+        <div style="display:grid;gap:8px">
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>F</kbd>
+            </div>
+            <div>
+              <i class="ti ti-shopping-cart" style="color:var(--success)"></i>
+              فرۆشتنی نوێ
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>K</kbd>
+            </div>
+            <div>
+              <i class="ti ti-package" style="color:var(--primary)"></i>
+              کاڵای نوێ
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>M</kbd>
+            </div>
+            <div>
+              <i class="ti ti-tool" style="color:var(--warning)"></i>
+              چاکسازی نوێ
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>Q</kbd>
+            </div>
+            <div>
+              <i class="ti ti-credit-card" style="color:var(--danger)"></i>
+              قەرزی نوێ
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>P</kbd>
+            </div>
+            <div>
+              <i class="ti ti-notebook" style="color:var(--info)"></i>
+              پلانی نوێ
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>G</kbd>
+            </div>
+            <div>
+              <i class="ti ti-search" style="color:var(--text2)"></i>
+              گەڕانی گشتی
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Ctrl</kbd><span>+</span><kbd>Enter</kbd>
+            </div>
+            <div>
+              <i class="ti ti-maximize" style="color:var(--text2)"></i>
+              تەواو سکرین
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Enter</kbd>
+            </div>
+            <div>
+              <i class="ti ti-check" style="color:var(--success)"></i>
+              پاشەکەوتکردن (کاتێک مۆدال کراوەیە)
+            </div>
+          </div>
+          <div class="shortcut-row">
+            <div style="display:flex;gap:6px">
+              <kbd>Esc</kbd>
+            </div>
+            <div>
+              <i class="ti ti-x" style="color:var(--danger)"></i>
+              داخستنی مۆدال
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: تێبینی -->
+      <div class="help-content" id="help-tips" style="padding:24px;display:none">
+        <div style="display:grid;gap:12px">
+          <div class="help-tip-card" style="border-color:rgba(0,217,166,0.3)">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-bolt" style="font-size:20px;color:var(--success);flex-shrink:0;margin-top:2px"></i>
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">FAB دوگمەی خێرا</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">دوگمەی بنەڕەتی گەورەکە (لە خوارەوە چەپ) کلیک بکە بۆ زیادکردنی هەر شتێک بە خێرایی بەبێ ئەوەی بەشەکە بگۆڕیت</div>
+              </div>
+            </div>
+          </div>
+          <div class="help-tip-card" style="border-color:rgba(108,99,255,0.3)">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-wifi-off" style="font-size:20px;color:var(--primary);flex-shrink:0;margin-top:2px"></i>
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">کاری ئۆفلاین</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">سیستەمەکە ئۆفلاین کار دەکات. گۆڕانکاریەکان پاشەکەوت دەبن و کاتێک ئینتەرنێت گەڕایەوە بە خۆکاری sync دەکرێن</div>
+              </div>
+            </div>
+          </div>
+          <div class="help-tip-card" style="border-color:rgba(247,183,49,0.3)">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-bell" style="font-size:20px;color:var(--warning);flex-shrink:0;margin-top:2px"></i>
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">ئاگادارکردنەوەکان</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">زنگی سەرەوە ئاگادارکردنەوەی کاڵای کەمماو، چاکسازی چاوەڕوان و قەرزی تێپەڕیوو نیشان دەدات</div>
+              </div>
+            </div>
+          </div>
+          <div class="help-tip-card" style="border-color:rgba(56,189,248,0.3)">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-tool" style="font-size:20px;color:var(--info);flex-shrink:0;margin-top:2px"></i>
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">ستاتوسی چاکسازی</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">لە بەشی چاکسازی، دوگمەی چاو (👁) کلیک بکە بۆ دیتنی وردەکاری و گۆڕینی ستاتوس بە کلیکی ساکار</div>
+              </div>
+            </div>
+          </div>
+          <div class="help-tip-card" style="border-color:rgba(255,107,107,0.3)">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <i class="ti ti-database-export" style="font-size:20px;color:var(--danger);flex-shrink:0;margin-top:2px"></i>
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:4px">پشتگیری داتا</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">لە ڕێکخستن → پشتگیری داتا، دەتوانیت هەموو داتاکانت وەک فایلی JSON دابگریت بۆ پاراستن</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -4354,6 +4766,23 @@ function renderExpenses() {
     <i class="ti ti-wallet"></i>
     <p>هیچ خەرجییەک نیە</p>
   </div></td></tr>`;
+}
+
+function openHelpModal() {
+  closeSidebar();
+  // گەڕانەوە بۆ tab-ی یەکەم
+  document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.help-content').forEach(c=>c.style.display='none');
+  document.querySelector('.help-tab[data-tab="overview"]').classList.add('active');
+  document.getElementById('help-overview').style.display='block';
+  openModal('helpModal');
+}
+
+function switchHelpTab(el) {
+  document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.help-content').forEach(c=>c.style.display='none');
+  el.classList.add('active');
+  document.getElementById('help-' + el.dataset.tab).style.display='block';
 }
 
 init();
