@@ -1785,59 +1785,60 @@ body.bg-none::before { background: none; }
 		  </div>
 		</div>
 	  </div>
-<!-- ═══════════════════════ EXPENSES ═══════════════════════ -->
-<div class="page" id="page-expenses">
-  <div class="page-title">
-    <div><h2>خەرجییەکان</h2><p>تۆمارکردنی خەرجی دوکان</p></div>
-    <button class="btn btn-primary" onclick="openExpenseModal()">
-      <i class="ti ti-plus"></i> خەرجی نوێ
-    </button>
-  </div>
-  <div class="stats-grid" id="expenseStats"></div>
-  <div class="report-period-tabs" id="expensePeriodTabs">
-    <div class="period-tab active" data-p="today" onclick="setExpensePeriod(this)">ئەمڕۆ</div>
-    <div class="period-tab" data-p="week" onclick="setExpensePeriod(this)">ئەم هەفتەیە</div>
-    <div class="period-tab" data-p="month" onclick="setExpensePeriod(this)">ئەم مانگە</div>
-    <div class="period-tab" data-p="year" onclick="setExpensePeriod(this)">ئەم ساڵە</div>
-    <div class="period-tab" data-p="all" onclick="setExpensePeriod(this)">هەموو</div>
-  </div>
-  <div class="filters-bar">
-    <input class="filter-input" style="min-width:220px" type="text" 
-      placeholder="گەڕان..." id="expenseSearch" oninput="renderExpenses()">
-    <select class="filter-input" id="expenseCatFilter" onchange="renderExpenses()">
-      <option value="">هەموو کاتیگۆریەکان</option>
-      <option>کرێی دوکان</option>
-      <option>بریشتی</option>
-      <option>مووچەی کارمەند</option>
-      <option>گواستنەوە</option>
-      <option>تر</option>
-    </select>
-  </div>
-  <div class="grid-2 mb-24">
-    <div class="chart-card">
-      <div class="chart-header"><div class="chart-title">خەرجی بەپێی کاتیگۆری</div></div>
-      <div class="chart-wrap"><canvas id="expenseCatChart"></canvas></div>
+      <!-- ═══════════════════════ EXPENSES ═══════════════════════ -->
+    <div class="page" id="page-expenses">
+      <div class="page-title">
+        <div><h2>خەرجییەکان</h2><p>تۆمارکردنی خەرجی دوکان</p></div>
+        <button class="btn btn-primary" onclick="openExpenseModal()">
+          <i class="ti ti-plus"></i> خەرجی نوێ
+        </button>
+      </div>
+      <div class="stats-grid" id="expenseStats"></div>
+      <div class="report-period-tabs" id="expensePeriodTabs">
+        <div class="period-tab active" data-p="today" onclick="setExpensePeriod(this)">ئەمڕۆ</div>
+        <div class="period-tab" data-p="week" onclick="setExpensePeriod(this)">ئەم هەفتەیە</div>
+        <div class="period-tab" data-p="month" onclick="setExpensePeriod(this)">ئەم مانگە</div>
+        <div class="period-tab" data-p="year" onclick="setExpensePeriod(this)">ئەم ساڵە</div>
+        <div class="period-tab" data-p="all" onclick="setExpensePeriod(this)">هەموو</div>
+      </div>
+      <div class="filters-bar">
+        <input class="filter-input" style="min-width:220px" type="text" 
+          placeholder="گەڕان..." id="expenseSearch" oninput="renderExpenses()">
+        <select class="filter-input" id="expenseCatFilter" onchange="renderExpenses()">
+          <option value="">هەموو کاتیگۆریەکان</option>
+          <option>کرێی دوکان</option>
+          <option>بریشتی</option>
+          <option>مووچەی کارمەند</option>
+          <option>گواستنەوە</option>
+          <option>تر</option>
+        </select>
+      </div>
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">خەرجی بەپێی کاتیگۆری</div></div>
+          <div class="chart-wrap"><canvas id="expenseCatChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">خەرجی ڕۆژانە</div></div>
+          <div class="chart-wrap"><canvas id="expenseDailyChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>ناو</th><th>کاتیگۆری</th>
+              <th>بڕ</th><th>تێبینی</th><th>بەروار</th><th>کردار</th>
+            </tr></thead>
+            <tbody id="expenseBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="chart-card">
-      <div class="chart-header"><div class="chart-title">خەرجی ڕۆژانە</div></div>
-      <div class="chart-wrap"><canvas id="expenseDailyChart"></canvas></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>#</th><th>ناو</th><th>کاتیگۆری</th>
-          <th>بڕ</th><th>تێبینی</th><th>بەروار</th><th>کردار</th>
-        </tr></thead>
-        <tbody id="expenseBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
 
   </div><!-- /content -->
 </div><!-- /main -->
+
 
 <!-- PLAN MODAL -->
 <div class="modal-overlay" id="planModal">
