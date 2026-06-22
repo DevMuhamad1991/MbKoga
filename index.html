@@ -875,6 +875,36 @@ select.filter-input { cursor: pointer; }
 .settings-menu-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
 .settings-menu-arrow { font-size: 18px; color: var(--text3); }
 
+:root {
+  --secondary: #00D9A6;
+}
+
+/* قەبارەی فۆنت (zoom کاردەکات لە هەموو وێبگەڕە Chromium-بنچینەکان) */
+body.font-small { zoom: 0.9; }
+body.font-medium { zoom: 1; }
+body.font-large { zoom: 1.12; }
+
+/* تەکنیکی ڕووکار (Density) */
+body.density-compact .card-body { padding: 12px; }
+body.density-compact thead th { padding: 8px 12px; }
+body.density-compact tbody td { padding: 9px 12px; }
+body.density-compact .stat-card { padding: 14px; }
+body.density-compact .stats-grid { gap: 10px; }
+body.density-compact .content { padding: 16px; }
+
+/* وێنەی پاشبنەما — پرێسێتەکان */
+body.bg-aurora::before {
+  background:
+	radial-gradient(ellipse 700px 500px at 10% 0%, rgba(108,99,255,0.15) 0%, transparent 60%),
+	radial-gradient(ellipse 500px 400px at 90% 100%, rgba(0,217,166,0.12) 0%, transparent 60%),
+	radial-gradient(ellipse 400px 300px at 50% 50%, rgba(56,189,248,0.08) 0%, transparent 60%);
+}
+body.bg-dots::before {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+body.bg-none::before { background: none; }
+
 </style>
 </head>
 <body>
@@ -1353,18 +1383,53 @@ select.filter-input { cursor: pointer; }
     <div class="card">
       <div class="card-body">
         <div class="form-grid">
-          <div class="form-group">
-            <label>ڕەنگی سەرەکی (Primary Color)</label>
-            <input class="form-control" id="setPrimaryColor" type="color" style="height:44px;padding:4px;cursor:pointer">
-          </div>
-          <div class="form-group">
-            <label>دۆخی ڕووناکی</label>
-            <select class="form-control" id="setThemeMode">
-              <option value="dark">تاریک</option>
-              <option value="light">ڕووناک</option>
-            </select>
-          </div>
-        </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>ڕەنگی سەرەکی (Primary)</label>
+      <input class="form-control" id="setPrimaryColor" type="color" style="height:44px;padding:4px;cursor:pointer">
+    </div>
+    <div class="form-group">
+      <label>ڕەنگی دووەم (Secondary)</label>
+      <input class="form-control" id="setSecondaryColor" type="color" style="height:44px;padding:4px;cursor:pointer">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>دۆخی ڕووناکی</label>
+      <select class="form-control" id="setThemeMode">
+        <option value="dark">تاریک</option>
+        <option value="light">ڕووناک</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>قەبارەی فۆنت</label>
+      <select class="form-control" id="setFontSize">
+        <option value="small">بچووک</option>
+        <option value="medium">مامناوەند</option>
+        <option value="large">گەورە</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>تەکنیکی ڕووکار</label>
+      <select class="form-control" id="setDensity">
+        <option value="normal">ئاسایی</option>
+        <option value="compact">گرژ (Compact)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>وێنەی پاشبنەما</label>
+      <select class="form-control" id="setBgPattern">
+        <option value="default">ئاسایی</option>
+        <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
+        <option value="dots">خاڵ-خاڵ</option>
+        <option value="none">هیچ</option>
+      </select>
+    </div>
+  </div>
+</div>
+
         <div style="margin-top:16px">
           <button class="btn btn-primary" id="saveDesignBtn" onclick="saveDesignSettings()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
         </div>
@@ -2170,6 +2235,10 @@ function renderSettings() {
   document.getElementById('newAppPin').value = '';
   document.getElementById('oldResetPin').value = '';
   document.getElementById('newResetPin').value = '';
+  document.getElementById('setSecondaryColor').value = SETTINGS.secondary_color || '#00D9A6';
+document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
+document.getElementById('setDensity').value = SETTINGS.density || 'normal';
+document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
   renderCategoryList();  
 }
 
@@ -2315,25 +2384,46 @@ async function deleteCategory(id, name) {
 
 async function saveDesignSettings() {
   const primary_color = document.getElementById('setPrimaryColor').value;
+  const secondary_color = document.getElementById('setSecondaryColor').value;
   const theme_mode = document.getElementById('setThemeMode').value;
+  const font_size = document.getElementById('setFontSize').value;
+  const density = document.getElementById('setDensity').value;
+  const bg_pattern = document.getElementById('setBgPattern').value;
   const btn = document.getElementById('saveDesignBtn');
   btn.disabled = true;
   try {
-    const { error } = await sb.from('settings').update({ primary_color, theme_mode }).eq('id',1);
+    const { error } = await sb.from('settings').update({
+      primary_color, secondary_color, theme_mode, font_size, density, bg_pattern
+    }).eq('id',1);
     if(error) throw error;
     await loadAllData();
-    document.documentElement.style.setProperty('--primary', primary_color);
-    isDark = theme_mode !== 'light';
-    document.body.classList.toggle('light', !isDark);
-    const ico = isDark ? 'ti-sun' : 'ti-moon';
-    document.getElementById('themeIcon').className = 'ti '+ico;
-    document.getElementById('themeIcon2').className = 'ti '+ico;
-    document.getElementById('themeLabel').textContent = isDark ? 'ڕووناک' : 'تاریک';
+    applyDesignSettings();
     renderDashboard();
     toast('ڕێکخستنی دیزاین پاشەکەوتکرا','success');
   } catch(err) {
     toast('کێشە ڕوویدا: '+(err.message||err),'error');
   } finally { btn.disabled=false; }
+}
+
+function applyDesignSettings() {
+  document.documentElement.style.setProperty('--primary', SETTINGS.primary_color || '#6C63FF');
+  document.documentElement.style.setProperty('--secondary', SETTINGS.secondary_color || '#00D9A6');
+
+  isDark = (SETTINGS.theme_mode || 'dark') !== 'light';
+  document.body.classList.toggle('light', !isDark);
+  const ico = isDark ? 'ti-sun' : 'ti-moon';
+  document.getElementById('themeIcon').className = 'ti '+ico;
+  document.getElementById('themeIcon2').className = 'ti '+ico;
+  document.getElementById('themeLabel').textContent = isDark ? 'ڕووناک' : 'تاریک';
+
+  document.body.classList.remove('font-small','font-medium','font-large');
+  document.body.classList.add('font-' + (SETTINGS.font_size || 'medium'));
+
+  document.body.classList.remove('density-compact');
+  if((SETTINGS.density||'normal') === 'compact') document.body.classList.add('density-compact');
+
+  document.body.classList.remove('bg-default','bg-aurora','bg-dots','bg-none');
+  document.body.classList.add('bg-' + (SETTINGS.bg_pattern || 'default'));
 }
 
 function exportDataJSON() {
@@ -3326,11 +3416,10 @@ function checkPin(val) {
   try {
     const { data } = await sb.from('settings').select('*').eq('id',1).single();
     if(data) SETTINGS = data;
-    isDark = SETTINGS.theme_mode !== 'light';
-    document.body.classList.toggle('light', !isDark);
-    document.documentElement.style.setProperty('--primary', SETTINGS.primary_color || '#6C63FF');
+    applyDesignSettings();
   } catch(e) { console.error('preload settings error', e); }
 })();
+
 
 init();
 
