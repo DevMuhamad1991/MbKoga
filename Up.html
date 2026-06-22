@@ -853,6 +853,58 @@ select.filter-input { cursor: pointer; }
 }
 .pin-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
+.settings-menu-item {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.settings-menu-item:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.12); transform: translateY(-1px); }
+.settings-menu-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.settings-menu-text { flex: 1; }
+.settings-menu-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.settings-menu-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.settings-menu-arrow { font-size: 18px; color: var(--text3); }
+
+:root {
+  --secondary: #00D9A6;
+}
+
+/* قەبارەی فۆنت (zoom کاردەکات لە هەموو وێبگەڕە Chromium-بنچینەکان) */
+body.font-small { zoom: 0.9; }
+body.font-medium { zoom: 1; }
+body.font-large { zoom: 1.12; }
+
+/* تەکنیکی ڕووکار (Density) */
+body.density-compact .card-body { padding: 12px; }
+body.density-compact thead th { padding: 8px 12px; }
+body.density-compact tbody td { padding: 9px 12px; }
+body.density-compact .stat-card { padding: 14px; }
+body.density-compact .stats-grid { gap: 10px; }
+body.density-compact .content { padding: 16px; }
+
+/* وێنەی پاشبنەما — پرێسێتەکان */
+body.bg-aurora::before {
+  background:
+	radial-gradient(ellipse 700px 500px at 10% 0%, rgba(108,99,255,0.15) 0%, transparent 60%),
+	radial-gradient(ellipse 500px 400px at 90% 100%, rgba(0,217,166,0.12) 0%, transparent 60%),
+	radial-gradient(ellipse 400px 300px at 50% 50%, rgba(56,189,248,0.08) 0%, transparent 60%);
+}
+body.bg-dots::before {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+body.bg-none::before { background: none; }
+
 </style>
 </head>
 <body>
@@ -892,9 +944,8 @@ select.filter-input { cursor: pointer; }
 	  </div>
 	</div>
 	<div class="nav-section">
-	  <div class="nav-label">بەڕێوەبردن</div>
 	  <div class="nav-item" data-page="inventory" onclick="navigate(this)">
-		<i class="ti ti-package"></i> ئەمبار
+		<i class="ti ti-package"></i> کاڵا
 	  </div>
 	  <div class="nav-item" data-page="sales" onclick="navigate(this)">
 		<i class="ti ti-shopping-cart"></i> فرۆشتن
@@ -909,18 +960,22 @@ select.filter-input { cursor: pointer; }
 	  </div>
 	</div>
 	<div class="nav-section">
-	  <div class="nav-label">ئەنالیز</div>
+
 
 	  <div class="nav-item" data-page="reports" onclick="navigate(this)">
 		<i class="ti ti-chart-bar"></i> ڕاپۆرتەکان
 	  </div>
     
-   <div class="nav-item" data-page="plans" onclick="navigate(this)">
+      <div class="nav-item" data-page="plans" onclick="navigate(this)">
   <i class="ti ti-notebook"></i> پلانەکان
+</div>
+   <div class="nav-item" data-page="settings" onclick="navigate(this)">
+  <i class="ti ti-settings"></i> ڕێکخستن
 </div>
 
 	</div>
   </nav>
+
 <div class="sidebar-footer" style="flex-direction:column;gap:10px;align-items:stretch">
 	<div class="flex items-center" style="justify-content:center">
 	  <span class="conn-status loading" id="connStatus"><span class="conn-dot"></span> پەیوەندی...</span>
@@ -1061,7 +1116,7 @@ select.filter-input { cursor: pointer; }
 	<!-- ═══════════════════════ INVENTORY ═══════════════════════ -->
 	<div class="page" id="page-inventory">
 	  <div class="page-title">
-		<div><h2>ئەمبار</h2><p>بەڕێوەبردنی کاڵاکان</p></div>
+		<div><h2>دوکان</h2><p>بەڕێوەبردنی کاڵاکان</p></div>
 		<button class="btn btn-primary" onclick="openProductModal()"><i class="ti ti-plus"></i> کاڵای نوێ</button>
 	  </div>
 	  <div class="stats-grid" id="invStats"></div>
@@ -1185,6 +1240,249 @@ select.filter-input { cursor: pointer; }
   <div id="plansList"></div>
 </div>
 
+<!-- ═══════════════════════ SETTINGS ═══════════════════════ -->
+<div class="page" id="page-settings">
+  <div class="page-title">
+    <div><h2>ڕێکخستن</h2><p>ڕێکخستنی گشتی سیستەم</p></div>
+  </div>
+
+<!-- لیستی هەڵبژاردنی ڕێکخستن -->
+<div id="settingsMenu">
+  <div class="settings-menu-item" data-s="store" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--primary-light);color:var(--primary)"><i class="ti ti-building-store"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">زانیاری دوکان</div>
+      <div class="settings-menu-desc">ناو، تەلەفۆن و ناونیشانی دوکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="system" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--warning-light);color:var(--warning)"><i class="ti ti-lock"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">ڕێکخستنی سیستەم</div>
+      <div class="settings-menu-desc">گۆڕینی پاسۆرد و کۆدی سڕینەوە</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="design" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--info-light);color:var(--info)"><i class="ti ti-palette"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">ڕێکخستنی دیزاین</div>
+      <div class="settings-menu-desc">ڕەنگ و دۆخی ڕووناکی</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="info" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--success-light);color:var(--success)"><i class="ti ti-info-circle"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">زانیاری سیستەم</div>
+      <div class="settings-menu-desc">وەرژن و تایبەتمەندییەکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+
+  <div class="settings-menu-item" data-s="backup" onclick="openSettingsSection(this)">
+    <div class="settings-menu-icon" style="background:var(--danger-light);color:var(--danger)"><i class="ti ti-database-export"></i></div>
+    <div class="settings-menu-text">
+      <div class="settings-menu-title">پشتگیری داتا</div>
+      <div class="settings-menu-desc">دابگرتنی هەموو داتاکان</div>
+    </div>
+    <i class="ti ti-chevron-left settings-menu-arrow"></i>
+  </div>
+</div>
+
+<!-- دوگمەی گەڕانەوە -->
+<div id="settingsBackBtn" style="display:none;margin-bottom:16px">
+  <button class="btn btn-ghost" onclick="closeSettingsSection()"><i class="ti ti-arrow-right"></i> گەڕانەوە بۆ ڕێکخستن</button>
+</div>
+
+
+  <!-- ١. زانیاری دوکان -->
+<div class="settings-section" data-section="store" style="display:none">
+
+    <div class="card">
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ناوی دوکان</label>
+            <input class="form-control" id="setStoreName" placeholder="Mobile Store">
+          </div>
+          <div class="form-group">
+            <label>ژمارەی تەلەفۆن</label>
+            <input class="form-control" id="setStorePhone" placeholder="07xx xxx xxxx">
+          </div>
+          <div class="form-group">
+            <label>ناونیشان</label>
+            <textarea class="form-control" id="setStoreAddress" placeholder="ناونیشانی دوکان..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-primary" id="saveStoreBtn" onclick="saveStoreInfo()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٢. ڕێکخستنی سیستەم -->
+  <div class="settings-section" data-section="system" style="display:none">
+    <div class="card mb-16">
+      <div class="card-body">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px">گۆڕینی پاسۆردی داخستن</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>کۆدی ئێستا</label>
+            <input class="form-control" id="oldAppPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
+          </div>
+          <div class="form-group">
+            <label>کۆدی نوێ (٤ ژمارە)</label>
+            <input class="form-control" id="newAppPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-primary" id="changeAppPinBtn" onclick="changeAppPin()"><i class="ti ti-lock"></i> گۆڕینی پاسۆرد</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px">گۆڕینی کۆدی سڕینەوەی داتا</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>کۆدی ئێستا</label>
+            <input class="form-control" id="oldResetPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
+          </div>
+          <div class="form-group">
+            <label>کۆدی نوێ (٤ ژمارە)</label>
+            <input class="form-control" id="newResetPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-primary" id="changeResetPinBtn" onclick="changeResetPin()"><i class="ti ti-lock"></i> گۆڕینی کۆد</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">بەڕێوەبردنی کاتیگۆری کاڵا</div>
+    <div id="categoryList" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px">
+      <input class="form-control" id="newCategoryName" placeholder="ناوی کاتیگۆریی نوێ">
+      <button class="btn btn-primary" id="addCategoryBtn" onclick="addCategory()" style="white-space:nowrap"><i class="ti ti-plus"></i> زیادکردن</button>
+    </div>
+  </div>
+</div>
+    
+  </div>
+
+  <!-- ٣. ڕێکخستنی دیزاین -->
+  <div class="settings-section" data-section="design" style="display:none">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-grid">
+  <div class="form-row">
+    <div class="form-group">
+      <label>ڕەنگی سەرەکی (Primary)</label>
+      <input class="form-control" id="setPrimaryColor" type="color" style="height:44px;padding:4px;cursor:pointer">
+    </div>
+    <div class="form-group">
+      <label>ڕەنگی دووەم (Secondary)</label>
+      <input class="form-control" id="setSecondaryColor" type="color" style="height:44px;padding:4px;cursor:pointer">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>دۆخی ڕووناکی</label>
+      <select class="form-control" id="setThemeMode">
+        <option value="dark">تاریک</option>
+        <option value="light">ڕووناک</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>قەبارەی فۆنت</label>
+      <select class="form-control" id="setFontSize">
+        <option value="small">بچووک</option>
+        <option value="medium">مامناوەند</option>
+        <option value="large">گەورە</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>تەکنیکی ڕووکار</label>
+      <select class="form-control" id="setDensity">
+        <option value="normal">ئاسایی</option>
+        <option value="compact">گرژ (Compact)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>وێنەی پاشبنەما</label>
+      <select class="form-control" id="setBgPattern">
+        <option value="default">ئاسایی</option>
+        <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
+        <option value="dots">خاڵ-خاڵ</option>
+        <option value="none">هیچ</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+        <div style="margin-top:16px">
+          <button class="btn btn-primary" id="saveDesignBtn" onclick="saveDesignSettings()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٤. زانیاری سیستەم -->
+  <div class="settings-section" data-section="info" style="display:none">
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span class="td-muted">وەرژنی سیستەم</span><span class="fw-700">1.0.0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span class="td-muted">بەرواری دوایین نوێکردنەوە</span><span class="fw-700">2026-06-21</span>
+        </div>
+        <div style="padding:14px 0 0">
+          <div class="td-muted" style="margin-bottom:8px">تایبەتمەندیە نوێیەکان:</div>
+          <ul style="font-size:12.5px;color:var(--text2);padding-right:18px;line-height:1.9">
+            <li>زیادکردنی بەشی پلانەکان</li>
+            <li>زیادکردنی بەشی ڕێکخستن</li>
+            <li>پشتگیری گەڕاندنەوەی فرۆشتن</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ٥. پشتگیری داتا -->
+<div class="settings-section" data-section="backup" style="display:none">
+  <div class="card mb-16">
+    <div class="card-body" style="text-align:center">
+      <i class="ti ti-database-export color-primary" style="font-size:32px"></i>
+      <div style="font-size:14px;font-weight:700;margin-top:10px">دابگرتنی هەموو داتاکان</div>
+      <div style="font-size:12.5px;color:var(--text2);margin:8px 0 16px">هەموو کاڵا، فرۆشتن، چاکسازی، قەرز و پلانەکان بکەوێتە فایلێکی JSON</div>
+      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابگرتنی داتا (JSON)</button>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(255,107,107,0.25)">
+    <div class="card-body" style="text-align:center">
+      <i class="ti ti-alert-triangle color-red" style="font-size:28px"></i>
+      <div style="font-size:14px;font-weight:700;margin-top:8px">ناوچەی مەترسیدار</div>
+      <div style="font-size:12.5px;color:var(--text2);margin:6px 0 14px">سڕینەوەی هەموو داتاکانی دوکان — کردارێکی ناگەڕاوەتەوە</div>
+      <button class="btn btn-danger" onclick="openResetAllModal()"><i class="ti ti-trash"></i> سڕینەوەی هەموو داتاکان</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
 	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
 	<div class="page" id="page-reports">
 	  <div class="page-title">
@@ -1234,16 +1532,6 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		</div>
 	  </div>
-
-	  <div class="card" style="border-color:rgba(255,107,107,0.25);margin-top:16px">
-		<div class="card-body" style="text-align:center">
-		  <i class="ti ti-alert-triangle color-red" style="font-size:28px"></i>
-		  <div style="font-size:14px;font-weight:700;margin-top:8px">ناوچەی مەترسیدار</div>
-		  <div style="font-size:12.5px;color:var(--text2);margin:6px 0 14px">سڕینەوەی هەموو داتاکانی دوکان — کردارێکی ناگەڕاوەتەوە</div>
-		  <button class="btn btn-danger" onclick="openResetAllModal()"><i class="ti ti-trash"></i> سڕینەوەی هەموو داتاکان</button>
-		</div>
-	  </div>
-	</div>
 
 
   </div><!-- /content -->
@@ -1408,14 +1696,16 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		  <div class="form-group">
 			<label>جۆری ئامێر</label>
-			<select class="form-control" id="rDeviceType">
-			  <option>مۆبایل</option>
-			  <option>تابلێت</option>
-			  <option>لاپتۆپ</option>
-			  <option>سمارت واچ</option>
-			  <option>هیتر</option>
-			  <option>تر</option>
-			</select>
+<select class="form-control" id="rDeviceType">
+  <option>مۆبایل</option>
+  <option>تابلێت</option>
+  <option>لاپتۆپ</option>
+  <option>سمارت واچ</option>
+  <option>هیتر</option>
+  <option>تر</option>
+</select>
+
+
 		  </div>
 		</div>
 		<div class="form-group">
@@ -1538,10 +1828,11 @@ select.filter-input { cursor: pointer; }
 		  ئەم کردارە <b>هەموو</b> داتاکانی دوکان دەسڕێتەوە:
 		</p>
 		<ul style="font-size:12.5px;color:var(--text2);margin-top:8px;padding-right:18px;line-height:1.8">
-		  <li>هەموو کاڵاکانی ئەمبار</li>
+		  <li>هەموو کاڵاکانی دوکان</li>
 		  <li>هەموو مێژووی فرۆشتن</li>
 		  <li>هەموو چاکسازییەکان</li>
 		  <li>هەموو قەرزەکان</li>
+      <li>هەموو پلانەکان</li>
 		</ul>
 		<p style="font-size:12.5px;color:var(--danger);margin-top:8px;font-weight:600">
 		  ئەم کردارە ناگەڕێتەوە و ناتوانرێت هەڵبوەشێتەوە!
@@ -1573,6 +1864,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // In-memory cache of data (loaded from Supabase, kept in sync after every change)
 let CACHE = { products: [], sales: [], repairs: [], debts: [] };
+let SETTINGS = { store_name:'Mobile Store', store_phone:'', store_address:'', primary_color:'#6C63FF', theme_mode:'dark', app_pin:'1887', reset_pin:'1991' };
 
 
 function setConnStatus(state) {
@@ -1592,13 +1884,16 @@ function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, pho
 async function loadAllData() {
   setConnStatus('loading');
   try {
-	const [pRes, sRes, rRes, dRes, plRes] = await Promise.all([
+	const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
   sb.from('products').select('*').order('created_at', { ascending: false }),
   sb.from('sales').select('*').order('created_at', { ascending: false }),
   sb.from('repairs').select('*').order('created_at', { ascending: false }),
   sb.from('debts').select('*').order('created_at', { ascending: false }),
-  sb.from('plans').select('*').order('created_at', { ascending: false })
+  sb.from('plans').select('*').order('created_at', { ascending: false }),
+  sb.from('settings').select('*').eq('id',1).single(),
+  sb.from('categories').select('*').order('name', { ascending: true })
 ]);
+
 
 	if (pRes.error) throw pRes.error;
 	if (sRes.error) throw sRes.error;
@@ -1613,6 +1908,11 @@ CACHE.plans = (plRes.data || []).map(r => ({
   id: r.id, title: r.title, content: r.content,
   status: r.status, createdAt: r.created_at
 }));
+	CACHE.settings = stRes.data || SETTINGS;
+	SETTINGS = CACHE.settings;
+  if(catRes.error) throw catRes.error;
+CACHE.categories = catRes.data || [];
+
 	setConnStatus('online');
 	return true;
   } catch (err) {
@@ -1624,6 +1924,7 @@ CACHE.plans = (plRes.data || []).map(r => ({
 }
 
 
+
 // DB accessor that mimics the old localStorage-based DB object, but reads from CACHE
 const DB = {
   get(key) { return CACHE[key] || []; },
@@ -1632,8 +1933,10 @@ const DB = {
 // ══════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════
-const pageNames = { dashboard:'داشبۆرد', inventory:'ئەمبار', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان'
+
+const pageNames = { dashboard:'داشبۆرد', inventory:'کاڵا', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان', settings:'ڕێکخستن'
  };
+
 
 function navigate(el, page) {
   page = page || el.dataset.page;
@@ -1654,8 +1957,10 @@ function renderPage(p) {
   else if(p==='debts') renderDebts();
   else if(p==='reports') renderReports();
   else if(p==='plans') renderPlans();
+  else if(p==='settings') renderSettings();
 
 }
+
 
 
 // ══════════════════════════════════════════
@@ -1670,7 +1975,7 @@ function closeSidebar() {
   document.getElementById('sidebarOverlay').classList.remove('open');
 }
 let isDark = true;
-function toggleTheme() {
+async function toggleTheme() {
   isDark = !isDark;
   document.body.classList.toggle('light', !isDark);
   const ico = isDark ? 'ti-sun' : 'ti-moon';
@@ -1679,7 +1984,9 @@ function toggleTheme() {
   document.getElementById('themeIcon2').className = 'ti '+ico;
   document.getElementById('themeLabel').textContent = lbl;
   renderDashboard();
+  try { await sb.from('settings').update({ theme_mode: isDark?'dark':'light' }).eq('id',1); } catch(e){}
 }
+
 
 // ══════════════════════════════════════════
 //  TOAST
@@ -1899,6 +2206,238 @@ function renderPlans() {
     </div>`).join('');
 }
 
+// ══════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════
+function openSettingsSection(el) {
+  const tab = el.dataset.s;
+  document.getElementById('settingsMenu').style.display = 'none';
+  document.getElementById('settingsBackBtn').style.display = 'block';
+  document.querySelectorAll('.settings-section').forEach(s=>{
+    s.style.display = s.dataset.section===tab ? 'block' : 'none';
+  });
+}
+
+function closeSettingsSection() {
+  document.getElementById('settingsMenu').style.display = 'block';
+  document.getElementById('settingsBackBtn').style.display = 'none';
+  document.querySelectorAll('.settings-section').forEach(s=> s.style.display='none');
+}
+
+
+function renderSettings() {
+  document.getElementById('setStoreName').value = SETTINGS.store_name || '';
+  document.getElementById('setStorePhone').value = SETTINGS.store_phone || '';
+  document.getElementById('setStoreAddress').value = SETTINGS.store_address || '';
+  document.getElementById('setPrimaryColor').value = SETTINGS.primary_color || '#6C63FF';
+  document.getElementById('setThemeMode').value = SETTINGS.theme_mode || 'dark';
+  document.getElementById('oldAppPin').value = '';
+  document.getElementById('newAppPin').value = '';
+  document.getElementById('oldResetPin').value = '';
+  document.getElementById('newResetPin').value = '';
+  document.getElementById('setSecondaryColor').value = SETTINGS.secondary_color || '#00D9A6';
+document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
+document.getElementById('setDensity').value = SETTINGS.density || 'normal';
+document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
+  renderCategoryList();  
+}
+
+async function saveStoreInfo() {
+  const store_name = document.getElementById('setStoreName').value.trim();
+  const store_phone = document.getElementById('setStorePhone').value.trim();
+  const store_address = document.getElementById('setStoreAddress').value.trim();
+  if(!store_name) { toast('ناوی دوکان پێویستە','error'); return; }
+  const btn = document.getElementById('saveStoreBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('settings').update({ store_name, store_phone, store_address }).eq('id',1);
+    if(error) throw error;
+    await loadAllData();
+    toast('زانیاری دوکان پاشەکەوتکرا','success');
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled=false; }
+}
+
+async function changeAppPin() {
+  const oldPin = document.getElementById('oldAppPin').value.trim();
+  const newPin = document.getElementById('newAppPin').value.trim();
+  if(oldPin !== SETTINGS.app_pin) { toast('کۆدی ئێستا هەڵەیە','error'); return; }
+  if(newPin.length !== 4) { toast('کۆدی نوێ دەبێت ٤ ژمارە بێت','error'); return; }
+  const btn = document.getElementById('changeAppPinBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('settings').update({ app_pin: newPin }).eq('id',1);
+    if(error) throw error;
+    await loadAllData();
+    toast('پاسۆردی داخستن گۆڕدرا','success');
+    document.getElementById('oldAppPin').value=''; document.getElementById('newAppPin').value='';
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled=false; }
+}
+
+async function changeResetPin() {
+  const oldPin = document.getElementById('oldResetPin').value.trim();
+  const newPin = document.getElementById('newResetPin').value.trim();
+  if(oldPin !== SETTINGS.reset_pin) { toast('کۆدی ئێستا هەڵەیە','error'); return; }
+  if(newPin.length !== 4) { toast('کۆدی نوێ دەبێت ٤ ژمارە بێت','error'); return; }
+  const btn = document.getElementById('changeResetPinBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('settings').update({ reset_pin: newPin }).eq('id',1);
+    if(error) throw error;
+    await loadAllData();
+    toast('کۆدی سڕینەوە گۆڕدرا','success');
+    document.getElementById('oldResetPin').value=''; document.getElementById('newResetPin').value='';
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled=false; }
+}
+
+function renderCategoryList() {
+  const cats = CACHE.categories || [];
+  const el = document.getElementById('categoryList');
+  if(!cats.length) { el.innerHTML = '<div style="font-size:12.5px;color:var(--text3)">هیچ کاتیگۆریەک نیە</div>'; return; }
+  el.innerHTML = cats.map(c => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:8px">
+      <span style="flex:1;font-size:13.5px;font-weight:500" id="catLabel-${c.id}">${c.name}</span>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editCategory('${c.id}','${c.name.replace(/'/g,"\\'")}')"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCategory('${c.id}','${c.name.replace(/'/g,"\\'")}')"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+async function addCategory() {
+  const input = document.getElementById('newCategoryName');
+  const name = input.value.trim();
+  if(!name) { toast('ناوی کاتیگۆری بنووسە','error'); return; }
+
+  // پشکنینی دووبارەبوون
+  const exists = (CACHE.categories||[]).some(c => c.name.trim().toLowerCase() === name.toLowerCase());
+  if(exists) { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+
+  const btn = document.getElementById('addCategoryBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('categories').insert({ name });
+    if(error) {
+      if(error.code === '23505') { // unique constraint violation
+        toast('ئەم ناوە پێشتر تۆمارکراوە','error');
+      } else {
+        throw error;
+      }
+      return;
+    }
+    toast('کاتیگۆری زیادکرا','success');
+    input.value = '';
+    await loadAllData();
+    renderCategoryList();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  } finally { btn.disabled = false; }
+}
+
+async function editCategory(id, oldName) {
+  const newName = prompt('ناوی نوێی کاتیگۆری بنووسە:', oldName);
+  if(!newName || !newName.trim() || newName.trim()===oldName) return;
+
+  const trimmedName = newName.trim();
+
+  // پشکنینی دووبارەبوون (بێجگە لە خۆی)
+  const exists = (CACHE.categories||[]).some(c => c.id !== id && c.name.trim().toLowerCase() === trimmedName.toLowerCase());
+  if(exists) { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+
+  try {
+    const { error: catErr } = await sb.from('categories').update({ name: trimmedName }).eq('id', id);
+    if(catErr) {
+      if(catErr.code === '23505') { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+      throw catErr;
+    }
+    // نوێکردنەوەی ناوی کاتیگۆری لە هەموو کاڵاکانی پەیوەست
+    const { error: prodErr } = await sb.from('products').update({ category: trimmedName }).eq('category', oldName);
+    if(prodErr) throw prodErr;
+    toast('کاتیگۆری نوێ کرایەوە','success');
+    await loadAllData();
+    renderCategoryList(); renderInventory();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+
+async function deleteCategory(id, name) {
+  const usedCount = CACHE.products.filter(p=>p.category===name).length;
+  const msg = usedCount > 0
+    ? `${usedCount} کاڵا ئەم کاتیگۆریەیان بەکاردەهێنێت. دڵنیایت لە سڕینەوە؟`
+    : 'دڵنیایت لە سڕینەوەی ئەم کاتیگۆریە؟';
+  if(!confirm(msg)) return;
+  try {
+    const { error } = await sb.from('categories').delete().eq('id', id);
+    if(error) throw error;
+    toast('کاتیگۆری سڕایەوە','info');
+    await loadAllData();
+    renderCategoryList();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+async function saveDesignSettings() {
+  const primary_color = document.getElementById('setPrimaryColor').value;
+  const secondary_color = document.getElementById('setSecondaryColor').value;
+  const theme_mode = document.getElementById('setThemeMode').value;
+  const font_size = document.getElementById('setFontSize').value;
+  const density = document.getElementById('setDensity').value;
+  const bg_pattern = document.getElementById('setBgPattern').value;
+  const btn = document.getElementById('saveDesignBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('settings').update({
+      primary_color, secondary_color, theme_mode, font_size, density, bg_pattern
+    }).eq('id',1);
+    if(error) throw error;
+    await loadAllData();
+    applyDesignSettings();
+    renderDashboard();
+    toast('ڕێکخستنی دیزاین پاشەکەوتکرا','success');
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled=false; }
+}
+
+function applyDesignSettings() {
+  document.documentElement.style.setProperty('--primary', SETTINGS.primary_color || '#6C63FF');
+  document.documentElement.style.setProperty('--secondary', SETTINGS.secondary_color || '#00D9A6');
+
+  isDark = (SETTINGS.theme_mode || 'dark') !== 'light';
+  document.body.classList.toggle('light', !isDark);
+  const ico = isDark ? 'ti-sun' : 'ti-moon';
+  document.getElementById('themeIcon').className = 'ti '+ico;
+  document.getElementById('themeIcon2').className = 'ti '+ico;
+  document.getElementById('themeLabel').textContent = isDark ? 'ڕووناک' : 'تاریک';
+
+  document.body.classList.remove('font-small','font-medium','font-large');
+  document.body.classList.add('font-' + (SETTINGS.font_size || 'medium'));
+
+  document.body.classList.remove('density-compact');
+  if((SETTINGS.density||'normal') === 'compact') document.body.classList.add('density-compact');
+
+  document.body.classList.remove('bg-default','bg-aurora','bg-dots','bg-none');
+  document.body.classList.add('bg-' + (SETTINGS.bg_pattern || 'default'));
+}
+
+function exportDataJSON() {
+  const data = {
+    products: CACHE.products, sales: CACHE.sales, repairs: CACHE.repairs,
+    debts: CACHE.debts, plans: CACHE.plans, exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `mobile-store-backup-${Date.now()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('داتا دابگیرا','success');
+}
 
 // ══════════════════════════════════════════
 //  DASHBOARD
@@ -1926,7 +2465,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	  <div class="stat-icon"><i class="ti ti-package"></i></div>
 	  <div class="stat-value text-mono">${fmtN(products.length)}</div>
 	  <div class="stat-label">کۆی کاڵاکان</div>
-	  <div class="stat-sub">کۆی ئەمبار: ${fmtN(totalStock)}</div>
+	  <div class="stat-sub">کۆی حەدەد: ${fmtN(totalStock)}</div>
 	</div>
 	<div class="stat-card green">
 	  <div class="stat-icon"><i class="ti ti-cash"></i></div>
@@ -2051,7 +2590,7 @@ function renderInventory() {
   const lowP = products.filter(p=>p.qty<=5);
   document.getElementById('invStats').innerHTML = `
 	<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${products.length}</div><div class="stat-label">کۆی کاڵاکان</div></div>
-	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-stack-2"></i></div><div class="stat-value text-mono">${fmtN(products.reduce((a,p)=>a+p.qty,0))}</div><div class="stat-label">کۆی ئەمبار</div></div>
+	<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-stack-2"></i></div><div class="stat-value text-mono">${fmtN(products.reduce((a,p)=>a+p.qty,0))}</div><div class="stat-label">کۆی حەدەد</div></div>
 	<div class="stat-card green"><div class="stat-icon"><i class="ti ti-coin"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal)}</div><div class="stat-label">نرخی فرۆشتنی گشتی</div></div>
 	<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono" style="font-size:18px">${fmtN(totalVal-totalCost)}</div><div class="stat-label">قازانجی ئەگەری</div></div>
 	<div class="stat-card red"><div class="stat-icon"><i class="ti ti-alert-triangle"></i></div><div class="stat-value text-mono">${lowP.length}</div><div class="stat-label">کاڵای کەمماو</div></div>`;
@@ -2108,6 +2647,10 @@ function openProductModal(id) {
 	['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes'].forEach(id=>document.getElementById(id).value='');
 	document.getElementById('pCategory').value='';
   }
+  const catSelect = document.getElementById('pCategory');
+catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
+  (CACHE.categories||[]).map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+
   openModal('productModal');
 }
 function editProduct(id) { openProductModal(id); }
@@ -2226,7 +2769,7 @@ function addToCart(id) {
   const p = DB.get('products').find(x=>x.id===id);
   if(!p) return;
   const ex = saleCart.find(c=>c.id===id);
-  if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('ئەمبار بەسەر چووە','error'); return; } }
+  if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('کاڵا بەسەر چووە','error'); return; } }
   else saleCart.push({id, name:p.name, qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
   renderSaleProducts(); renderSaleCart();
 }
@@ -2304,7 +2847,7 @@ async function completeSale() {
 async function returnSale(id) {
   const s = DB.get('sales').find(x=>x.id===id);
   if(!s) return;
-  if(!confirm(`دڵنیایت لە گەڕاندنەوەی "${s.productName}"؟ کاڵاکە دەگەڕێتەوە ئەمبار.`)) return;
+  if(!confirm(`دڵنیایت لە گەڕاندنەوەی "${s.productName}"؟ کاڵاکە دەگەڕێتەوە دوکان.`)) return;
 
   try {
 	// 1. Mark sale as returned
@@ -2321,7 +2864,7 @@ async function returnSale(id) {
 	}
 
 	await loadAllData();
-	toast('کاڵاکە گەڕایەوە و ئەمبار نوێ کرایەوە','success');
+	toast('کاڵاکە گەڕایەوە دوکان و نوێ کرایەوە','success');
 	renderSales(); renderInventory(); renderDashboard();
   } catch(err) {
 	console.error(err);
@@ -2800,7 +3343,7 @@ function renderReports() {
 // ══════════════════════════════════════════
 //  RESET ALL DATA
 // ══════════════════════════════════════════
-const RESET_PIN = '1991'; // دەتوانیت ئەم ژمارەیە بگۆڕیت بۆ هەر ژمارەیەکی ٤ ڕەقەمی کە حەزت لێیەتی
+
 
 function openResetAllModal() {
   document.getElementById('resetPin').value = '';
@@ -2810,7 +3353,7 @@ function openResetAllModal() {
 async function confirmResetAll() {
   const pin = document.getElementById('resetPin').value.trim();
   if(pin.length !== 4) { toast('تکایە کۆدێکی ٤ ژمارەیی بنووسە','error'); return; }
-  if(pin !== RESET_PIN) { toast('کۆدی پاسۆرد هەڵەیە','error'); return; }
+  if(pin !== SETTINGS.reset_pin) { toast('کۆدی پاسۆرد هەڵەیە','error'); return; }
 
   if(!confirm('دڵنیایت؟ ئەم کردارە هەموو داتاکان دەسڕێتەوە و ناگەڕێتەوە!')) return;
 
@@ -2856,12 +3399,11 @@ async function init() {
   }
 }
 
-const APP_PIN = '1887';
 const SESSION_KEY = 'ms_unlocked';
 
 function checkPin(val) {
   if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
-  if(val === APP_PIN) {
+  if(val === SETTINGS.app_pin) {
     document.getElementById('lockOverlay').style.display = 'none';
     document.documentElement.requestFullscreen().catch(()=>{});
   } else {
@@ -2870,9 +3412,17 @@ function checkPin(val) {
   }
 }
 
+(async function preload(){
+  try {
+    const { data } = await sb.from('settings').select('*').eq('id',1).single();
+    if(data) SETTINGS = data;
+    applyDesignSettings();
+  } catch(e) { console.error('preload settings error', e); }
+})();
 
 
 init();
+
 </script>
 </body>
 </html>
