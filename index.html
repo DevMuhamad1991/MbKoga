@@ -2242,11 +2242,23 @@ async function addCategory() {
   const input = document.getElementById('newCategoryName');
   const name = input.value.trim();
   if(!name) { toast('ناوی کاتیگۆری بنووسە','error'); return; }
+
+  // پشکنینی دووبارەبوون
+  const exists = (CACHE.categories||[]).some(c => c.name.trim().toLowerCase() === name.toLowerCase());
+  if(exists) { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+
   const btn = document.getElementById('addCategoryBtn');
   btn.disabled = true;
   try {
     const { error } = await sb.from('categories').insert({ name });
-    if(error) throw error;
+    if(error) {
+      if(error.code === '23505') { // unique constraint violation
+        toast('ئەم ناوە پێشتر تۆمارکراوە','error');
+      } else {
+        throw error;
+      }
+      return;
+    }
     toast('کاتیگۆری زیادکرا','success');
     input.value = '';
     await loadAllData();
@@ -2259,11 +2271,21 @@ async function addCategory() {
 async function editCategory(id, oldName) {
   const newName = prompt('ناوی نوێی کاتیگۆری بنووسە:', oldName);
   if(!newName || !newName.trim() || newName.trim()===oldName) return;
+
+  const trimmedName = newName.trim();
+
+  // پشکنینی دووبارەبوون (بێجگە لە خۆی)
+  const exists = (CACHE.categories||[]).some(c => c.id !== id && c.name.trim().toLowerCase() === trimmedName.toLowerCase());
+  if(exists) { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+
   try {
-    const { error: catErr } = await sb.from('categories').update({ name: newName.trim() }).eq('id', id);
-    if(catErr) throw catErr;
+    const { error: catErr } = await sb.from('categories').update({ name: trimmedName }).eq('id', id);
+    if(catErr) {
+      if(catErr.code === '23505') { toast('ئەم ناوە پێشتر تۆمارکراوە','error'); return; }
+      throw catErr;
+    }
     // نوێکردنەوەی ناوی کاتیگۆری لە هەموو کاڵاکانی پەیوەست
-    const { error: prodErr } = await sb.from('products').update({ category: newName.trim() }).eq('category', oldName);
+    const { error: prodErr } = await sb.from('products').update({ category: trimmedName }).eq('category', oldName);
     if(prodErr) throw prodErr;
     toast('کاتیگۆری نوێ کرایەوە','success');
     await loadAllData();
@@ -2272,6 +2294,7 @@ async function editCategory(id, oldName) {
     toast('کێشە: '+(err.message||err),'error');
   }
 }
+
 
 async function deleteCategory(id, name) {
   const usedCount = CACHE.products.filter(p=>p.category===name).length;
