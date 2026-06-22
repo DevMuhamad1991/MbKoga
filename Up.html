@@ -905,6 +905,19 @@ body.bg-dots::before {
 }
 body.bg-none::before { background: none; }
 
+.btn:active,
+.btn-primary:hover,
+.btn-ghost:hover,
+.btn-success:hover,
+.btn-danger:hover {
+  background: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(0,217,166,0.3) !important;
+}
+
+
+
 </style>
 </head>
 <body>
@@ -980,11 +993,7 @@ body.bg-none::before { background: none; }
 	<div class="flex items-center" style="justify-content:center">
 	  <span class="conn-status loading" id="connStatus"><span class="conn-dot"></span> پەیوەندی...</span>
 	</div>
-	<button class="footer-btn" onclick="toggleTheme()">
-	  <i class="ti ti-sun" id="themeIcon"></i>
-	  <span id="themeLabel">ڕووناک</span>
-	</button>
-	<div style="text-align:center;font-size:10.5px;color:var(--text3)">دروستکراوە لەلایەن @Dev.Muhamad</div>
+  
 </div>
 
   </div>
@@ -1013,9 +1022,7 @@ body.bg-none::before { background: none; }
 		<div id="notifList"></div>
 	  </div>
 	</div>
-	<button class="theme-btn" onclick="toggleTheme()" title="گۆڕینی تیم">
-	  <i class="ti ti-sun" id="themeIcon2"></i>
-	</button>
+
 <!--  <button class="theme-btn" onclick="toggleFullscreen()" title="تەواو سکرین">
   <i class="ti ti-maximize" id="fullscreenIcon"></i>
 </button>-->
@@ -1424,6 +1431,7 @@ body.bg-none::before { background: none; }
         <option value="default">ئاسایی</option>
         <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
         <option value="dots">خاڵ-خاڵ</option>
+          <input class="form-control" id="setBgColor" type="color" style="height:44px;padding:4px;cursor:pointer">
         <option value="none">هیچ</option>
       </select>
     </div>
@@ -1455,9 +1463,25 @@ body.bg-none::before { background: none; }
             <li>پشتگیری گەڕاندنەوەی فرۆشتن</li>
           </ul>
         </div>
+        </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius);padding:16px;margin-top:10px">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#9C88FF);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0">
+        <i class="ti ti-code"></i>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text)">Dev Muhamad</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">پرۆگرامەری سیستەمەکە</div>
+<a href="https://wa.me/9647509628683" target="_blank" style="font-size:11px;color:#25D366;margin-top:4px;display:flex;align-items:center;gap:4px;text-decoration:none">
+  <i class="ti ti-brand-whatsapp"></i> 07509628683
+</a>
+
       </div>
     </div>
+
   </div>
+
 
   <!-- ٥. پشتگیری داتا -->
 <div class="settings-section" data-section="backup" style="display:none">
@@ -1980,9 +2004,6 @@ async function toggleTheme() {
   document.body.classList.toggle('light', !isDark);
   const ico = isDark ? 'ti-sun' : 'ti-moon';
   const lbl = isDark ? 'ڕووناک' : 'تاریک';
-  document.getElementById('themeIcon').className = 'ti '+ico;
-  document.getElementById('themeIcon2').className = 'ti '+ico;
-  document.getElementById('themeLabel').textContent = lbl;
   renderDashboard();
   try { await sb.from('settings').update({ theme_mode: isDark?'dark':'light' }).eq('id',1); } catch(e){}
 }
@@ -2239,6 +2260,8 @@ function renderSettings() {
 document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
 document.getElementById('setDensity').value = SETTINGS.density || 'normal';
 document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
+document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
+
   renderCategoryList();  
 }
 
@@ -2392,9 +2415,11 @@ async function saveDesignSettings() {
   const btn = document.getElementById('saveDesignBtn');
   btn.disabled = true;
   try {
-    const { error } = await sb.from('settings').update({
-      primary_color, secondary_color, theme_mode, font_size, density, bg_pattern
-    }).eq('id',1);
+ const bg_color = document.getElementById('setBgColor').value;
+const { error } = await sb.from('settings').update({
+  primary_color, secondary_color, theme_mode, font_size, density, bg_pattern, bg_color
+}).eq('id',1);
+
     if(error) throw error;
     await loadAllData();
     applyDesignSettings();
@@ -2406,16 +2431,22 @@ async function saveDesignSettings() {
 }
 
 function applyDesignSettings() {
-  document.documentElement.style.setProperty('--primary', SETTINGS.primary_color || '#6C63FF');
+const primary = SETTINGS.primary_color || '#6C63FF';
+const r = parseInt(primary.slice(1,3),16);
+const g = parseInt(primary.slice(3,5),16);
+const b = parseInt(primary.slice(5,7),16);
+document.documentElement.style.setProperty('--primary', primary);
+document.documentElement.style.setProperty('--primary-light', `rgba(${r},${g},${b},0.15)`);
+document.documentElement.style.setProperty('--primary-glow', `rgba(${r},${g},${b},0.3)`);
+
   document.documentElement.style.setProperty('--secondary', SETTINGS.secondary_color || '#00D9A6');
+document.documentElement.style.setProperty('--success', SETTINGS.secondary_color || '#00D9A6');
+document.documentElement.style.setProperty('--bg', SETTINGS.bg_color || '#080d1a');
 
   isDark = (SETTINGS.theme_mode || 'dark') !== 'light';
   document.body.classList.toggle('light', !isDark);
   const ico = isDark ? 'ti-sun' : 'ti-moon';
-  document.getElementById('themeIcon').className = 'ti '+ico;
-  document.getElementById('themeIcon2').className = 'ti '+ico;
-  document.getElementById('themeLabel').textContent = isDark ? 'ڕووناک' : 'تاریک';
-
+  
   document.body.classList.remove('font-small','font-medium','font-large');
   document.body.classList.add('font-' + (SETTINGS.font_size || 'medium'));
 
