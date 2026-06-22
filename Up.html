@@ -916,7 +916,224 @@ body.bg-none::before { background: none; }
   box-shadow: 0 4px 16px rgba(0,217,166,0.3) !important;
 }
 
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 24px var(--primary-glow);
+  z-index: 500;
+  transition: all var(--transition);
+}
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 32px var(--primary-glow);
+}
+.fab-menu {
+  position: fixed;
+  bottom: 90px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+}
+.fab-menu.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.fab-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.fab-menu-item:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.fab-menu-item i {
+  font-size: 18px;
+}
 
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* خشتە بێتە کارت */
+  .table-wrap table,
+  .table-wrap thead,
+  .table-wrap tbody,
+  .table-wrap th,
+  .table-wrap td,
+  .table-wrap tr {
+    display: block;
+  }
+  .table-wrap thead {
+    display: none;
+  }
+  .table-wrap tbody tr {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    padding: 14px;
+    position: relative;
+  }
+  .table-wrap tbody td {
+    border: none;
+    padding: 5px 0;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+  }
+  .table-wrap tbody td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 600;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+  .table-wrap tbody td:empty { display: none; }
+
+  /* stat cards */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-value { font-size: 20px; }
+
+  /* page title */
+  .page-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .page-title .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* filters */
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-input {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* modal */
+  .modal {
+    border-radius: var(--radius);
+    margin: 8px;
+  }
+  .modal-body { padding: 16px; }
+  .modal-footer {
+    flex-direction: column;
+  }
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* form */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* charts */
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* FAB مەودای خوارەوە */
+  .content {
+    padding-bottom: 90px;
+  }
+
+  /* cart item */
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  /* header */
+  .header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  /* sidebar logo */
+  .sidebar-logo { padding: 16px 14px; }
+
+  /* notif panel */
+  .notif-panel {
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat-card { padding: 12px; }
+  .stat-value { font-size: 18px; }
+  .stat-label { font-size: 11px; }
+}
+
+/* ── OFFLINE BANNER ── */
+.offline-banner {
+  position: fixed;
+  top: var(--header-h);
+  left: 0; right: 0;
+  background: var(--warning);
+  color: #000;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.offline-banner.show { display: flex; }
 
 </style>
 </head>
@@ -982,6 +1199,11 @@ body.bg-none::before { background: none; }
       <div class="nav-item" data-page="plans" onclick="navigate(this)">
   <i class="ti ti-notebook"></i> پلانەکان
 </div>
+
+<div class="nav-item" data-page="expenses" onclick="navigate(this)">
+  <i class="ti ti-wallet"></i> خەرجییەکان
+</div>
+
    <div class="nav-item" data-page="settings" onclick="navigate(this)">
   <i class="ti ti-settings"></i> ڕێکخستن
 </div>
@@ -1027,6 +1249,13 @@ body.bg-none::before { background: none; }
   <i class="ti ti-maximize" id="fullscreenIcon"></i>
 </button>-->
   </header>
+  
+  <!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offlineBanner">
+  <i class="ti ti-wifi-off"></i>
+  ئۆفلاین مۆد — گۆڕانکاریەکان پاشەکەوت دەبن و sync دەکرێن کاتێک ئینتەرنێت بگەڕێتەوە
+</div>
+
 
   <!-- CONTENT -->
   <div class="content">
@@ -1556,10 +1785,62 @@ body.bg-none::before { background: none; }
 		  </div>
 		</div>
 	  </div>
-
+    	  </div>
+    
+      <!-- ═══════════════════════ EXPENSES ═══════════════════════ -->
+    <div class="page" id="page-expenses">
+      <div class="page-title">
+        <div><h2>خەرجییەکان</h2><p>تۆمارکردنی خەرجی دوکان</p></div>
+        <button class="btn btn-primary" onclick="openExpenseModal()">
+          <i class="ti ti-plus"></i> خەرجی نوێ
+        </button>
+      </div>
+      <div class="stats-grid" id="expenseStats"></div>
+      <div class="report-period-tabs" id="expensePeriodTabs">
+        <div class="period-tab active" data-p="today" onclick="setExpensePeriod(this)">ئەمڕۆ</div>
+        <div class="period-tab" data-p="week" onclick="setExpensePeriod(this)">ئەم هەفتەیە</div>
+        <div class="period-tab" data-p="month" onclick="setExpensePeriod(this)">ئەم مانگە</div>
+        <div class="period-tab" data-p="year" onclick="setExpensePeriod(this)">ئەم ساڵە</div>
+        <div class="period-tab" data-p="all" onclick="setExpensePeriod(this)">هەموو</div>
+      </div>
+      <div class="filters-bar">
+        <input class="filter-input" style="min-width:220px" type="text" 
+          placeholder="گەڕان..." id="expenseSearch" oninput="renderExpenses()">
+        <select class="filter-input" id="expenseCatFilter" onchange="renderExpenses()">
+          <option value="">هەموو کاتیگۆریەکان</option>
+          <option>کرێی دوکان</option>
+          <option>بریشتی</option>
+          <option>مووچەی کارمەند</option>
+          <option>گواستنەوە</option>
+          <option>تر</option>
+        </select>
+      </div>
+      <div class="grid-2 mb-24">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">خەرجی بەپێی کاتیگۆری</div></div>
+          <div class="chart-wrap"><canvas id="expenseCatChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">خەرجی ڕۆژانە</div></div>
+          <div class="chart-wrap"><canvas id="expenseDailyChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>ناو</th><th>کاتیگۆری</th>
+              <th>بڕ</th><th>تێبینی</th><th>بەروار</th><th>کردار</th>
+            </tr></thead>
+            <tbody id="expenseBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
   </div><!-- /content -->
 </div><!-- /main -->
+
 
 <!-- PLAN MODAL -->
 <div class="modal-overlay" id="planModal">
@@ -1581,6 +1862,55 @@ body.bg-none::before { background: none; }
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('planModal')">هەڵوەشاندنەوە</button>
       <button class="btn btn-primary" id="planSaveBtn" onclick="savePlan()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h3 id="expenseModalTitle">خەرجی نوێ</h3>
+      <button class="modal-close" onclick="closeModal('expenseModal')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ناوی خەرجی *</label>
+          <input class="form-control" id="exTitle" placeholder="نموونە: کرێی مانگی ٦">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>بڕ (د.ع) *</label>
+            <input class="form-control" id="exAmount" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>کاتیگۆری *</label>
+            <select class="form-control" id="exCategory">
+              <option>کرێی دوکان</option>
+              <option>بریشتی</option>
+              <option>مووچەی کارمەند</option>
+              <option>گواستنەوە</option>
+              <option>تر</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>تێبینی</label>
+          <textarea class="form-control" id="exNote" 
+            placeholder="تێبینی زیاتر..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('expenseModal')">
+        هەڵوەشاندنەوە
+      </button>
+      <button class="btn btn-primary" id="exSaveBtn" onclick="saveExpense()">
+        <i class="ti ti-check"></i> پاشەکەوتکردن
+      </button>
     </div>
   </div>
 </div>
@@ -1874,9 +2204,200 @@ body.bg-none::before { background: none; }
   </div>
 </div>
 
+<!-- FAB -->
+<button class="fab" id="fabBtn" onclick="toggleFab()">
+  <i class="ti ti-plus" id="fabIcon"></i>
+</button>
+<div class="fab-menu" id="fabMenu">
+  <div class="fab-menu-item" onclick="fabAction('sale')">
+    <i class="ti ti-shopping-cart-plus"></i> فرۆشتنی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('repair')">
+    <i class="ti ti-tool"></i> چاکسازی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('debt')">
+    <i class="ti ti-credit-card"></i> قەرزی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('product')">
+    <i class="ti ti-package"></i> کاڵای نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('expense')">
+  <i class="ti ti-wallet"></i> خەرجی نوێ
+</div>
+
+</div>
+
+
 <script>
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INDEXEDDB — ئۆفلاین پاشەکەوتکردن
+// ══════════════════════════════════════════════════════════════
+const IDB_NAME = 'MobileStoreDB';
+const IDB_VERSION = 1;
+const IDB_STORES = [
+  'products','sales','repairs','debts',
+  'plans','expenses','settings','categories','sync_queue'
+];
+
+
+let idb = null;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    if(idb) { resolve(idb); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      IDB_STORES.forEach(store => {
+        if(!db.objectStoreNames.contains(store)) {
+          db.createObjectStore(store, { keyPath: 'id', autoIncrement: false });
+        }
+      });
+    };
+    req.onsuccess = e => { idb = e.target.result; resolve(idb); };
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbGetAll(store) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbPutAll(store, items) {
+  if(!items || !items.length) return;
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const os = tx.objectStore(store);
+    items.forEach(item => os.put(item));
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbClear(store) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).clear();
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbPut(store, item) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(item);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbDelete(store, id) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+// Sync Queue — کاتێک ئۆفلاینە، کردارەکان پاشەکەوت دەبن
+async function addToSyncQueue(action) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sync_queue', 'readwrite');
+    tx.objectStore('sync_queue').put({
+      id: Date.now() + Math.random(),
+      ...action,
+      createdAt: new Date().toISOString()
+    });
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function getSyncQueue() {
+  return await idbGetAll('sync_queue');
+}
+
+async function clearSyncQueue() {
+  await idbClear('sync_queue');
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  ONLINE / OFFLINE DETECTION
+// ══════════════════════════════════════════════════════════════
+let isOnline = navigator.onLine;
+
+window.addEventListener('online', async () => {
+  isOnline = true;
+  setConnStatus('loading');
+  toast('ئینتەرنێت گەڕایەوە — sync دەکرێت...', 'info');
+  await processSyncQueue();
+  await loadAllData();
+  renderPage(getCurrentPage());
+  toast('داتاکان sync کران', 'success');
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  setConnStatus('offline');
+  toast('ئینتەرنێت نییە — ئۆفلاین مۆد چالاکبوو', 'info');
+});
+
+window.addEventListener('offline', () => {
+  document.getElementById('offlineBanner').classList.add('show');
+});
+window.addEventListener('online', () => {
+  document.getElementById('offlineBanner').classList.remove('show');
+});
+
+
+function getCurrentPage() {
+  const active = document.querySelector('.nav-item.active');
+  return active ? active.dataset.page : 'dashboard';
+}
+
+// پرۆسەکردنی sync queue کاتێک ئۆنلاین دەبێتەوە
+async function processSyncQueue() {
+  const queue = await getSyncQueue();
+  if(!queue.length) return;
+
+  let successCount = 0;
+  for(const action of queue) {
+    try {
+      if(action.type === 'insert') {
+        await sb.from(action.table).insert(action.data);
+      } else if(action.type === 'update') {
+        await sb.from(action.table).update(action.data).eq('id', action.id);
+      } else if(action.type === 'delete') {
+        await sb.from(action.table).delete().eq('id', action.id);
+      }
+      successCount++;
+    } catch(err) {
+      console.error('Sync error:', err);
+    }
+  }
+
+  await clearSyncQueue();
+  if(successCount > 0) {
+    toast(`${successCount} کردار sync کرا`, 'success');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1907,45 +2428,104 @@ function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, pho
 
 async function loadAllData() {
   setConnStatus('loading');
+
+  // ئەگەر ئۆفلاینە، لە IDB بخوێنەرەوە
+  if(!isOnline) {
+    try {
+      CACHE.products = await idbGetAll('products');
+      CACHE.sales = await idbGetAll('sales');
+      CACHE.expenses = await idbGetAll('expenses');
+      CACHE.repairs = await idbGetAll('repairs');
+      CACHE.debts = await idbGetAll('debts');
+      CACHE.plans = await idbGetAll('plans');
+      CACHE.categories = await idbGetAll('categories');
+      const settingsArr = await idbGetAll('settings');
+      if(settingsArr.length) { SETTINGS = settingsArr[0]; }
+      setConnStatus('offline');
+      return true;
+    } catch(err) {
+      console.error('IDB load error:', err);
+      setConnStatus('offline');
+      return false;
+    }
+  }
+
+  // ئۆنلاینە — لە Supabase بخوێنەرەوە
   try {
-	const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
+    const [pRes, sRes, rRes, dRes, plRes, stRes, exRes, catRes] = await Promise.all([
   sb.from('products').select('*').order('created_at', { ascending: false }),
   sb.from('sales').select('*').order('created_at', { ascending: false }),
   sb.from('repairs').select('*').order('created_at', { ascending: false }),
   sb.from('debts').select('*').order('created_at', { ascending: false }),
   sb.from('plans').select('*').order('created_at', { ascending: false }),
   sb.from('settings').select('*').eq('id',1).single(),
+  sb.from('expenses').select('*').order('created_at', { ascending: false }),
   sb.from('categories').select('*').order('name', { ascending: true })
 ]);
 
 
-	if (pRes.error) throw pRes.error;
-	if (sRes.error) throw sRes.error;
-	if (rRes.error) throw rRes.error;
-if (plRes.error) throw plRes.error;
-CACHE.debts = (dRes.data || []).map(debtFromDb);
+    if(pRes.error) throw pRes.error;
+    if(sRes.error) throw sRes.error;
+    if(rRes.error) throw rRes.error;
+    if(plRes.error) throw plRes.error;
 
-	CACHE.products = (pRes.data || []).map(productFromDb);
-	CACHE.sales = (sRes.data || []).map(saleFromDb);
-	CACHE.repairs = (rRes.data || []).map(repairFromDb);
-CACHE.plans = (plRes.data || []).map(r => ({
-  id: r.id, title: r.title, content: r.content,
-  status: r.status, createdAt: r.created_at
+    CACHE.products = (pRes.data || []).map(productFromDb);
+    CACHE.sales = (sRes.data || []).map(saleFromDb);
+    CACHE.repairs = (rRes.data || []).map(repairFromDb);
+    CACHE.debts = (dRes.data || []).map(debtFromDb);
+    CACHE.plans = (plRes.data || []).map(r => ({
+      id: r.id, title: r.title, content: r.content,
+      status: r.status, createdAt: r.created_at
+    }));
+    CACHE.expenses = (exRes.data || []).map(r => ({
+  id: r.id, title: r.title, amount: Number(r.amount),
+  category: r.category, note: r.note, createdAt: r.created_at
 }));
-	CACHE.settings = stRes.data || SETTINGS;
-	SETTINGS = CACHE.settings;
-  if(catRes.error) throw catRes.error;
-CACHE.categories = catRes.data || [];
 
-	setConnStatus('online');
-	return true;
-  } catch (err) {
-	console.error('Supabase load error:', err);
-	setConnStatus('offline');
-	toast('کێشە لە پەیوەندیکردن بە داتابەیس: ' + (err.message || err), 'error');
-	return false;
+    CACHE.settings = stRes.data || SETTINGS;
+    SETTINGS = CACHE.settings;
+    if(catRes.error) throw catRes.error;
+    CACHE.categories = catRes.data || [];
+
+    // پاشەکەوتکردن لە IDB بۆ ئۆفلاین
+    await idbClear('products'); await idbPutAll('products', CACHE.products);
+    await idbClear('sales'); await idbPutAll('sales', CACHE.sales);
+    await idbClear('repairs'); await idbPutAll('repairs', CACHE.repairs);
+    await idbClear('debts'); await idbPutAll('debts', CACHE.debts);
+    await idbClear('plans'); await idbPutAll('plans', CACHE.plans);
+    await idbClear('categories'); await idbPutAll('categories', CACHE.categories);
+    await idbClear('settings'); await idbPut('settings', SETTINGS);
+    await idbClear('expenses'); 
+await idbPutAll('expenses', CACHE.expenses);
+
+
+    setConnStatus('online');
+    return true;
+  } catch(err) {
+    console.error('Supabase load error:', err);
+
+    // ئەگەر Supabase کار نەکرد، لە IDB بخوێنەرەوە
+    try {
+      CACHE.products = await idbGetAll('products');
+      CACHE.sales = await idbGetAll('sales');
+      CACHE.expenses = await idbGetAll('expenses');
+      CACHE.repairs = await idbGetAll('repairs');
+      CACHE.debts = await idbGetAll('debts');
+      CACHE.plans = await idbGetAll('plans');
+      CACHE.categories = await idbGetAll('categories');
+      const settingsArr = await idbGetAll('settings');
+      if(settingsArr.length) { SETTINGS = settingsArr[0]; }
+      setConnStatus('offline');
+      toast('داتای کاش بەکارهێنراوە', 'info');
+      return true;
+    } catch(idbErr) {
+      setConnStatus('offline');
+      toast('کێشە لە پەیوەندیکردن', 'error');
+      return false;
+    }
   }
 }
+
 
 
 
@@ -1958,8 +2538,12 @@ const DB = {
 //  NAVIGATION
 // ══════════════════════════════════════════
 
-const pageNames = { dashboard:'داشبۆرد', inventory:'کاڵا', sales:'فرۆشتن', repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', plans: 'پلانەکان', settings:'ڕێکخستن'
- };
+const pageNames = { 
+  dashboard:'داشبۆرد', inventory:'کاڵا', sales:'فرۆشتن', 
+  repairs:'چاکسازی', debts:'قەرزەکان', reports:'ڕاپۆرتەکان', 
+  plans:'پلانەکان', expenses:'خەرجییەکان', settings:'ڕێکخستن'
+};
+
 
 
 function navigate(el, page) {
@@ -1982,6 +2566,7 @@ function renderPage(p) {
   else if(p==='reports') renderReports();
   else if(p==='plans') renderPlans();
   else if(p==='settings') renderSettings();
+  else if(p==='expenses') renderExpenses();
 
 }
 
@@ -2481,7 +3066,7 @@ function renderDashboard() {
   const sales = DB.get('sales');
   const repairs = DB.get('repairs');
 
-const activeSales = sales.filter(s=>!s.returned);
+  const activeSales = sales.filter(s=>!s.returned);
   const todaySales = activeSales.filter(s=>isInPeriod(s.createdAt,'today'));
   const monthSales = activeSales.filter(s=>isInPeriod(s.createdAt,'month'));
   const totalProfit = activeSales.reduce((a,s)=>a+(s.profit||0),0);
@@ -2489,7 +3074,13 @@ const activeSales = sales.filter(s=>!s.returned);
   const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
   const totalStock = products.reduce((a,p)=>a+p.qty,0);
   const lowStock = products.filter(p=>p.qty<=5).length;
-    const totalPendingDebt = DB.get('debts').filter(d=>d.status==='pending').reduce((a,d)=>a+debtRemaining(d),0);
+  const totalPendingDebt = DB.get('debts').filter(d=>d.status==='pending').reduce((a,d)=>a+debtRemaining(d),0);
+
+  // ✅ ئەمانە بردرانە ئێرە — پێش innerHTML
+  const monthExpenses = (CACHE.expenses||[])
+    .filter(e=>isInPeriod(e.createdAt,'month'))
+    .reduce((a,e)=>a+e.amount,0);
+  const netProfit = monthProfit - monthExpenses;
 
   document.getElementById('dashStats').innerHTML = `
 	<div class="stat-card purple">
@@ -2523,11 +3114,21 @@ const activeSales = sales.filter(s=>!s.returned);
 	  <div class="stat-sub">کمتر یان ٥ دانە</div>
 	</div>
 	<div class="stat-card red">
+	  <div class="stat-icon"><i class="ti ti-wallet"></i></div>
+	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(monthExpenses)}</div>
+	  <div class="stat-label">خەرجی مانگانە</div>
+	</div>
+	<div class="stat-card ${netProfit>=0?'green':'red'}">
+	  <div class="stat-icon"><i class="ti ti-trending-${netProfit>=0?'up':'down'}"></i></div>
+	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(netProfit)}</div>
+	  <div class="stat-label">قازانجی ڕاستەقینە</div>
+	  <div class="stat-sub">قازانج - خەرجی</div>
+	</div>
+	<div class="stat-card red">
 	  <div class="stat-icon"><i class="ti ti-credit-card"></i></div>
 	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(totalPendingDebt)}</div>
 	  <div class="stat-label">کۆی قەرزی چاوەڕوان</div>
 	</div>`;
-
 
   // Charts
   const gc = isDark ? {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
@@ -2538,7 +3139,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	const d=new Date(); d.setDate(d.getDate()-6+i);
 	return { label: d.toLocaleDateString('ku',{weekday:'short'}), date: d.toDateString() };
   });
-const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
+  const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
   chartInstances['chartDaily'] = new Chart(document.getElementById('chartDaily'), {
 	type:'line',
 	data:{ labels:days7.map(d=>d.label), datasets:[{ data:dailyData, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.1)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#6C63FF', pointRadius:4 }] },
@@ -2551,8 +3152,7 @@ const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDat
   // Monthly chart
   destroyChart('chartMonthly');
   const months = ['کان١','شوبات','ئازار','نیسان','ئایار','حوزەیران','تەمموز','ئاب','ئەیلوول','تشرینی١','تشرینی٢','کانونی١'];
-const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
-
+  const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
   chartInstances['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
 	type:'bar',
 	data:{ labels:months, datasets:[{ data:monthlyData, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:6, borderSkipped:false }] },
@@ -2564,7 +3164,7 @@ const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date
 
   // Profit chart
   destroyChart('chartProfit');
-const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
+  const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
   chartInstances['chartProfit'] = new Chart(document.getElementById('chartProfit'), {
 	type:'line',
 	data:{ labels:months, datasets:[{ data:profitMonthly, borderColor:'#F7B731', backgroundColor:'rgba(247,183,49,0.08)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#F7B731', pointRadius:3 }] },
@@ -2576,7 +3176,7 @@ const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Da
 
   // Top products chart
   destroyChart('chartTop');
-const topMap = {};
+  const topMap = {};
   activeSales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
   const topArr = Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
   chartInstances['chartTop'] = new Chart(document.getElementById('chartTop'), {
@@ -2595,7 +3195,7 @@ const topMap = {};
 	  <td class="text-mono">${fmt(p.sellPrice)}</td>
 	</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>هیچ کاڵایەکی کەمماو نییە</p></div></td></tr>';
 
-// Recent sales
+  // Recent sales
   const recent = [...activeSales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
   document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
 	<tr>
@@ -2639,35 +3239,38 @@ function renderProducts() {
   const cat = document.getElementById('catFilter').value;
   const stock = document.getElementById('stockFilter').value;
   const filtered = products.filter(p=>{
-	const matchQ = !q || p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
-	const matchCat = !cat || p.category===cat;
-	const matchStock = !stock || (stock==='low'?p.qty<=5:p.qty>5);
-	return matchQ && matchCat && matchStock;
+    const matchQ = !q || p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
+    const matchCat = !cat || p.category===cat;
+    const matchStock = !stock || (stock==='low'?p.qty<=5:p.qty>5);
+    return matchQ && matchCat && matchStock;
   });
   const body = document.getElementById('productBody');
   if(!filtered.length) { body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="ti ti-package"></i><p>هیچ کاڵایەک نەدۆزرایەوە</p></div></td></tr>`; return; }
   body.innerHTML = filtered.map((p,i)=>{
-	const profit = p.sellPrice - p.buyPrice;
-	const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
-	const low = p.qty<=5;
-	return `<tr>
-	  <td class="td-muted">${i+1}</td>
-	  <td><div style="font-weight:600">${p.name}</div><div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
-	  <td class="td-muted">${p.brand}</td>
-	  <td><span class="badge badge-purple">${p.category}</span></td>
-	  <td class="text-mono td-muted">${fmt(p.buyPrice)}</td>
-	  <td class="text-mono fw-700">${fmt(p.sellPrice)}</td>
-	  <td class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
-	  <td><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
-	  <td>
-		<div style="display:flex;gap:6px">
-		  <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
-		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-		</div>
-	  </td>
-	</tr>`;
+    const profit = p.sellPrice - p.buyPrice;
+    const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
+    const low = p.qty<=5;
+    return `<tr>
+      <td data-label="#" class="td-muted">${i+1}</td>
+      <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
+      <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
+      <td data-label="بران" class="td-muted">${p.brand}</td>
+      <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
+      <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
+      <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
+      <td data-label="قازانج" class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
+      <td data-label="بڕ"><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
+      <td data-label="کردار">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')"><i class="ti ti-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
+
+
 function openProductModal(id) {
   editProductId = id||null;
   document.getElementById('productModalTitle').textContent = id ? 'دەستکاریکردنی کاڵا' : 'کاڵای نوێ زیاد بکە';
@@ -2684,6 +3287,7 @@ catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
 
   openModal('productModal');
 }
+
 function editProduct(id) { openProductModal(id); }
 async function saveProduct() {
   const name=document.getElementById('pName').value.trim();
@@ -2762,15 +3366,15 @@ function renderSales() {
   const body = document.getElementById('saleBody');
   const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr style="${s.returned?'opacity:0.5':''}">
-	<td class="td-muted">${i+1}</td>
-	<td><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
-	<td class="td-muted">${s.qty}</td>
-	<td class="text-mono td-muted">${fmt(s.unitPrice)}</td>
-	<td class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
-	<td class="text-mono color-green">${fmt(s.profit)}</td>
-	<td class="td-muted">${dateStr(s.createdAt)}</td>
-	<td>${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
-  </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
+  <td data-label="بڕ" class="td-muted">${s.qty}</td>
+  <td data-label="نرخی یەکە" class="text-mono td-muted">${fmt(s.unitPrice)}</td>
+  <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
+  <td data-label="قازانج" class="text-mono color-green">${fmt(s.profit)}</td>
+  <td data-label="بەروار" class="td-muted">${dateStr(s.createdAt)}</td>
+  <td data-label="کردار">${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
+</tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
 }
 
 function openSaleModal() {
@@ -2841,39 +3445,92 @@ async function completeSale() {
   const btn = document.getElementById('saleCompleteBtn');
   btn.disabled = true;
   try {
-	// Insert all sale rows
-	const saleRows = saleCart.map(item => ({
-	  product_id: item.id,
-	  product_name: item.name,
-	  unit_price: item.unitPrice,
-	  qty: item.qty,
-	  total: item.unitPrice*item.qty,
-	  profit: (item.unitPrice-item.buyPrice)*item.qty
-	}));
-	const { error: saleErr } = await sb.from('sales').insert(saleRows);
-	if(saleErr) throw saleErr;
+    const saleRows = saleCart.map(item => ({
+      id: crypto.randomUUID(),
+      productId: item.id,
+      product_id: item.id,
+      productName: item.name,
+      product_name: item.name,
+      unit_price: item.unitPrice,
+      unitPrice: item.unitPrice,
+      qty: item.qty,
+      total: item.unitPrice * item.qty,
+      profit: (item.unitPrice - item.buyPrice) * item.qty,
+      returned: false,
+      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString()
+    }));
 
-  
-	// Update product quantities
-	for (const item of saleCart) {
-	  const p = DB.get('products').find(x=>x.id===item.id);
-	  const newQty = Math.max(0, (p?p.qty:0) - item.qty);
-	  const { error: qtyErr } = await sb.from('products').update({ qty: newQty }).eq('id', item.id);
-	  if(qtyErr) throw qtyErr;
-	}
+    if(isOnline) {
+      // ئۆنلاین — مەستەقیم بنێرە Supabase
+      const { error: saleErr } = await sb.from('sales').insert(
+        saleRows.map(r => ({
+          id: r.id, product_id: r.product_id, product_name: r.product_name,
+          unit_price: r.unit_price, qty: r.qty, total: r.total,
+          profit: r.profit, returned: false
+        }))
+      );
+      if(saleErr) throw saleErr;
 
-	const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
-	await loadAllData();
-	toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
-	closeModal('saleModal'); saleCart=[];
-	renderSales(); buildNotifications();
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        const newQty = Math.max(0, (p?p.qty:0) - item.qty);
+        const { error: qtyErr } = await sb.from('products').update({ qty: newQty }).eq('id', item.id);
+        if(qtyErr) throw qtyErr;
+      }
+    } else {
+      // ئۆفلاین — پاشەکەوت بکە IDB و sync queue
+      await idbPutAll('sales', saleRows);
+
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        if(p) {
+          const newQty = Math.max(0, p.qty - item.qty);
+          const updated = { ...p, qty: newQty };
+          await idbPut('products', updated);
+          CACHE.products = CACHE.products.map(x => x.id===p.id ? updated : x);
+        }
+      }
+
+      // زیادکردن بە sync queue
+      for(const row of saleRows) {
+        await addToSyncQueue({ type:'insert', table:'sales', data: {
+          id: row.id, product_id: row.product_id, product_name: row.product_name,
+          unit_price: row.unit_price, qty: row.qty, total: row.total,
+          profit: row.profit, returned: false
+        }});
+      }
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        if(p) {
+          await addToSyncQueue({ type:'update', table:'products',
+            id: item.id, data: { qty: Math.max(0, p.qty - item.qty) }
+          });
+        }
+      }
+
+      // نوێکردنەوەی cache
+      CACHE.sales = [...saleRows, ...CACHE.sales];
+      toast('ئۆفلاین — فرۆشتن پاشەکەوتکرا، sync دەکرێت کاتێک ئینتەرنێت بگەڕێتەوە', 'info');
+      closeModal('saleModal'); saleCart=[];
+      renderSales(); buildNotifications();
+      btn.disabled = false;
+      return;
+    }
+
+    const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
+    await loadAllData();
+    toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
+    closeModal('saleModal'); saleCart=[];
+    renderSales(); buildNotifications();
   } catch(err) {
-	console.error(err);
-	toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
+    console.error(err);
+    toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
   } finally {
-	btn.disabled = false;
+    btn.disabled = false;
   }
 }
+
 
 async function returnSale(id) {
   const s = DB.get('sales').find(x=>x.id===id);
@@ -2924,23 +3581,23 @@ function renderRepairs() {
   const filtered = repairs.filter(r=>(!q||(r.customerName+r.device+r.phone).toLowerCase().includes(q))&&(!sf||r.status===sf));
   const sorted = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   const body = document.getElementById('repairBody');
-  body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
-	<td class="td-muted">${i+1}</td>
-	<td><b>${r.customerName}</b></td>
-	<td class="td-muted">${r.phone}</td>
-	<td>${r.device} <span class="td-muted">(${r.deviceType})</span></td>
-	<td class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
-	<td class="text-mono color-primary">${fmt(r.cost)}</td>
-	<td>${repairStatusBadge(r.status)}</td>
-	<td class="td-muted">${dateStr(r.createdAt)}</td>
-	<td>
-	  <div style="display:flex;gap:6px">
-		<button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')" title="بینین"><i class="ti ti-eye"></i></button>
-		<button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
-		<button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-	  </div>
-	</td>
-  </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
+body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کڕیار"><b>${r.customerName}</b></td>
+  <td data-label="ژمارە" class="td-muted">${r.phone}</td>
+  <td data-label="ئامێر">${r.device} <span class="td-muted">(${r.deviceType})</span></td>
+  <td data-label="کێشە" class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
+  <td data-label="هزینە" class="text-mono color-primary">${fmt(r.cost)}</td>
+  <td data-label="ستاتوس">${repairStatusBadge(r.status)}</td>
+  <td data-label="بەروار" class="td-muted">${dateStr(r.createdAt)}</td>
+  <td data-label="کردار">
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')"><i class="ti ti-eye"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')"><i class="ti ti-trash"></i></button>
+    </div>
+  </td>
+</tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
 }
 function openRepairModal(id) {
   editRepairId = id||null;
@@ -3086,22 +3743,22 @@ function renderDebts() {
   body.innerHTML = sorted.length ? sorted.map((d,i)=>{
 	const remaining = debtRemaining(d);
 	const isOverdue = d.dueDate && new Date(d.dueDate) < new Date() && d.status==='pending';
-	return `<tr>
-	  <td class="td-muted">${i+1}</td>
-	  <td><b>${d.customerName}</b></td>
-	  <td class="td-muted">${d.phone}</td>
-	  <td class="text-mono">${fmt(d.amount)}</td>
-	  <td class="text-mono color-green">${fmt(d.paidAmount)}</td>
-	  <td class="text-mono color-red fw-700">${fmt(remaining)}</td>
-	  <td class="td-muted">${d.dueDate ? dateStr(d.dueDate) : '—'} ${isOverdue?'<span class="badge badge-red">تێپەڕیوو</span>':''}</td>
-	  <td>${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
-	  <td>
-		<div style="display:flex;gap:6px">
-		  ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
-		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-		</div>
-	  </td>
-	</tr>`;
+return `<tr>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کڕیار"><b>${d.customerName}</b></td>
+  <td data-label="ژمارە" class="td-muted">${d.phone}</td>
+  <td data-label="کۆی قەرز" class="text-mono">${fmt(d.amount)}</td>
+  <td data-label="دراوەتەوە" class="text-mono color-green">${fmt(d.paidAmount)}</td>
+  <td data-label="ماوە" class="text-mono color-red fw-700">${fmt(remaining)}</td>
+  <td data-label="بەرواری مۆڵەت" class="td-muted">${d.dueDate ? dateStr(d.dueDate) : '—'} ${isOverdue?'<span class="badge badge-red">تێپەڕیوو</span>':''}</td>
+  <td data-label="ستاتوس">${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
+  <td data-label="کردار">
+    <div style="display:flex;gap:6px">
+      ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')"><i class="ti ti-trash"></i></button>
+    </div>
+  </td>
+</tr>`;
   }).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-credit-card"></i><p>هیچ قەرزێک نیە</p></div></td></tr>`;
 }
 
@@ -3451,6 +4108,243 @@ function checkPin(val) {
   } catch(e) { console.error('preload settings error', e); }
 })();
 
+// ── FAB ──
+let fabOpen = false;
+function toggleFab() {
+  fabOpen = !fabOpen;
+  document.getElementById('fabMenu').classList.toggle('open', fabOpen);
+  document.getElementById('fabIcon').className = fabOpen ? 'ti ti-x' : 'ti ti-plus';
+}
+function fabAction(type) {
+  toggleFab();
+  if(type === 'sale') { navigate(null,'sales'); setTimeout(()=>openSaleModal(),300); }
+  else if(type === 'repair') { navigate(null,'repairs'); setTimeout(()=>openRepairModal(),300); }
+  else if(type === 'debt') { navigate(null,'debts'); setTimeout(()=>openDebtModal(),300); }
+  else if(type === 'product') { navigate(null,'inventory'); setTimeout(()=>openProductModal(),300); }
+  else if(type === 'expense') { 
+  navigate(null,'expenses'); 
+  setTimeout(()=>openExpenseModal(),300); 
+}
+
+}
+// داخستنی FAB کاتێک دەرەوەی کلیک دەکرێت
+document.addEventListener('click', e => {
+  if(fabOpen && !e.target.closest('#fabBtn') && !e.target.closest('#fabMenu')) {
+    toggleFab();
+  }
+});
+
+// ══════════════════════════════════════════
+//  EXPENSES
+// ══════════════════════════════════════════
+let editExpenseId = null;
+let expensePeriod = 'month';
+
+function setExpensePeriod(el) {
+  document.querySelectorAll('#expensePeriodTabs .period-tab')
+    .forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  expensePeriod = el.dataset.p;
+  renderExpenses();
+}
+
+function openExpenseModal(id) {
+  editExpenseId = id || null;
+  document.getElementById('expenseModalTitle').textContent = 
+    id ? 'دەستکاریکردنی خەرجی' : 'خەرجی نوێ';
+  if(id) {
+    const e = (CACHE.expenses||[]).find(x=>x.id===id);
+    if(e) {
+      document.getElementById('exTitle').value = e.title;
+      document.getElementById('exAmount').value = e.amount;
+      document.getElementById('exCategory').value = e.category;
+      document.getElementById('exNote').value = e.note||'';
+    }
+  } else {
+    document.getElementById('exTitle').value = '';
+    document.getElementById('exAmount').value = '';
+    document.getElementById('exCategory').value = 'تر';
+    document.getElementById('exNote').value = '';
+  }
+  openModal('expenseModal');
+}
+
+async function saveExpense() {
+  const title = document.getElementById('exTitle').value.trim();
+  const amount = parseFloat(document.getElementById('exAmount').value)||0;
+  const category = document.getElementById('exCategory').value;
+  const note = document.getElementById('exNote').value.trim();
+  if(!title||!amount) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
+
+  const btn = document.getElementById('exSaveBtn');
+  btn.disabled = true;
+  try {
+    if(editExpenseId) {
+      const { error } = await sb.from('expenses')
+        .update({ title, amount, category, note })
+        .eq('id', editExpenseId);
+      if(error) throw error;
+      toast('خەرجییەکە نوێ کرایەوە','success');
+    } else {
+      const { error } = await sb.from('expenses')
+        .insert({ title, amount, category, note });
+      if(error) throw error;
+      toast('خەرجی نوێ زیادکرا','success');
+    }
+    await loadAllData();
+    closeModal('expenseModal');
+    renderExpenses();
+    renderDashboard();
+  } catch(err) {
+    toast('کێشە ڕوویدا: '+(err.message||err),'error');
+  } finally { btn.disabled = false; }
+}
+
+async function deleteExpense(id) {
+  if(!confirm('دڵنیایت لە سڕینەوەی ئەم خەرجییە؟')) return;
+  try {
+    const { error } = await sb.from('expenses').delete().eq('id', id);
+    if(error) throw error;
+    await loadAllData();
+    toast('خەرجییەکە سڕایەوە','info');
+    renderExpenses();
+    renderDashboard();
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+function renderExpenses() {
+  const expenses = CACHE.expenses || [];
+  const filtered = expenses.filter(e=>isInPeriod(e.createdAt, expensePeriod));
+  const q = document.getElementById('expenseSearch').value.toLowerCase();
+  const cat = document.getElementById('expenseCatFilter').value;
+  const shown = filtered.filter(e=>
+    (!q||e.title.toLowerCase().includes(q)||e.category.toLowerCase().includes(q)) &&
+    (!cat||e.category===cat)
+  );
+
+  // Stats
+  const totalExp = filtered.reduce((a,e)=>a+e.amount,0);
+  const sales = (CACHE.sales||[]).filter(s=>!s.returned&&isInPeriod(s.createdAt,expensePeriod));
+  const repairs = (CACHE.repairs||[]).filter(r=>isInPeriod(r.createdAt,expensePeriod));
+  const totalRev = sales.reduce((a,s)=>a+s.total,0) + 
+                   repairs.reduce((a,r)=>a+(r.cost||0),0);
+  const totalProfit = sales.reduce((a,s)=>a+(s.profit||0),0);
+  const netProfit = totalProfit - totalExp;
+
+  document.getElementById('expenseStats').innerHTML = `
+    <div class="stat-card red">
+      <div class="stat-icon"><i class="ti ti-wallet"></i></div>
+      <div class="stat-value text-mono" style="font-size:18px">${fmtN(totalExp)}</div>
+      <div class="stat-label">کۆی خەرجی</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon"><i class="ti ti-cash"></i></div>
+      <div class="stat-value text-mono" style="font-size:18px">${fmtN(totalRev)}</div>
+      <div class="stat-label">کۆی داهات</div>
+    </div>
+    <div class="stat-card ${netProfit>=0?'blue':'red'}">
+      <div class="stat-icon"><i class="ti ti-trending-${netProfit>=0?'up':'down'}"></i></div>
+      <div class="stat-value text-mono" style="font-size:18px">${fmtN(netProfit)}</div>
+      <div class="stat-label">قازانجی ڕاستەقینە</div>
+      <div class="stat-sub">داهات - خەرجی</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon"><i class="ti ti-receipt"></i></div>
+      <div class="stat-value text-mono">${filtered.length}</div>
+      <div class="stat-label">ژمارەی خەرجییەکان</div>
+    </div>`;
+
+  // Charts
+  destroyChart('expenseCatChart');
+  destroyChart('expenseDailyChart');
+  const gc = isDark ? 
+    {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : 
+    {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
+
+  // Category chart
+  const catMap = {};
+  filtered.forEach(e=>{ catMap[e.category]=(catMap[e.category]||0)+e.amount; });
+  const catArr = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  chartInstances['expenseCatChart'] = new Chart(
+    document.getElementById('expenseCatChart'), {
+    type:'doughnut',
+    data:{
+      labels: catArr.map(x=>x[0])||['هیچ'],
+      datasets:[{
+        data: catArr.map(x=>x[1])||[1],
+        backgroundColor:['#FF6B6B','#F7B731','#6C63FF','#38BDF8','#00D9A6'],
+        borderWidth:0, hoverOffset:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:gc.text,font:{size:11},padding:10}}}
+    }
+  });
+
+  // Daily chart
+  const days7 = Array.from({length:7},(_,i)=>{
+    const d=new Date(); d.setDate(d.getDate()-6+i);
+    return { label:d.toLocaleDateString('ku',{weekday:'short'}), date:d.toDateString() };
+  });
+  const dailyData = days7.map(d=>
+    filtered.filter(e=>new Date(e.createdAt).toDateString()===d.date)
+            .reduce((a,e)=>a+e.amount,0)
+  );
+  chartInstances['expenseDailyChart'] = new Chart(
+    document.getElementById('expenseDailyChart'), {
+    type:'bar',
+    data:{
+      labels: days7.map(d=>d.label),
+      datasets:[{
+        data: dailyData,
+        backgroundColor:'rgba(255,107,107,0.7)',
+        borderRadius:6, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:gc.text,font:{size:10}}},
+        y:{grid:{color:gc.grid},ticks:{color:gc.text,font:{size:10},
+          callback:v=>fmtN(v)}}
+      }
+    }
+  });
+
+  // Table
+  const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const body = document.getElementById('expenseBody');
+  body.innerHTML = sorted.length ? sorted.map((e,i)=>`<tr>
+    <td data-label="#" class="td-muted">${i+1}</td>
+    <td data-label="ناو"><b>${e.title}</b></td>
+    <td data-label="کاتیگۆری">
+      <span class="badge badge-red">${e.category}</span>
+    </td>
+    <td data-label="بڕ" class="text-mono color-red fw-700">${fmt(e.amount)}</td>
+    <td data-label="تێبینی" class="td-muted">${e.note||'—'}</td>
+    <td data-label="بەروار" class="td-muted">${dateStr(e.createdAt)}</td>
+    <td data-label="کردار">
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm btn-icon" 
+          onclick="openExpenseModal('${e.id}')">
+          <i class="ti ti-edit"></i>
+        </button>
+        <button class="btn btn-danger btn-sm btn-icon" 
+          onclick="deleteExpense('${e.id}')">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+    </td>
+  </tr>`).join('') : 
+  `<tr><td colspan="7"><div class="empty-state">
+    <i class="ti ti-wallet"></i>
+    <p>هیچ خەرجییەک نیە</p>
+  </div></td></tr>`;
+}
 
 init();
 
