@@ -2433,6 +2433,7 @@ async function loadAllData() {
     try {
       CACHE.products = await idbGetAll('products');
       CACHE.sales = await idbGetAll('sales');
+      CACHE.expenses = await idbGetAll('expenses');
       CACHE.repairs = await idbGetAll('repairs');
       CACHE.debts = await idbGetAll('debts');
       CACHE.plans = await idbGetAll('plans');
@@ -2506,6 +2507,7 @@ await idbPutAll('expenses', CACHE.expenses);
     try {
       CACHE.products = await idbGetAll('products');
       CACHE.sales = await idbGetAll('sales');
+      CACHE.expenses = await idbGetAll('expenses');
       CACHE.repairs = await idbGetAll('repairs');
       CACHE.debts = await idbGetAll('debts');
       CACHE.plans = await idbGetAll('plans');
@@ -3063,7 +3065,7 @@ function renderDashboard() {
   const sales = DB.get('sales');
   const repairs = DB.get('repairs');
 
-const activeSales = sales.filter(s=>!s.returned);
+  const activeSales = sales.filter(s=>!s.returned);
   const todaySales = activeSales.filter(s=>isInPeriod(s.createdAt,'today'));
   const monthSales = activeSales.filter(s=>isInPeriod(s.createdAt,'month'));
   const totalProfit = activeSales.reduce((a,s)=>a+(s.profit||0),0);
@@ -3071,7 +3073,13 @@ const activeSales = sales.filter(s=>!s.returned);
   const pendingRepairs = repairs.filter(r=>!['completed','delivered'].includes(r.status)).length;
   const totalStock = products.reduce((a,p)=>a+p.qty,0);
   const lowStock = products.filter(p=>p.qty<=5).length;
-    const totalPendingDebt = DB.get('debts').filter(d=>d.status==='pending').reduce((a,d)=>a+debtRemaining(d),0);
+  const totalPendingDebt = DB.get('debts').filter(d=>d.status==='pending').reduce((a,d)=>a+debtRemaining(d),0);
+
+  // ✅ ئەمانە بردرانە ئێرە — پێش innerHTML
+  const monthExpenses = (CACHE.expenses||[])
+    .filter(e=>isInPeriod(e.createdAt,'month'))
+    .reduce((a,e)=>a+e.amount,0);
+  const netProfit = monthProfit - monthExpenses;
 
   document.getElementById('dashStats').innerHTML = `
 	<div class="stat-card purple">
@@ -3104,26 +3112,22 @@ const activeSales = sales.filter(s=>!s.returned);
 	  <div class="stat-label">کاڵای کەمماو</div>
 	  <div class="stat-sub">کمتر یان ٥ دانە</div>
 	</div>
-  <div class="stat-card red">
-  <div class="stat-icon"><i class="ti ti-wallet"></i></div>
-  <div class="stat-value text-mono" style="font-size:20px">${fmtN(monthExpenses)}</div>
-  <div class="stat-label">خەرجی مانگانە</div>
-</div>
-<div class="stat-card ${netProfit>=0?'green':'red'}">
-  <div class="stat-icon">
-    <i class="ti ti-trending-${netProfit>=0?'up':'down'}"></i>
-  </div>
-  <div class="stat-value text-mono" style="font-size:20px">${fmtN(netProfit)}</div>
-  <div class="stat-label">قازانجی ڕاستەقینە</div>
-  <div class="stat-sub">قازانج - خەرجی</div>
-</div>
-
+	<div class="stat-card red">
+	  <div class="stat-icon"><i class="ti ti-wallet"></i></div>
+	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(monthExpenses)}</div>
+	  <div class="stat-label">خەرجی مانگانە</div>
+	</div>
+	<div class="stat-card ${netProfit>=0?'green':'red'}">
+	  <div class="stat-icon"><i class="ti ti-trending-${netProfit>=0?'up':'down'}"></i></div>
+	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(netProfit)}</div>
+	  <div class="stat-label">قازانجی ڕاستەقینە</div>
+	  <div class="stat-sub">قازانج - خەرجی</div>
+	</div>
 	<div class="stat-card red">
 	  <div class="stat-icon"><i class="ti ti-credit-card"></i></div>
 	  <div class="stat-value text-mono" style="font-size:20px">${fmtN(totalPendingDebt)}</div>
 	  <div class="stat-label">کۆی قەرزی چاوەڕوان</div>
 	</div>`;
-
 
   // Charts
   const gc = isDark ? {grid:'rgba(255,255,255,0.05)',text:'#5A6478'} : {grid:'rgba(0,0,0,0.06)',text:'#9AA3B5'};
@@ -3134,7 +3138,7 @@ const activeSales = sales.filter(s=>!s.returned);
 	const d=new Date(); d.setDate(d.getDate()-6+i);
 	return { label: d.toLocaleDateString('ku',{weekday:'short'}), date: d.toDateString() };
   });
-const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
+  const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDateString()===d.date).reduce((a,s)=>a+s.total,0));
   chartInstances['chartDaily'] = new Chart(document.getElementById('chartDaily'), {
 	type:'line',
 	data:{ labels:days7.map(d=>d.label), datasets:[{ data:dailyData, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.1)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#6C63FF', pointRadius:4 }] },
@@ -3147,8 +3151,7 @@ const dailyData = days7.map(d=>activeSales.filter(s=>new Date(s.createdAt).toDat
   // Monthly chart
   destroyChart('chartMonthly');
   const months = ['کان١','شوبات','ئازار','نیسان','ئایار','حوزەیران','تەمموز','ئاب','ئەیلوول','تشرینی١','تشرینی٢','کانونی١'];
-const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
-
+  const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+s.total,0));
   chartInstances['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
 	type:'bar',
 	data:{ labels:months, datasets:[{ data:monthlyData, backgroundColor:'rgba(0,217,166,0.7)', borderRadius:6, borderSkipped:false }] },
@@ -3160,7 +3163,7 @@ const monthlyData = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date
 
   // Profit chart
   destroyChart('chartProfit');
-const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
+  const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Date(s.createdAt).getMonth()===i&&new Date(s.createdAt).getFullYear()===new Date().getFullYear()).reduce((a,s)=>a+(s.profit||0),0));
   chartInstances['chartProfit'] = new Chart(document.getElementById('chartProfit'), {
 	type:'line',
 	data:{ labels:months, datasets:[{ data:profitMonthly, borderColor:'#F7B731', backgroundColor:'rgba(247,183,49,0.08)', borderWidth:2.5, tension:0.4, fill:true, pointBackgroundColor:'#F7B731', pointRadius:3 }] },
@@ -3172,7 +3175,7 @@ const profitMonthly = Array.from({length:12},(_,i)=>activeSales.filter(s=>new Da
 
   // Top products chart
   destroyChart('chartTop');
-const topMap = {};
+  const topMap = {};
   activeSales.forEach(s=>{ topMap[s.productName]=(topMap[s.productName]||0)+s.qty; });
   const topArr = Object.entries(topMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
   chartInstances['chartTop'] = new Chart(document.getElementById('chartTop'), {
@@ -3191,13 +3194,7 @@ const topMap = {};
 	  <td class="text-mono">${fmt(p.sellPrice)}</td>
 	</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state" style="padding:20px"><p>هیچ کاڵایەکی کەمماو نییە</p></div></td></tr>';
 
-const monthExpenses = (CACHE.expenses||[])
-  .filter(e=>isInPeriod(e.createdAt,'month'))
-  .reduce((a,e)=>a+e.amount,0);
-const netProfit = monthProfit - monthExpenses;
-
-
-// Recent sales
+  // Recent sales
   const recent = [...activeSales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
   document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
 	<tr>
