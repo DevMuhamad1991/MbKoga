@@ -4929,9 +4929,22 @@ function printReceipt(items, total) {
     </body>
     </html>`;
 
-  const win = window.open('', '_blank', 'width=400,height=600');
-  win.document.write(html);
-  win.document.close();
+// مۆبایل — پرینت دەکرێت بەبێ popup
+if(/Mobi|Android/i.test(navigator.userAgent)) {
+  const w = window.open('about:blank');
+  if(w) { w.document.write(html); w.document.close(); }
+  return;
+}
+
+  const blob = new Blob([html], {type: 'text/html'});
+const url = URL.createObjectURL(blob);
+const win = window.open(url, '_blank', 'width=400,height=600');
+if(!win) {
+  toast('تکایە popup بلۆکەکە غەیری چالاک بکە', 'error');
+  return;
+}
+setTimeout(()=> URL.revokeObjectURL(url), 5000);
+
 }
 
 init();
