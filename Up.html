@@ -1162,7 +1162,8 @@ body.bg-none::before { background: none; }
   <div class="sidebar-logo">
 	<div class="sidebar-logo-icon"><i class="ti ti-device-mobile"></i></div>
 	<div class="sidebar-logo-text">
-	  <h1>Mobile Store</h1>
+<h1 id="sidebarStoreName">Mobile Store</h1>
+
 	  <p>سیستەمی بەڕێوەبردن</p>
 	</div>
   </div>
@@ -2861,6 +2862,7 @@ async function saveStoreInfo() {
     const { error } = await sb.from('settings').update({ store_name, store_phone, store_address }).eq('id',1);
     if(error) throw error;
     await loadAllData();
+    updateStoreName();
     toast('زانیاری دوکان پاشەکەوتکرا','success');
   } catch(err) {
     toast('کێشە ڕوویدا: '+(err.message||err),'error');
@@ -4074,11 +4076,19 @@ renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebt
   }
 }
 
+function updateStoreName() {
+  const el = document.getElementById('sidebarStoreName');
+  if(el && SETTINGS.store_name) {
+    el.textContent = SETTINGS.store_name;
+  }
+}
+
 // ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
   const ok = await loadAllData();
+  updateStoreName();
   renderDashboard();
   buildNotifications();
   document.getElementById('loadingOverlay').style.display = 'none';
