@@ -1105,6 +1105,35 @@ body.bg-none::before { background: none; }
     right: 8px;
     width: auto;
   }
+  /* خەرجی — دروستکردنی کارت */
+  #page-expenses .card,
+  #page-expenses .chart-card {
+    border-radius: var(--radius-sm);
+  }
+
+  /* دوگمەی زیادکردن */
+  #page-expenses .page-title .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* فیلتەرەکان */
+  #page-expenses .filters-bar {
+    flex-direction: column;
+  }
+
+  /* تابەکان */
+  #expensePeriodTabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  #expensePeriodTabs .period-tab {
+    text-align: center;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
