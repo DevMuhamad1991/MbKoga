@@ -1424,6 +1424,7 @@ body.bg-none::before { background: none; }
         <option value="default">ئاسایی</option>
         <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
         <option value="dots">خاڵ-خاڵ</option>
+          <input class="form-control" id="setBgColor" type="color" style="height:44px;padding:4px;cursor:pointer">
         <option value="none">هیچ</option>
       </select>
     </div>
@@ -2239,6 +2240,8 @@ function renderSettings() {
 document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
 document.getElementById('setDensity').value = SETTINGS.density || 'normal';
 document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
+document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
+
   renderCategoryList();  
 }
 
@@ -2392,9 +2395,11 @@ async function saveDesignSettings() {
   const btn = document.getElementById('saveDesignBtn');
   btn.disabled = true;
   try {
-    const { error } = await sb.from('settings').update({
-      primary_color, secondary_color, theme_mode, font_size, density, bg_pattern
-    }).eq('id',1);
+ const bg_color = document.getElementById('setBgColor').value;
+const { error } = await sb.from('settings').update({
+  primary_color, secondary_color, theme_mode, font_size, density, bg_pattern, bg_color
+}).eq('id',1);
+
     if(error) throw error;
     await loadAllData();
     applyDesignSettings();
@@ -2408,6 +2413,8 @@ async function saveDesignSettings() {
 function applyDesignSettings() {
   document.documentElement.style.setProperty('--primary', SETTINGS.primary_color || '#6C63FF');
   document.documentElement.style.setProperty('--secondary', SETTINGS.secondary_color || '#00D9A6');
+document.documentElement.style.setProperty('--success', SETTINGS.secondary_color || '#00D9A6');
+document.documentElement.style.setProperty('--bg', SETTINGS.bg_color || '#080d1a');
 
   isDark = (SETTINGS.theme_mode || 'dark') !== 'light';
   document.body.classList.toggle('light', !isDark);
