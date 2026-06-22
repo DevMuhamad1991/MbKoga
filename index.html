@@ -3936,8 +3936,11 @@ async function completeSale() {
     const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
     await loadAllData();
     toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
-    closeModal('saleModal'); saleCart=[];
-    renderSales(); buildNotifications();
+closeModal('saleModal');
+printReceipt(saleRows, totalSold);
+saleCart=[];
+renderSales(); buildNotifications();
+
   } catch(err) {
     console.error(err);
     toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
@@ -4786,8 +4789,152 @@ function switchHelpTab(el) {
   document.getElementById('help-' + el.dataset.tab).style.display='block';
 }
 
-init();
+function printReceipt(items, total) {
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const address = SETTINGS.store_address || '';
+  const now = new Date().toLocaleString('ku');
+  const profit = items.reduce((a,i)=>a+i.profit,0);
 
+  const rows = items.map(i=>`
+    <tr>
+      <td>${i.product_name}</td>
+      <td style="text-align:center">${i.qty}</td>
+      <td style="text-align:left">${Number(i.unit_price).toLocaleString()}</td>
+      <td style="text-align:left">${Number(i.total).toLocaleString()}</td>
+    </tr>`).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="ku" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>پسووڵە</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+          font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
+          font-size: 13px;
+          color: #000;
+          padding: 20px;
+          max-width: 320px;
+          margin: 0 auto;
+        }
+        .header { text-align:center; margin-bottom:16px; }
+        .header h1 { font-size:18px; font-weight:900; margin-bottom:4px; }
+        .header p { font-size:11px; color:#444; line-height:1.6; }
+        .divider {
+          border:none;
+          border-top: 1px dashed #000;
+          margin: 10px 0;
+        }
+        table { width:100%; border-collapse:collapse; }
+        thead th {
+          font-size:11px;
+          padding: 6px 4px;
+          border-bottom: 1px solid #000;
+          text-align:right;
+        }
+        tbody td {
+          padding: 7px 4px;
+          font-size:12px;
+          border-bottom: 1px dashed #ccc;
+          vertical-align:middle;
+        }
+        .total-box {
+          margin-top:12px;
+          background:#f5f5f5;
+          border-radius:6px;
+          padding:10px 12px;
+        }
+        .total-row {
+          display:flex;
+          justify-content:space-between;
+          padding: 4px 0;
+          font-size:13px;
+        }
+        .total-row.main {
+          font-size:15px;
+          font-weight:900;
+          border-top:2px solid #000;
+          margin-top:6px;
+          padding-top:8px;
+        }
+        .footer {
+          text-align:center;
+          margin-top:16px;
+          font-size:11px;
+          color:#555;
+          line-height:1.8;
+        }
+        .footer .thanks {
+          font-size:14px;
+          font-weight:700;
+          color:#000;
+          margin-bottom:4px;
+        }
+        @media print {
+          body { padding:10px; }
+          @page { margin:8mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>${store}</h1>
+        ${phone ? `<p>📞 ${phone}</p>` : ''}
+        ${address ? `<p>📍 ${address}</p>` : ''}
+        <p>🗓 ${now}</p>
+      </div>
+
+      <hr class="divider">
+
+      <table>
+        <thead>
+          <tr>
+            <th>کاڵا</th>
+            <th style="text-align:center">بڕ</th>
+            <th style="text-align:left">نرخ</th>
+            <th style="text-align:left">کۆ</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <div class="total-box">
+        <div class="total-row">
+          <span>ژمارەی کاڵا:</span>
+          <span>${items.reduce((a,i)=>a+i.qty,0)} دانە</span>
+        </div>
+        <div class="total-row main">
+          <span>کۆی گشتی:</span>
+          <span>${Number(total).toLocaleString()} د.ع</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="footer">
+        <div class="thanks">سوپاس بۆ کڕینت 🙏</div>
+        <p>پسووڵەکەت پاراستبێت</p>
+        ${phone ? `<p>پەیوەندی: ${phone}</p>` : ''}
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(()=>window.close(), 1000);
+        }
+      <\/script>
+    </body>
+    </html>`;
+
+  const win = window.open('', '_blank', 'width=400,height=600');
+  win.document.write(html);
+  win.document.close();
+}
+
+init();
 </script>
 </body>
 </html>
