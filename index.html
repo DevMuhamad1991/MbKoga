@@ -916,7 +916,224 @@ body.bg-none::before { background: none; }
   box-shadow: 0 4px 16px rgba(0,217,166,0.3) !important;
 }
 
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 24px var(--primary-glow);
+  z-index: 500;
+  transition: all var(--transition);
+}
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 32px var(--primary-glow);
+}
+.fab-menu {
+  position: fixed;
+  bottom: 90px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+}
+.fab-menu.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.fab-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.fab-menu-item:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.fab-menu-item i {
+  font-size: 18px;
+}
 
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* خشتە بێتە کارت */
+  .table-wrap table,
+  .table-wrap thead,
+  .table-wrap tbody,
+  .table-wrap th,
+  .table-wrap td,
+  .table-wrap tr {
+    display: block;
+  }
+  .table-wrap thead {
+    display: none;
+  }
+  .table-wrap tbody tr {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    padding: 14px;
+    position: relative;
+  }
+  .table-wrap tbody td {
+    border: none;
+    padding: 5px 0;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+  }
+  .table-wrap tbody td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 600;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+  .table-wrap tbody td:empty { display: none; }
+
+  /* stat cards */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-value { font-size: 20px; }
+
+  /* page title */
+  .page-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .page-title .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* filters */
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-input {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* modal */
+  .modal {
+    border-radius: var(--radius);
+    margin: 8px;
+  }
+  .modal-body { padding: 16px; }
+  .modal-footer {
+    flex-direction: column;
+  }
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* form */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* charts */
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* FAB مەودای خوارەوە */
+  .content {
+    padding-bottom: 90px;
+  }
+
+  /* cart item */
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  /* header */
+  .header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  /* sidebar logo */
+  .sidebar-logo { padding: 16px 14px; }
+
+  /* notif panel */
+  .notif-panel {
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat-card { padding: 12px; }
+  .stat-value { font-size: 18px; }
+  .stat-label { font-size: 11px; }
+}
+
+/* ── OFFLINE BANNER ── */
+.offline-banner {
+  position: fixed;
+  top: var(--header-h);
+  left: 0; right: 0;
+  background: var(--warning);
+  color: #000;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.offline-banner.show { display: flex; }
 
 </style>
 </head>
@@ -1027,6 +1244,13 @@ body.bg-none::before { background: none; }
   <i class="ti ti-maximize" id="fullscreenIcon"></i>
 </button>-->
   </header>
+  
+  <!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offlineBanner">
+  <i class="ti ti-wifi-off"></i>
+  ئۆفلاین مۆد — گۆڕانکاریەکان پاشەکەوت دەبن و sync دەکرێن کاتێک ئینتەرنێت بگەڕێتەوە
+</div>
+
 
   <!-- CONTENT -->
   <div class="content">
@@ -1874,9 +2098,192 @@ body.bg-none::before { background: none; }
   </div>
 </div>
 
+<!-- FAB -->
+<button class="fab" id="fabBtn" onclick="toggleFab()">
+  <i class="ti ti-plus" id="fabIcon"></i>
+</button>
+<div class="fab-menu" id="fabMenu">
+  <div class="fab-menu-item" onclick="fabAction('sale')">
+    <i class="ti ti-shopping-cart-plus"></i> فرۆشتنی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('repair')">
+    <i class="ti ti-tool"></i> چاکسازی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('debt')">
+    <i class="ti ti-credit-card"></i> قەرزی نوێ
+  </div>
+  <div class="fab-menu-item" onclick="fabAction('product')">
+    <i class="ti ti-package"></i> کاڵای نوێ
+  </div>
+</div>
+
+
 <script>
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INDEXEDDB — ئۆفلاین پاشەکەوتکردن
+// ══════════════════════════════════════════════════════════════
+const IDB_NAME = 'MobileStoreDB';
+const IDB_VERSION = 1;
+const IDB_STORES = ['products','sales','repairs','debts','plans','settings','categories','sync_queue'];
+
+let idb = null;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    if(idb) { resolve(idb); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      IDB_STORES.forEach(store => {
+        if(!db.objectStoreNames.contains(store)) {
+          db.createObjectStore(store, { keyPath: 'id', autoIncrement: false });
+        }
+      });
+    };
+    req.onsuccess = e => { idb = e.target.result; resolve(idb); };
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbGetAll(store) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbPutAll(store, items) {
+  if(!items || !items.length) return;
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const os = tx.objectStore(store);
+    items.forEach(item => os.put(item));
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbClear(store) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).clear();
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbPut(store, item) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(item);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function idbDelete(store, id) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+// Sync Queue — کاتێک ئۆفلاینە، کردارەکان پاشەکەوت دەبن
+async function addToSyncQueue(action) {
+  const db = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sync_queue', 'readwrite');
+    tx.objectStore('sync_queue').put({
+      id: Date.now() + Math.random(),
+      ...action,
+      createdAt: new Date().toISOString()
+    });
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+async function getSyncQueue() {
+  return await idbGetAll('sync_queue');
+}
+
+async function clearSyncQueue() {
+  await idbClear('sync_queue');
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  ONLINE / OFFLINE DETECTION
+// ══════════════════════════════════════════════════════════════
+let isOnline = navigator.onLine;
+
+window.addEventListener('online', async () => {
+  isOnline = true;
+  setConnStatus('loading');
+  toast('ئینتەرنێت گەڕایەوە — sync دەکرێت...', 'info');
+  await processSyncQueue();
+  await loadAllData();
+  renderPage(getCurrentPage());
+  toast('داتاکان sync کران', 'success');
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  setConnStatus('offline');
+  toast('ئینتەرنێت نییە — ئۆفلاین مۆد چالاکبوو', 'info');
+});
+
+window.addEventListener('offline', () => {
+  document.getElementById('offlineBanner').classList.add('show');
+});
+window.addEventListener('online', () => {
+  document.getElementById('offlineBanner').classList.remove('show');
+});
+
+
+function getCurrentPage() {
+  const active = document.querySelector('.nav-item.active');
+  return active ? active.dataset.page : 'dashboard';
+}
+
+// پرۆسەکردنی sync queue کاتێک ئۆنلاین دەبێتەوە
+async function processSyncQueue() {
+  const queue = await getSyncQueue();
+  if(!queue.length) return;
+
+  let successCount = 0;
+  for(const action of queue) {
+    try {
+      if(action.type === 'insert') {
+        await sb.from(action.table).insert(action.data);
+      } else if(action.type === 'update') {
+        await sb.from(action.table).update(action.data).eq('id', action.id);
+      } else if(action.type === 'delete') {
+        await sb.from(action.table).delete().eq('id', action.id);
+      }
+      successCount++;
+    } catch(err) {
+      console.error('Sync error:', err);
+    }
+  }
+
+  await clearSyncQueue();
+  if(successCount > 0) {
+    toast(`${successCount} کردار sync کرا`, 'success');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1907,45 +2314,92 @@ function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, pho
 
 async function loadAllData() {
   setConnStatus('loading');
+
+  // ئەگەر ئۆفلاینە، لە IDB بخوێنەرەوە
+  if(!isOnline) {
+    try {
+      CACHE.products = await idbGetAll('products');
+      CACHE.sales = await idbGetAll('sales');
+      CACHE.repairs = await idbGetAll('repairs');
+      CACHE.debts = await idbGetAll('debts');
+      CACHE.plans = await idbGetAll('plans');
+      CACHE.categories = await idbGetAll('categories');
+      const settingsArr = await idbGetAll('settings');
+      if(settingsArr.length) { SETTINGS = settingsArr[0]; }
+      setConnStatus('offline');
+      return true;
+    } catch(err) {
+      console.error('IDB load error:', err);
+      setConnStatus('offline');
+      return false;
+    }
+  }
+
+  // ئۆنلاینە — لە Supabase بخوێنەرەوە
   try {
-	const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
-  sb.from('products').select('*').order('created_at', { ascending: false }),
-  sb.from('sales').select('*').order('created_at', { ascending: false }),
-  sb.from('repairs').select('*').order('created_at', { ascending: false }),
-  sb.from('debts').select('*').order('created_at', { ascending: false }),
-  sb.from('plans').select('*').order('created_at', { ascending: false }),
-  sb.from('settings').select('*').eq('id',1).single(),
-  sb.from('categories').select('*').order('name', { ascending: true })
-]);
+    const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
+      sb.from('products').select('*').order('created_at', { ascending: false }),
+      sb.from('sales').select('*').order('created_at', { ascending: false }),
+      sb.from('repairs').select('*').order('created_at', { ascending: false }),
+      sb.from('debts').select('*').order('created_at', { ascending: false }),
+      sb.from('plans').select('*').order('created_at', { ascending: false }),
+      sb.from('settings').select('*').eq('id',1).single(),
+      sb.from('categories').select('*').order('name', { ascending: true })
+    ]);
 
+    if(pRes.error) throw pRes.error;
+    if(sRes.error) throw sRes.error;
+    if(rRes.error) throw rRes.error;
+    if(plRes.error) throw plRes.error;
 
-	if (pRes.error) throw pRes.error;
-	if (sRes.error) throw sRes.error;
-	if (rRes.error) throw rRes.error;
-if (plRes.error) throw plRes.error;
-CACHE.debts = (dRes.data || []).map(debtFromDb);
+    CACHE.products = (pRes.data || []).map(productFromDb);
+    CACHE.sales = (sRes.data || []).map(saleFromDb);
+    CACHE.repairs = (rRes.data || []).map(repairFromDb);
+    CACHE.debts = (dRes.data || []).map(debtFromDb);
+    CACHE.plans = (plRes.data || []).map(r => ({
+      id: r.id, title: r.title, content: r.content,
+      status: r.status, createdAt: r.created_at
+    }));
+    CACHE.settings = stRes.data || SETTINGS;
+    SETTINGS = CACHE.settings;
+    if(catRes.error) throw catRes.error;
+    CACHE.categories = catRes.data || [];
 
-	CACHE.products = (pRes.data || []).map(productFromDb);
-	CACHE.sales = (sRes.data || []).map(saleFromDb);
-	CACHE.repairs = (rRes.data || []).map(repairFromDb);
-CACHE.plans = (plRes.data || []).map(r => ({
-  id: r.id, title: r.title, content: r.content,
-  status: r.status, createdAt: r.created_at
-}));
-	CACHE.settings = stRes.data || SETTINGS;
-	SETTINGS = CACHE.settings;
-  if(catRes.error) throw catRes.error;
-CACHE.categories = catRes.data || [];
+    // پاشەکەوتکردن لە IDB بۆ ئۆفلاین
+    await idbClear('products'); await idbPutAll('products', CACHE.products);
+    await idbClear('sales'); await idbPutAll('sales', CACHE.sales);
+    await idbClear('repairs'); await idbPutAll('repairs', CACHE.repairs);
+    await idbClear('debts'); await idbPutAll('debts', CACHE.debts);
+    await idbClear('plans'); await idbPutAll('plans', CACHE.plans);
+    await idbClear('categories'); await idbPutAll('categories', CACHE.categories);
+    await idbClear('settings'); await idbPut('settings', SETTINGS);
 
-	setConnStatus('online');
-	return true;
-  } catch (err) {
-	console.error('Supabase load error:', err);
-	setConnStatus('offline');
-	toast('کێشە لە پەیوەندیکردن بە داتابەیس: ' + (err.message || err), 'error');
-	return false;
+    setConnStatus('online');
+    return true;
+  } catch(err) {
+    console.error('Supabase load error:', err);
+
+    // ئەگەر Supabase کار نەکرد، لە IDB بخوێنەرەوە
+    try {
+      CACHE.products = await idbGetAll('products');
+      CACHE.sales = await idbGetAll('sales');
+      CACHE.repairs = await idbGetAll('repairs');
+      CACHE.debts = await idbGetAll('debts');
+      CACHE.plans = await idbGetAll('plans');
+      CACHE.categories = await idbGetAll('categories');
+      const settingsArr = await idbGetAll('settings');
+      if(settingsArr.length) { SETTINGS = settingsArr[0]; }
+      setConnStatus('offline');
+      toast('داتای کاش بەکارهێنراوە', 'info');
+      return true;
+    } catch(idbErr) {
+      setConnStatus('offline');
+      toast('کێشە لە پەیوەندیکردن', 'error');
+      return false;
+    }
   }
 }
+
 
 
 
@@ -2650,9 +3104,24 @@ function renderProducts() {
 	const profit = p.sellPrice - p.buyPrice;
 	const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
 	const low = p.qty<=5;
-	return `<tr>
-	  <td class="td-muted">${i+1}</td>
-	  <td><div style="font-weight:600">${p.name}</div><div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
+return `<tr>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
+  <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
+  <td data-label="بران" class="td-muted">${p.brand}</td>
+  <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
+  <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
+  <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
+  <td data-label="قازانج" class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
+  <td data-label="بڕ"><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
+  <td data-label="کردار">
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')"><i class="ti ti-trash"></i></button>
+    </div>
+  </td>
+</tr>`;
+
 	  <td class="td-muted">${p.brand}</td>
 	  <td><span class="badge badge-purple">${p.category}</span></td>
 	  <td class="text-mono td-muted">${fmt(p.buyPrice)}</td>
@@ -2762,8 +3231,16 @@ function renderSales() {
   const body = document.getElementById('saleBody');
   const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr style="${s.returned?'opacity:0.5':''}">
-	<td class="td-muted">${i+1}</td>
-	<td><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
+  <td data-label="بڕ" class="td-muted">${s.qty}</td>
+  <td data-label="نرخی یەکە" class="text-mono td-muted">${fmt(s.unitPrice)}</td>
+  <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
+  <td data-label="قازانج" class="text-mono color-green">${fmt(s.profit)}</td>
+  <td data-label="بەروار" class="td-muted">${dateStr(s.createdAt)}</td>
+  <td data-label="کردار">${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
+</tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
+
 	<td class="td-muted">${s.qty}</td>
 	<td class="text-mono td-muted">${fmt(s.unitPrice)}</td>
 	<td class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
@@ -2841,39 +3318,92 @@ async function completeSale() {
   const btn = document.getElementById('saleCompleteBtn');
   btn.disabled = true;
   try {
-	// Insert all sale rows
-	const saleRows = saleCart.map(item => ({
-	  product_id: item.id,
-	  product_name: item.name,
-	  unit_price: item.unitPrice,
-	  qty: item.qty,
-	  total: item.unitPrice*item.qty,
-	  profit: (item.unitPrice-item.buyPrice)*item.qty
-	}));
-	const { error: saleErr } = await sb.from('sales').insert(saleRows);
-	if(saleErr) throw saleErr;
+    const saleRows = saleCart.map(item => ({
+      id: crypto.randomUUID(),
+      productId: item.id,
+      product_id: item.id,
+      productName: item.name,
+      product_name: item.name,
+      unit_price: item.unitPrice,
+      unitPrice: item.unitPrice,
+      qty: item.qty,
+      total: item.unitPrice * item.qty,
+      profit: (item.unitPrice - item.buyPrice) * item.qty,
+      returned: false,
+      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString()
+    }));
 
-  
-	// Update product quantities
-	for (const item of saleCart) {
-	  const p = DB.get('products').find(x=>x.id===item.id);
-	  const newQty = Math.max(0, (p?p.qty:0) - item.qty);
-	  const { error: qtyErr } = await sb.from('products').update({ qty: newQty }).eq('id', item.id);
-	  if(qtyErr) throw qtyErr;
-	}
+    if(isOnline) {
+      // ئۆنلاین — مەستەقیم بنێرە Supabase
+      const { error: saleErr } = await sb.from('sales').insert(
+        saleRows.map(r => ({
+          id: r.id, product_id: r.product_id, product_name: r.product_name,
+          unit_price: r.unit_price, qty: r.qty, total: r.total,
+          profit: r.profit, returned: false
+        }))
+      );
+      if(saleErr) throw saleErr;
 
-	const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
-	await loadAllData();
-	toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
-	closeModal('saleModal'); saleCart=[];
-	renderSales(); buildNotifications();
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        const newQty = Math.max(0, (p?p.qty:0) - item.qty);
+        const { error: qtyErr } = await sb.from('products').update({ qty: newQty }).eq('id', item.id);
+        if(qtyErr) throw qtyErr;
+      }
+    } else {
+      // ئۆفلاین — پاشەکەوت بکە IDB و sync queue
+      await idbPutAll('sales', saleRows);
+
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        if(p) {
+          const newQty = Math.max(0, p.qty - item.qty);
+          const updated = { ...p, qty: newQty };
+          await idbPut('products', updated);
+          CACHE.products = CACHE.products.map(x => x.id===p.id ? updated : x);
+        }
+      }
+
+      // زیادکردن بە sync queue
+      for(const row of saleRows) {
+        await addToSyncQueue({ type:'insert', table:'sales', data: {
+          id: row.id, product_id: row.product_id, product_name: row.product_name,
+          unit_price: row.unit_price, qty: row.qty, total: row.total,
+          profit: row.profit, returned: false
+        }});
+      }
+      for(const item of saleCart) {
+        const p = DB.get('products').find(x=>x.id===item.id);
+        if(p) {
+          await addToSyncQueue({ type:'update', table:'products',
+            id: item.id, data: { qty: Math.max(0, p.qty - item.qty) }
+          });
+        }
+      }
+
+      // نوێکردنەوەی cache
+      CACHE.sales = [...saleRows, ...CACHE.sales];
+      toast('ئۆفلاین — فرۆشتن پاشەکەوتکرا، sync دەکرێت کاتێک ئینتەرنێت بگەڕێتەوە', 'info');
+      closeModal('saleModal'); saleCart=[];
+      renderSales(); buildNotifications();
+      btn.disabled = false;
+      return;
+    }
+
+    const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
+    await loadAllData();
+    toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
+    closeModal('saleModal'); saleCart=[];
+    renderSales(); buildNotifications();
   } catch(err) {
-	console.error(err);
-	toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
+    console.error(err);
+    toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
   } finally {
-	btn.disabled = false;
+    btn.disabled = false;
   }
 }
+
 
 async function returnSale(id) {
   const s = DB.get('sales').find(x=>x.id===id);
@@ -2924,9 +3454,24 @@ function renderRepairs() {
   const filtered = repairs.filter(r=>(!q||(r.customerName+r.device+r.phone).toLowerCase().includes(q))&&(!sf||r.status===sf));
   const sorted = [...filtered].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   const body = document.getElementById('repairBody');
-  body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
-	<td class="td-muted">${i+1}</td>
-	<td><b>${r.customerName}</b></td>
+body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کڕیار"><b>${r.customerName}</b></td>
+  <td data-label="ژمارە" class="td-muted">${r.phone}</td>
+  <td data-label="ئامێر">${r.device} <span class="td-muted">(${r.deviceType})</span></td>
+  <td data-label="کێشە" class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
+  <td data-label="هزینە" class="text-mono color-primary">${fmt(r.cost)}</td>
+  <td data-label="ستاتوس">${repairStatusBadge(r.status)}</td>
+  <td data-label="بەروار" class="td-muted">${dateStr(r.createdAt)}</td>
+  <td data-label="کردار">
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')"><i class="ti ti-eye"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')"><i class="ti ti-trash"></i></button>
+    </div>
+  </td>
+</tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
+
 	<td class="td-muted">${r.phone}</td>
 	<td>${r.device} <span class="td-muted">(${r.deviceType})</span></td>
 	<td class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
@@ -3086,9 +3631,23 @@ function renderDebts() {
   body.innerHTML = sorted.length ? sorted.map((d,i)=>{
 	const remaining = debtRemaining(d);
 	const isOverdue = d.dueDate && new Date(d.dueDate) < new Date() && d.status==='pending';
-	return `<tr>
-	  <td class="td-muted">${i+1}</td>
-	  <td><b>${d.customerName}</b></td>
+return `<tr>
+  <td data-label="#" class="td-muted">${i+1}</td>
+  <td data-label="کڕیار"><b>${d.customerName}</b></td>
+  <td data-label="ژمارە" class="td-muted">${d.phone}</td>
+  <td data-label="کۆی قەرز" class="text-mono">${fmt(d.amount)}</td>
+  <td data-label="دراوەتەوە" class="text-mono color-green">${fmt(d.paidAmount)}</td>
+  <td data-label="ماوە" class="text-mono color-red fw-700">${fmt(remaining)}</td>
+  <td data-label="بەرواری مۆڵەت" class="td-muted">${d.dueDate ? dateStr(d.dueDate) : '—'} ${isOverdue?'<span class="badge badge-red">تێپەڕیوو</span>':''}</td>
+  <td data-label="ستاتوس">${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
+  <td data-label="کردار">
+    <div style="display:flex;gap:6px">
+      ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')"><i class="ti ti-trash"></i></button>
+    </div>
+  </td>
+</tr>`;
+
 	  <td class="td-muted">${d.phone}</td>
 	  <td class="text-mono">${fmt(d.amount)}</td>
 	  <td class="text-mono color-green">${fmt(d.paidAmount)}</td>
@@ -3451,6 +4010,26 @@ function checkPin(val) {
   } catch(e) { console.error('preload settings error', e); }
 })();
 
+// ── FAB ──
+let fabOpen = false;
+function toggleFab() {
+  fabOpen = !fabOpen;
+  document.getElementById('fabMenu').classList.toggle('open', fabOpen);
+  document.getElementById('fabIcon').className = fabOpen ? 'ti ti-x' : 'ti ti-plus';
+}
+function fabAction(type) {
+  toggleFab();
+  if(type === 'sale') { navigate(null,'sales'); setTimeout(()=>openSaleModal(),300); }
+  else if(type === 'repair') { navigate(null,'repairs'); setTimeout(()=>openRepairModal(),300); }
+  else if(type === 'debt') { navigate(null,'debts'); setTimeout(()=>openDebtModal(),300); }
+  else if(type === 'product') { navigate(null,'inventory'); setTimeout(()=>openProductModal(),300); }
+}
+// داخستنی FAB کاتێک دەرەوەی کلیک دەکرێت
+document.addEventListener('click', e => {
+  if(fabOpen && !e.target.closest('#fabBtn') && !e.target.closest('#fabMenu')) {
+    toggleFab();
+  }
+});
 
 init();
 
