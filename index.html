@@ -1999,9 +1999,6 @@ async function toggleTheme() {
   document.body.classList.toggle('light', !isDark);
   const ico = isDark ? 'ti-sun' : 'ti-moon';
   const lbl = isDark ? 'ڕووناک' : 'تاریک';
-  document.getElementById('themeIcon').className = 'ti '+ico;
-  document.getElementById('themeIcon2').className = 'ti '+ico;
-  document.getElementById('themeLabel').textContent = lbl;
   renderDashboard();
   try { await sb.from('settings').update({ theme_mode: isDark?'dark':'light' }).eq('id',1); } catch(e){}
 }
@@ -2444,10 +2441,7 @@ document.documentElement.style.setProperty('--bg', SETTINGS.bg_color || '#080d1a
   isDark = (SETTINGS.theme_mode || 'dark') !== 'light';
   document.body.classList.toggle('light', !isDark);
   const ico = isDark ? 'ti-sun' : 'ti-moon';
-  document.getElementById('themeIcon').className = 'ti '+ico;
-  document.getElementById('themeIcon2').className = 'ti '+ico;
-  document.getElementById('themeLabel').textContent = isDark ? 'ڕووناک' : 'تاریک';
-
+  
   document.body.classList.remove('font-small','font-medium','font-large');
   document.body.classList.add('font-' + (SETTINGS.font_size || 'medium'));
 
