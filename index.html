@@ -3093,50 +3093,38 @@ function renderProducts() {
   const cat = document.getElementById('catFilter').value;
   const stock = document.getElementById('stockFilter').value;
   const filtered = products.filter(p=>{
-	const matchQ = !q || p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
-	const matchCat = !cat || p.category===cat;
-	const matchStock = !stock || (stock==='low'?p.qty<=5:p.qty>5);
-	return matchQ && matchCat && matchStock;
+    const matchQ = !q || p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
+    const matchCat = !cat || p.category===cat;
+    const matchStock = !stock || (stock==='low'?p.qty<=5:p.qty>5);
+    return matchQ && matchCat && matchStock;
   });
   const body = document.getElementById('productBody');
   if(!filtered.length) { body.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="ti ti-package"></i><p>هیچ کاڵایەک نەدۆزرایەوە</p></div></td></tr>`; return; }
   body.innerHTML = filtered.map((p,i)=>{
-	const profit = p.sellPrice - p.buyPrice;
-	const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
-	const low = p.qty<=5;
-return `<tr>
-  <td data-label="#" class="td-muted">${i+1}</td>
-  <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
-  <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
-  <td data-label="بران" class="td-muted">${p.brand}</td>
-  <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
-  <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
-  <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
-  <td data-label="قازانج" class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
-  <td data-label="بڕ"><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
-  <td data-label="کردار">
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')"><i class="ti ti-edit"></i></button>
-      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')"><i class="ti ti-trash"></i></button>
-    </div>
-  </td>
-</tr>`;
-
-	  <td class="td-muted">${p.brand}</td>
-	  <td><span class="badge badge-purple">${p.category}</span></td>
-	  <td class="text-mono td-muted">${fmt(p.buyPrice)}</td>
-	  <td class="text-mono fw-700">${fmt(p.sellPrice)}</td>
-	  <td class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
-	  <td><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
-	  <td>
-		<div style="display:flex;gap:6px">
-		  <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
-		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-		</div>
-	  </td>
-	</tr>`;
+    const profit = p.sellPrice - p.buyPrice;
+    const profitPct = p.buyPrice ? Math.round((profit/p.buyPrice)*100) : 0;
+    const low = p.qty<=5;
+    return `<tr>
+      <td data-label="#" class="td-muted">${i+1}</td>
+      <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
+      <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
+      <td data-label="بران" class="td-muted">${p.brand}</td>
+      <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
+      <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
+      <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
+      <td data-label="قازانج" class="text-mono color-green">${fmt(profit)} <span class="td-muted">(${profitPct}%)</span></td>
+      <td data-label="بڕ"><span class="badge ${low?'badge-red':'badge-green'}">${p.qty}</span></td>
+      <td data-label="کردار">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')"><i class="ti ti-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
+
+
 function openProductModal(id) {
   editProductId = id||null;
   document.getElementById('productModalTitle').textContent = id ? 'دەستکاریکردنی کاڵا' : 'کاڵای نوێ زیاد بکە';
@@ -3153,6 +3141,7 @@ catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
 
   openModal('productModal');
 }
+
 function editProduct(id) { openProductModal(id); }
 async function saveProduct() {
   const name=document.getElementById('pName').value.trim();
@@ -3240,14 +3229,6 @@ function renderSales() {
   <td data-label="بەروار" class="td-muted">${dateStr(s.createdAt)}</td>
   <td data-label="کردار">${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
 </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
-
-	<td class="td-muted">${s.qty}</td>
-	<td class="text-mono td-muted">${fmt(s.unitPrice)}</td>
-	<td class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
-	<td class="text-mono color-green">${fmt(s.profit)}</td>
-	<td class="td-muted">${dateStr(s.createdAt)}</td>
-	<td>${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
-  </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
 }
 
 function openSaleModal() {
@@ -3471,21 +3452,6 @@ body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
     </div>
   </td>
 </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
-
-	<td class="td-muted">${r.phone}</td>
-	<td>${r.device} <span class="td-muted">(${r.deviceType})</span></td>
-	<td class="td-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.problem}</td>
-	<td class="text-mono color-primary">${fmt(r.cost)}</td>
-	<td>${repairStatusBadge(r.status)}</td>
-	<td class="td-muted">${dateStr(r.createdAt)}</td>
-	<td>
-	  <div style="display:flex;gap:6px">
-		<button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')" title="بینین"><i class="ti ti-eye"></i></button>
-		<button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')" title="دەستکاری"><i class="ti ti-edit"></i></button>
-		<button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-	  </div>
-	</td>
-  </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
 }
 function openRepairModal(id) {
   editRepairId = id||null;
@@ -3647,20 +3613,6 @@ return `<tr>
     </div>
   </td>
 </tr>`;
-
-	  <td class="td-muted">${d.phone}</td>
-	  <td class="text-mono">${fmt(d.amount)}</td>
-	  <td class="text-mono color-green">${fmt(d.paidAmount)}</td>
-	  <td class="text-mono color-red fw-700">${fmt(remaining)}</td>
-	  <td class="td-muted">${d.dueDate ? dateStr(d.dueDate) : '—'} ${isOverdue?'<span class="badge badge-red">تێپەڕیوو</span>':''}</td>
-	  <td>${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
-	  <td>
-		<div style="display:flex;gap:6px">
-		  ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
-		  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')" title="سڕینەوە"><i class="ti ti-trash"></i></button>
-		</div>
-	  </td>
-	</tr>`;
   }).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-credit-card"></i><p>هیچ قەرزێک نیە</p></div></td></tr>`;
 }
 
