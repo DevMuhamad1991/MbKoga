@@ -1631,9 +1631,15 @@ select.filter-input { cursor: pointer; }
 		  </div>
 		  <div class="form-group">
 			<label>جۆری ئامێر</label>
-<select class="form-control" id="pCategory">
-  <option value="">هەڵبژێرە...</option>
+<select class="form-control" id="rDeviceType">
+  <option>مۆبایل</option>
+  <option>تابلێت</option>
+  <option>لاپتۆپ</option>
+  <option>سمارت واچ</option>
+  <option>هیتر</option>
+  <option>تر</option>
 </select>
+
 
 		  </div>
 		</div>
@@ -2164,6 +2170,7 @@ function renderSettings() {
   document.getElementById('newAppPin').value = '';
   document.getElementById('oldResetPin').value = '';
   document.getElementById('newResetPin').value = '';
+  renderCategoryList();  
 }
 
 async function saveStoreInfo() {
