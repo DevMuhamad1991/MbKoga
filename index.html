@@ -2450,18 +2450,17 @@ async function loadAllData() {
 
   // ئۆنلاینە — لە Supabase بخوێنەرەوە
   try {
-    const [pRes, sRes, rRes, dRes, plRes, stRes, catRes] = await Promise.all([
-      sb.from('products').select('*').order('created_at', { ascending: false }),
-      sb.from('sales').select('*').order('created_at', { ascending: false }),
-      sb.from('repairs').select('*').order('created_at', { ascending: false }),
-      sb.from('debts').select('*').order('created_at', { ascending: false }),
-      sb.from('plans').select('*').order('created_at', { ascending: false }),
-      sb.from('settings').select('*').eq('id',1).single(),
-      // لە Promise.all ئەمە زیاد بکە:
-sb.from('expenses').select('*').order('created_at', { ascending: false }),
+    const [pRes, sRes, rRes, dRes, plRes, stRes, exRes, catRes] = await Promise.all([
+  sb.from('products').select('*').order('created_at', { ascending: false }),
+  sb.from('sales').select('*').order('created_at', { ascending: false }),
+  sb.from('repairs').select('*').order('created_at', { ascending: false }),
+  sb.from('debts').select('*').order('created_at', { ascending: false }),
+  sb.from('plans').select('*').order('created_at', { ascending: false }),
+  sb.from('settings').select('*').eq('id',1).single(),
+  sb.from('expenses').select('*').order('created_at', { ascending: false }),
+  sb.from('categories').select('*').order('name', { ascending: true })
+]);
 
-      sb.from('categories').select('*').order('name', { ascending: true })
-    ]);
 
     if(pRes.error) throw pRes.error;
     if(sRes.error) throw sRes.error;
