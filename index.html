@@ -3986,9 +3986,10 @@ async function completeSale() {
     await loadAllData();
     toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
 closeModal('saleModal');
-if(localStorage.getItem('autoPrint') !== 'false') {
+if(SETTINGS.auto_print) {
   printReceipt(saleRows, totalSold);
 }
+
 
 saleCart=[];
 renderSales(); buildNotifications();
@@ -5011,19 +5012,25 @@ function reprintSale(id) {
   }], s.total);
 }
 
-function toggleAutoPrint() {
-  const current = localStorage.getItem('autoPrint') !== 'false';
+async function toggleAutoPrint() {
+  const current = SETTINGS.auto_print || false;
   const newVal = !current;
-  localStorage.setItem('autoPrint', newVal);
-  updateAutoPrintUI();
-  toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
+  try {
+    await sb.from('settings').update({ auto_print: newVal }).eq('id',1);
+    await loadAllData();
+    updateAutoPrintUI();
+    toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
 }
 
 function updateAutoPrintUI() {
-  const isOn = localStorage.getItem('autoPrint') !== 'false';
+  const isOn = SETTINGS.auto_print || false;
   const toggle = document.getElementById('autoPrintToggle');
   if(toggle) toggle.classList.toggle('on', isOn);
 }
+
 
 init();
 </script>
