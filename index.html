@@ -1433,7 +1433,7 @@ kbd {
 		  <div class="chart-header">
 			<div>
 			  <div class="chart-title">باشترین کاڵاکان</div>
-			  <div class="chart-sub">لەپێی فرۆشتن</div>
+			  <div class="chart-sub">بەپێی فرۆشتن</div>
 			</div>
 		  </div>
 		  <div class="chart-wrap"><canvas id="chartTop"></canvas></div>
@@ -1499,7 +1499,7 @@ kbd {
 		<div class="table-wrap">
 		  <table>
 			<thead><tr>
-			  <th>#</th><th>ناوی کاڵا</th><th>بران</th><th>کاتیگۆری</th>
+			  <th>#</th><th>ناوی کاڵا</th><th>براند</th><th>کاتیگۆری</th>
 			  <th>نرخی کڕین</th><th>نرخی فرۆشتن</th><th>قازانج</th><th>بڕ</th><th>کردار</th>
 			</tr></thead>
 			<tbody id="productBody"></tbody>
@@ -2204,7 +2204,7 @@ kbd {
           <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:4px">کاڵا (Inventory)</div>
             <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
-              • زیادکردنی کاڵای نوێ بە ناو، بران، نرخ و بڕ<br>
+              • زیادکردنی کاڵای نوێ بە ناو، براند، نرخ و بڕ<br>
               • دەستکاری و سڕینەوەی کاڵا<br>
               • ئاگادارکردنەوەی کاڵای کەمماو (کەمتر لە ٥)<br>
               • فلتەرکردن بەپێی کاتیگۆری و ستوکی
@@ -2449,7 +2449,7 @@ kbd {
 			<input class="form-control" id="pName" placeholder="iPhone 15 Pro">
 		  </div>
 		  <div class="form-group">
-			<label>بران *</label>
+			<label>براند *</label>
 			<input class="form-control" id="pBrand" placeholder="Apple">
 		  </div>
 		</div>
@@ -3778,7 +3778,7 @@ function renderProducts() {
       <td data-label="#" class="td-muted">${i+1}</td>
       <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
       <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
-      <td data-label="بران" class="td-muted">${p.brand}</td>
+      <td data-label="براند" class="td-muted">${p.brand}</td>
       <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
       <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
       <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
