@@ -1231,6 +1231,29 @@ kbd {
 }
 .help-tip-card:hover { transform: translateY(-1px); }
 
+/* ── TOGGLE SWITCH ── */
+.toggle-switch {
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--success); }
+.toggle-knob {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.toggle-switch.on .toggle-knob { transform: translateX(-22px); }
+
 </style>
 </head>
 <body>
@@ -1711,7 +1734,21 @@ kbd {
     </div>
   </div>
 </div>
-    
+
+    <div class="card mb-16">
+  <div class="card-body">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700">چاپکردنی ئۆتۆماتیک</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">کاتێک فرۆشتن تەواو دەبێت بە خۆکاری پسووڵە چاپ بکات</div>
+      </div>
+      <div class="toggle-switch" id="autoPrintToggle" onclick="toggleAutoPrint()">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 
   <!-- ٣. ڕێکخستنی دیزاین -->
@@ -3264,6 +3301,8 @@ document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default'
 document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
 
   renderCategoryList();  
+  updateAutoPrintUI();
+
 }
 
 async function saveStoreInfo() {
@@ -3947,7 +3986,10 @@ async function completeSale() {
     await loadAllData();
     toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
 closeModal('saleModal');
-printReceipt(saleRows, totalSold);
+if(localStorage.getItem('autoPrint') !== 'false') {
+  printReceipt(saleRows, totalSold);
+}
+
 saleCart=[];
 renderSales(); buildNotifications();
 
@@ -4967,6 +5009,20 @@ function reprintSale(id) {
     total: s.total,
     profit: s.profit
   }], s.total);
+}
+
+function toggleAutoPrint() {
+  const current = localStorage.getItem('autoPrint') !== 'false';
+  const newVal = !current;
+  localStorage.setItem('autoPrint', newVal);
+  updateAutoPrintUI();
+  toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
+}
+
+function updateAutoPrintUI() {
+  const isOn = localStorage.getItem('autoPrint') !== 'false';
+  const toggle = document.getElementById('autoPrintToggle');
+  if(toggle) toggle.classList.toggle('on', isOn);
 }
 
 init();
