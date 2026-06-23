@@ -1231,6 +1231,29 @@ kbd {
 }
 .help-tip-card:hover { transform: translateY(-1px); }
 
+/* ── TOGGLE SWITCH ── */
+.toggle-switch {
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--success); }
+.toggle-knob {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 20px; height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.toggle-switch.on .toggle-knob { transform: translateX(-22px); }
+
 </style>
 </head>
 <body>
@@ -1711,7 +1734,21 @@ kbd {
     </div>
   </div>
 </div>
-    
+
+    <div class="card mb-16">
+  <div class="card-body">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700">چاپکردنی ئۆتۆماتیک</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">کاتێک فرۆشتن تەواو دەبێت بە خۆکاری پسووڵە چاپ بکات</div>
+      </div>
+      <div class="toggle-switch" id="autoPrintToggle" onclick="toggleAutoPrint()">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 
   <!-- ٣. ڕێکخستنی دیزاین -->
@@ -2431,10 +2468,12 @@ kbd {
 		</div>
 	  </div>
 	</div>
-	<div class="modal-footer">
-	  <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
-	  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردنی فرۆشتن</button>
-	</div>
+<div class="modal-footer">
+  <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
+  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردنی فرۆشتن</button>
+</div>
+
+
   </div>
 </div>
 
@@ -3262,6 +3301,8 @@ document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default'
 document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
 
   renderCategoryList();  
+  updateAutoPrintUI();
+
 }
 
 async function saveStoreInfo() {
@@ -3788,7 +3829,15 @@ function renderSales() {
   <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
   <td data-label="قازانج" class="text-mono color-green">${fmt(s.profit)}</td>
   <td data-label="بەروار" class="td-muted">${dateStr(s.createdAt)}</td>
-  <td data-label="کردار">${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
+<td data-label="کردار">
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="reprintSale('${s.id}')" title="چاپکردن">
+      <i class="ti ti-printer"></i>
+    </button>
+    ${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}
+  </div>
+</td>
+
 </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
 }
 
@@ -3936,8 +3985,15 @@ async function completeSale() {
     const totalSold = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty,0);
     await loadAllData();
     toast(`فرۆشتن تۆمارکرا — کۆی: ${fmt(totalSold)}`,'success');
-    closeModal('saleModal'); saleCart=[];
-    renderSales(); buildNotifications();
+closeModal('saleModal');
+if(SETTINGS.auto_print) {
+  printReceipt(saleRows, totalSold);
+}
+
+
+saleCart=[];
+renderSales(); buildNotifications();
+
   } catch(err) {
     console.error(err);
     toast('کێشە لە تۆمارکردنی فرۆشتن: ' + (err.message||err), 'error');
@@ -4006,11 +4062,15 @@ body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
   <td data-label="ستاتوس">${repairStatusBadge(r.status)}</td>
   <td data-label="بەروار" class="td-muted">${dateStr(r.createdAt)}</td>
   <td data-label="کردار">
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')"><i class="ti ti-eye"></i></button>
-      <button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')"><i class="ti ti-edit"></i></button>
-      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')"><i class="ti ti-trash"></i></button>
-    </div>
+<div style="display:flex;gap:6px">
+<button class="btn btn-ghost btn-sm btn-icon" onclick="whatsappRepair('${r.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i></button>
+  <button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')"><i class="ti ti-eye"></i></button>
+  <button class="btn btn-ghost btn-sm btn-icon" onclick="printRepair('${r.id}')" title="چاپکردن"><i class="ti ti-printer"></i></button>
+  <button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')"><i class="ti ti-edit"></i></button>
+  <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')"><i class="ti ti-trash"></i></button>
+  
+</div>
+
   </td>
 </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-tool"></i><p>هیچ چاکسازییەک نیە</p></div></td></tr>`;
 }
@@ -4169,6 +4229,7 @@ return `<tr>
   <td data-label="ستاتوس">${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
   <td data-label="کردار">
     <div style="display:flex;gap:6px">
+    ${d.status==='pending' ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="whatsappDebt('${d.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i></button>` : ''}
       ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')"><i class="ti ti-trash"></i></button>
     </div>
@@ -4786,8 +4847,318 @@ function switchHelpTab(el) {
   document.getElementById('help-' + el.dataset.tab).style.display='block';
 }
 
-init();
+function printReceipt(items, total) {
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const address = SETTINGS.store_address || '';
+  const now = new Date().toLocaleString('ku');
+  const profit = items.reduce((a,i)=>a+i.profit,0);
 
+  const rows = items.map(i=>`
+    <tr>
+      <td>${i.product_name}</td>
+      <td style="text-align:center">${i.qty}</td>
+      <td style="text-align:left">${Number(i.unit_price).toLocaleString()}</td>
+      <td style="text-align:left">${Number(i.total).toLocaleString()}</td>
+    </tr>`).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="ku" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>پسووڵە</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+          font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
+          font-size: 13px;
+          color: #000;
+          padding: 20px;
+          max-width: 320px;
+          margin: 0 auto;
+        }
+        .header { text-align:center; margin-bottom:16px; }
+        .header h1 { font-size:18px; font-weight:900; margin-bottom:4px; }
+        .header p { font-size:11px; color:#444; line-height:1.6; }
+        .divider {
+          border:none;
+          border-top: 1px dashed #000;
+          margin: 10px 0;
+        }
+        table { width:100%; border-collapse:collapse; }
+        thead th {
+          font-size:11px;
+          padding: 6px 4px;
+          border-bottom: 1px solid #000;
+          text-align:right;
+        }
+        tbody td {
+          padding: 7px 4px;
+          font-size:12px;
+          border-bottom: 1px dashed #ccc;
+          vertical-align:middle;
+        }
+        .total-box {
+          margin-top:12px;
+          background:#f5f5f5;
+          border-radius:6px;
+          padding:10px 12px;
+        }
+        .total-row {
+          display:flex;
+          justify-content:space-between;
+          padding: 4px 0;
+          font-size:13px;
+        }
+        .total-row.main {
+          font-size:15px;
+          font-weight:900;
+          border-top:2px solid #000;
+          margin-top:6px;
+          padding-top:8px;
+        }
+        .footer {
+          text-align:center;
+          margin-top:16px;
+          font-size:11px;
+          color:#555;
+          line-height:1.8;
+        }
+        .footer .thanks {
+          font-size:14px;
+          font-weight:700;
+          color:#000;
+          margin-bottom:4px;
+        }
+        @media print {
+          body { padding:10px; }
+          @page { margin:8mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>${store}</h1>
+        ${phone ? `<p>📞 ${phone}</p>` : ''}
+        ${address ? `<p>📍 ${address}</p>` : ''}
+        <p>🗓 ${now}</p>
+      </div>
+
+      <hr class="divider">
+
+      <table>
+        <thead>
+          <tr>
+            <th>کاڵا</th>
+            <th style="text-align:center">بڕ</th>
+            <th style="text-align:left">نرخ</th>
+            <th style="text-align:left">کۆ</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <div class="total-box">
+        <div class="total-row">
+          <span>ژمارەی کاڵا:</span>
+          <span>${items.reduce((a,i)=>a+i.qty,0)} دانە</span>
+        </div>
+        <div class="total-row main">
+          <span>کۆی گشتی:</span>
+          <span>${Number(total).toLocaleString()} د.ع</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="footer">
+        <div class="thanks">سوپاس بۆ کڕینت 🙏</div>
+        <p>پسووڵەکەت پاراستبێت</p>
+        ${phone ? `<p>پەیوەندی: ${phone}</p>` : ''}
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(()=>window.close(), 1000);
+        }
+      <\/script>
+    </body>
+    </html>`;
+
+// مۆبایل — پرینت دەکرێت بەبێ popup
+if(/Mobi|Android/i.test(navigator.userAgent)) {
+  const w = window.open('about:blank');
+  if(w) { w.document.write(html); w.document.close(); }
+  return;
+}
+
+  const blob = new Blob([html], {type: 'text/html'});
+const url = URL.createObjectURL(blob);
+const win = window.open(url, '_blank', 'width=400,height=600');
+if(!win) {
+  toast('تکایە popup بلۆکەکە غەیری چالاک بکە', 'error');
+  return;
+}
+setTimeout(()=> URL.revokeObjectURL(url), 5000);
+
+}
+
+function reprintSale(id) {
+  const s = DB.get('sales').find(x=>x.id===id);
+  if(!s) return;
+  printReceipt([{
+    product_name: s.productName,
+    qty: s.qty,
+    unit_price: s.unitPrice,
+    total: s.total,
+    profit: s.profit
+  }], s.total);
+}
+
+async function toggleAutoPrint() {
+  const current = SETTINGS.auto_print || false;
+  const newVal = !current;
+  try {
+    await sb.from('settings').update({ auto_print: newVal }).eq('id',1);
+    await loadAllData();
+    updateAutoPrintUI();
+    toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
+  } catch(err) {
+    toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+function updateAutoPrintUI() {
+  const isOn = SETTINGS.auto_print || false;
+  const toggle = document.getElementById('autoPrintToggle');
+  if(toggle) toggle.classList.toggle('on', isOn);
+}
+
+function printRepair(id) {
+  const r = DB.get('repairs').find(x=>x.id===id);
+  if(!r) return;
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const address = SETTINGS.store_address || '';
+  const now = new Date().toLocaleString('ku');
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="ku" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>پسووڵەی چاکسازی</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Noto Sans Arabic',Tahoma,sans-serif; font-size:13px; color:#000; padding:20px; max-width:320px; margin:0 auto; }
+        .header { text-align:center; margin-bottom:16px; }
+        .header h1 { font-size:18px; font-weight:900; margin-bottom:4px; }
+        .header p { font-size:11px; color:#444; line-height:1.6; }
+        .divider { border:none; border-top:1px dashed #000; margin:10px 0; }
+        .row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed #ddd; font-size:13px; }
+        .row .label { color:#555; }
+        .row .val { font-weight:700; }
+        .status-box { text-align:center; margin:14px 0; padding:10px; background:#f5f5f5; border-radius:6px; font-size:15px; font-weight:900; }
+        .footer { text-align:center; margin-top:16px; font-size:11px; color:#555; line-height:1.8; }
+        .footer .thanks { font-size:14px; font-weight:700; color:#000; margin-bottom:4px; }
+        @media print { body { padding:10px; } @page { margin:8mm; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>${store}</h1>
+        ${phone ? `<p>📞 ${phone}</p>` : ''}
+        ${address ? `<p>📍 ${address}</p>` : ''}
+        <p>🗓 ${now}</p>
+      </div>
+      <hr class="divider">
+      <div style="text-align:center;font-size:14px;font-weight:700;margin-bottom:12px">🔧 پسووڵەی چاکسازی</div>
+      <div class="row"><span class="label">ناوی کڕیار:</span><span class="val">${r.customerName}</span></div>
+      <div class="row"><span class="label">ژمارە:</span><span class="val">${r.phone}</span></div>
+      <div class="row"><span class="label">ئامێر:</span><span class="val">${r.device} (${r.deviceType})</span></div>
+      <div class="row"><span class="label">کێشە:</span><span class="val" style="max-width:180px;text-align:left">${r.problem}</span></div>
+      ${r.notes ? `<div class="row"><span class="label">تێبینی:</span><span class="val" style="max-width:180px;text-align:left">${r.notes}</span></div>` : ''}
+      <div class="row"><span class="label">بەرواری وەرگرتن:</span><span class="val">${new Date(r.createdAt).toLocaleDateString('ku')}</span></div>
+      <hr class="divider">
+      <div class="row"><span class="label">هزینەی چاکسازی:</span><span class="val" style="font-size:16px">${Number(r.cost).toLocaleString()} د.ع</span></div>
+      <hr class="divider">
+      <div class="footer">
+        <div class="thanks">سوپاس بۆ باوەڕت 🙏</div>
+        ${phone ? `<p>پەیوەندی: ${phone}</p>` : ''}
+      </div>
+      <script>
+        window.onload = function() { window.print(); setTimeout(()=>window.close(), 1000); }
+      <\/script>
+    </body>
+    </html>`;
+
+  if(/Mobi|Android/i.test(navigator.userAgent)) {
+    const w = window.open('about:blank');
+    if(w) { w.document.write(html); w.document.close(); }
+    return;
+  }
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank', 'width=400,height=600');
+  if(!win) { toast('تکایە popup بلۆکەکە غەیری چالاک بکە','error'); return; }
+  setTimeout(()=> URL.revokeObjectURL(url), 5000);
+}
+
+function whatsappRepair(id) {
+  const r = DB.get('repairs').find(x=>x.id===id);
+  if(!r) return;
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const status = repairStatusLabel(r.status);
+
+  const message = 
+`سڵاو ${r.customerName} 👋
+
+${r.status === 'completed' || r.status === 'delivered' 
+  ? `ئامێرەکەت ئامادەیە وەریبگریت ✅` 
+  : `نوێترین زانیاری چاکسازیەکەت:`}
+
+📱 ئامێر: ${r.device}
+🔧 کێشە: ${r.problem}
+📊 ستاتوس: ${status}
+💰 هزینە: ${Number(r.cost).toLocaleString()} د.ع
+
+🏪 ${store}${phone ? `\n📞 ${phone}` : ''}`;
+
+  const cleaned = r.phone.replace(/\D/g,'').replace(/^0/,'');
+  const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+function whatsappDebt(id) {
+  const d = DB.get('debts').find(x=>x.id===id);
+  if(!d) return;
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const remaining = debtRemaining(d);
+  const isOverdue = d.dueDate && new Date(d.dueDate) < new Date();
+
+  const message =
+`سڵاو ${d.customerName} 👋
+
+${isOverdue 
+  ? `یادەوەریت دەکەمەوە بەرواری قەرزەکەت تێپەڕیوە ⚠️` 
+  : `یادەوەریت دەکەمەوە قەرزەکەت:`}
+
+💰 کۆی قەرز: ${Number(d.amount).toLocaleString()} د.ع
+✅ دراوەتەوە: ${Number(d.paidAmount).toLocaleString()} د.ع
+🔴 ماوە: ${Number(remaining).toLocaleString()} د.ع${d.dueDate ? `\n📅 بەروار: ${new Date(d.dueDate).toLocaleDateString('ku')}` : ''}
+
+🏪 ${store}${phone ? `\n📞 ${phone}` : ''}`;
+
+  const cleaned = d.phone.replace(/\D/g,'').replace(/^0/,'');
+  const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+init();
 </script>
 </body>
 </html>
