@@ -3341,7 +3341,9 @@ function openSettingsSection(el) {
   document.querySelectorAll('.settings-section').forEach(s=>{
     s.style.display = s.dataset.section===tab ? 'block' : 'none';
   });
+  if(tab === 'info') setTimeout(() => updateInfoConnStatus(), 80);
 }
+
 
 function closeSettingsSection() {
   document.getElementById('settingsMenu').style.display = 'block';
@@ -5227,21 +5229,61 @@ ${isOverdue
 function updateInfoConnStatus() {
   const label = document.getElementById('infoConnLabel');
   if(!label) return;
-  const icons = document.querySelectorAll('#page-settings [data-section="info"] .ti-world, #page-settings [data-section="info"] .ti-database');
-  const line = document.querySelector('#page-settings [data-section="info"] [style*="width:40px"]');
-  
-  if(isOnline) {
-    label.textContent = 'پەیوەستە';
-    label.style.color = 'var(--success)';
-    icons.forEach(i=>i.style.color='var(--success)');
-    if(line) line.style.background='var(--success)';
+
+  const iconBoxes = document.querySelectorAll(
+    '#page-settings [data-section="info"] .ti-world, ' +
+    '#page-settings [data-section="info"] .ti-database'
+  );
+  const dot = document.querySelector(
+    '#page-settings [data-section="info"] [style*="width:40px"][style*="height:40px"]'
+  );
+
+  // دۆخی پەیوەندی
+  const connEl = document.getElementById('connStatus');
+  const isLoading = connEl && connEl.classList.contains('loading');
+
+  if(isLoading) {
+    label.textContent = 'پەیوەندی دەکرێت...';
+    label.style.cssText = 'color:#F7B731; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#F7B731';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(247,183,49,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#F7B731';
+      dot.style.boxShadow = '0 0 8px rgba(247,183,49,0.8)';
+    }
+  } else if(isOnline) {
+    label.textContent = 'پەیوەستە ✓';
+    label.style.cssText = 'color:#00D9A6; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#00D9A6';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(0,217,166,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#00D9A6';
+      dot.style.boxShadow = '0 0 8px rgba(0,217,166,0.8)';
+    }
   } else {
-    label.textContent = 'ئۆفلاین';
-    label.style.color = 'var(--danger)';
-    icons.forEach(i=>i.style.color='var(--danger)');
-    if(line) line.style.background='var(--danger)';
+    label.textContent = 'ئۆفلاین ✗';
+    label.style.cssText = 'color:#FF6B6B; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#FF6B6B';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(255,107,107,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#FF6B6B';
+      dot.style.boxShadow = '0 0 8px rgba(255,107,107,0.8)';
+    }
   }
 }
+
 
 init();
 </script>
