@@ -1254,6 +1254,11 @@ kbd {
 }
 .toggle-switch.on .toggle-knob { transform: translateX(-22px); }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.4; transform: translateX(-50%) scale(1.4); }
+}
+
 </style>
 </head>
 <body>
@@ -1830,6 +1835,64 @@ kbd {
           </ul>
         </div>
         </div>
+        
+        <div class="card" style="margin-top:16px">
+  <div class="card-body">
+    
+    <!-- سەردێر -->
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-wifi" style="color:var(--success)"></i>
+      دۆخی پەیوەندی
+    </div>
+
+    <!-- دوو ئایکۆن + هەڵ -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:20px 0">
+      
+      <!-- ئایکۆنی وێب -->
+      <div style="text-align:center">
+        <div style="width:52px;height:52px;border-radius:14px;background:var(--success-light);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+          <i class="ti ti-world" style="font-size:26px;color:var(--success)"></i>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">ئینتەرنێت</div>
+      </div>
+
+      <!-- هەڵ لەنێوان -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:40px;height:2px;background:var(--success);border-radius:2px;position:relative">
+          <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 1.5s infinite"></div>
+        </div>
+        <div style="font-size:10px;color:var(--success);font-weight:600" id="infoConnLabel">پەیوەستە</div>
+      </div>
+
+      <!-- ئایکۆنی سیستەم/داتابەیس -->
+      <div style="text-align:center">
+        <div style="width:52px;height:52px;border-radius:14px;background:var(--success-light);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+          <i class="ti ti-database" style="font-size:26px;color:var(--success)"></i>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">داتابەیس</div>
+      </div>
+
+    </div>
+
+    <!-- ڕوونکردنەوە -->
+    <div style="display:grid;gap:8px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--success-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--success);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>سەوز</b> — پەیوەندی باشە، هەموو داتاکان sync دەکرێن</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--warning-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--warning);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>زەرد</b> — sync دەکرێت، چاوەڕوان بە</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--danger-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--danger);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>سوور</b> — ئۆفلاین، داتاکان پاشەکەوت دەبن</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+        
     </div>
 
     <div style="display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius);padding:16px;margin-top:10px">
@@ -2805,6 +2868,7 @@ window.addEventListener('online', async () => {
   await loadAllData();
   renderPage(getCurrentPage());
   toast('داتاکان sync کران', 'success');
+  updateInfoConnStatus();
 });
 
 window.addEventListener('offline', () => {
@@ -2815,6 +2879,8 @@ window.addEventListener('offline', () => {
 
 window.addEventListener('offline', () => {
   document.getElementById('offlineBanner').classList.add('show');
+  updateInfoConnStatus();
+
 });
 window.addEventListener('online', () => {
   document.getElementById('offlineBanner').classList.remove('show');
@@ -3302,7 +3368,7 @@ document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
 
   renderCategoryList();  
   updateAutoPrintUI();
-
+  updateInfoConnStatus();
 }
 
 async function saveStoreInfo() {
@@ -5156,6 +5222,25 @@ ${isOverdue
   const cleaned = d.phone.replace(/\D/g,'').replace(/^0/,'');
   const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
+}
+
+function updateInfoConnStatus() {
+  const label = document.getElementById('infoConnLabel');
+  if(!label) return;
+  const icons = document.querySelectorAll('#page-settings [data-section="info"] .ti-world, #page-settings [data-section="info"] .ti-database');
+  const line = document.querySelector('#page-settings [data-section="info"] [style*="width:40px"]');
+  
+  if(isOnline) {
+    label.textContent = 'پەیوەستە';
+    label.style.color = 'var(--success)';
+    icons.forEach(i=>i.style.color='var(--success)');
+    if(line) line.style.background='var(--success)';
+  } else {
+    label.textContent = 'ئۆفلاین';
+    label.style.color = 'var(--danger)';
+    icons.forEach(i=>i.style.color='var(--danger)');
+    if(line) line.style.background='var(--danger)';
+  }
 }
 
 init();
