@@ -1293,7 +1293,6 @@ kbd {
   </div>
   <nav class="sidebar-nav">
 	<div class="nav-section">
-	  <div class="nav-label">سەرەکی</div>
 	  <div class="nav-item active" data-page="dashboard" onclick="navigate(this)">
 		<i class="ti ti-layout-dashboard"></i> داشبۆرد
 	  </div>
@@ -1381,7 +1380,7 @@ kbd {
   <!-- OFFLINE BANNER -->
 <div class="offline-banner" id="offlineBanner">
   <i class="ti ti-wifi-off"></i>
-  ئۆفلاین مۆد — گۆڕانکاریەکان پاشەکەوت دەبن و sync دەکرێن کاتێک ئینتەرنێت بگەڕێتەوە
+  ئۆفلاین مۆدچالاک کرا - لەگەل گەرانەوە ئینتەرنێت گۆرانکاریەکان بۆ داتا دەنێردرێت
 </div>
 
 
@@ -1643,7 +1642,7 @@ kbd {
     <div class="settings-menu-icon" style="background:var(--success-light);color:var(--success)"><i class="ti ti-info-circle"></i></div>
     <div class="settings-menu-text">
       <div class="settings-menu-title">زانیاری سیستەم</div>
-      <div class="settings-menu-desc">وەرژن و تایبەتمەندییەکان</div>
+      <div class="settings-menu-desc">ڤێرژن و تایبەتمەندییەکان</div>
     </div>
     <i class="ti ti-chevron-left settings-menu-arrow"></i>
   </div>
@@ -1652,7 +1651,7 @@ kbd {
     <div class="settings-menu-icon" style="background:var(--danger-light);color:var(--danger)"><i class="ti ti-database-export"></i></div>
     <div class="settings-menu-text">
       <div class="settings-menu-title">پشتگیری داتا</div>
-      <div class="settings-menu-desc">دابگرتنی هەموو داتاکان</div>
+      <div class="settings-menu-desc">دابەزاندنی هەموو داتاکان</div>
     </div>
     <i class="ti ti-chevron-left settings-menu-arrow"></i>
   </div>
@@ -1800,10 +1799,10 @@ kbd {
       <label>وێنەی پاشبنەما</label>
       <select class="form-control" id="setBgPattern">
         <option value="default">ئاسایی</option>
-        <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
+        <option value="aurora">وەردەکاری زۆر</option>
         <option value="dots">خاڵ-خاڵ</option>
           <input class="form-control" id="setBgColor" type="color" style="height:44px;padding:4px;cursor:pointer">
-        <option value="none">هیچ</option>
+        <option value="none">هیچیان</option>
       </select>
     </div>
   </div>
@@ -1821,7 +1820,7 @@ kbd {
     <div class="card">
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-          <span class="td-muted">وەرژنی سیستەم</span><span class="fw-700">1.0.0</span>
+          <span class="td-muted">ڤێرژنی سیستەم</span><span class="fw-700">1.0.0</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
           <span class="td-muted">بەرواری دوایین نوێکردنەوە</span><span class="fw-700">2026-06-21</span>
@@ -1829,9 +1828,9 @@ kbd {
         <div style="padding:14px 0 0">
           <div class="td-muted" style="margin-bottom:8px">تایبەتمەندیە نوێیەکان:</div>
           <ul style="font-size:12.5px;color:var(--text2);padding-right:18px;line-height:1.9">
-            <li>زیادکردنی بەشی پلانەکان</li>
-            <li>زیادکردنی بەشی ڕێکخستن</li>
-            <li>پشتگیری گەڕاندنەوەی فرۆشتن</li>
+            <li>زیادکردنی fab</li>
+            <li>زیادکردنی بەشی نوێ</li>
+            <li>پشتگیری داتا</li>
           </ul>
         </div>
         </div>
@@ -1939,7 +1938,7 @@ kbd {
 	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
 	<div class="page" id="page-reports">
 	  <div class="page-title">
-		<div><h2>ڕاپۆرتەکان</h2><p>ئەنالیزی فرۆشتن، قازانج و چاکسازی</p></div>
+		<div><h2>ڕاپۆرتەکان</h2><p>ئەنالایزی فرۆشتن، قازانج و چاکسازی</p></div>
 	  </div>
 	  <div class="report-period-tabs">
 		<div class="period-tab active" data-p="today" onclick="setReportPeriod(this)">ئەمڕۆ</div>
@@ -2008,11 +2007,10 @@ kbd {
           placeholder="گەڕان..." id="expenseSearch" oninput="renderExpenses()">
         <select class="filter-input" id="expenseCatFilter" onchange="renderExpenses()">
           <option value="">هەموو کاتیگۆریەکان</option>
-          <option>کرێی دوکان</option>
-          <option>بریشتی</option>
+          <option>خەرجی دوکان</option>
           <option>مووچەی کارمەند</option>
           <option>گواستنەوە</option>
-          <option>تر</option>
+          <option>هیتر</option>
         </select>
       </div>
       <div class="grid-2 mb-24">
