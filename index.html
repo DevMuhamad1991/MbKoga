@@ -2431,10 +2431,12 @@ kbd {
 		</div>
 	  </div>
 	</div>
-	<div class="modal-footer">
-	  <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
-	  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردنی فرۆشتن</button>
-	</div>
+<div class="modal-footer">
+  <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
+  <button class="btn btn-ghost" id="salePrintBtn" onclick="previewReceipt()"><i class="ti ti-printer"></i> پێش چاپکردن</button>
+  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردن + چاپ</button>
+</div>
+
   </div>
 </div>
 
@@ -4945,6 +4947,19 @@ if(!win) {
 }
 setTimeout(()=> URL.revokeObjectURL(url), 5000);
 
+}
+
+function previewReceipt() {
+  if(!saleCart.length) { toast('تکایە کاڵایەک هەڵبژێرە','error'); return; }
+  const previewRows = saleCart.map(item => ({
+    product_name: item.name,
+    qty: item.qty,
+    unit_price: item.unitPrice,
+    total: item.unitPrice * item.qty,
+    profit: (item.unitPrice - item.buyPrice) * item.qty
+  }));
+  const total = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty, 0);
+  printReceipt(previewRows, total);
 }
 
 init();
