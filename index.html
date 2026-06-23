@@ -3601,7 +3601,7 @@ function renderDataUsage() {
   const total = products + sales + repairs + debts + plans + expenses;
 
   const estBytes = products*300 + sales*200 + repairs*400 + debts*250 + plans*500 + expenses*200;
-  const estKB = (estBytes / 1024).toFixed(1);
+const estKB = (estBytes / 1024).toFixed(1).toLocaleString('en');
   const pct = Math.min((estBytes / (500*1024*1024)) * 100, 100).toFixed(3);
 
   const rows = [
@@ -3626,17 +3626,17 @@ function renderDataUsage() {
     </div>
     <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:12px;color:var(--text2)">تەخمینی بەکارهێنانی ستۆرەج</span>
-        <span style="font-size:12px;font-weight:700">${estKB} KB / 500 MB</span>
+        <span style="font-size:12px;color:var(--text2)">تەخمینی بەکارهێنانی کۆگا</span>
+<span style="font-size:12px;font-weight:700">${estKB} KB &nbsp;/&nbsp; 500 MB</span>
       </div>
       <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
         <div style="height:100%;width:${pct}%;background:var(--success);border-radius:4px;transition:width 0.5s ease"></div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:6px">${pct}% بەکارهێنراوە — ${total.toLocaleString()} کۆی ریکۆرد</div>
+<div style="font-size:11px;color:var(--text3);margin-top:6px">${pct}% &nbsp;بەکارهێنراوە — &nbsp;${total.toLocaleString()} کۆی ریکۆرد</div>
     </div>
     <div style="background:var(--success-light);border:1px solid rgba(0,217,166,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px">
       <i class="ti ti-circle-check" style="color:var(--success)"></i>
-      Supabase فری پلان 500MB دەدات — داتاکەت تەنیا ${estKB}KB یە، بۆ ساڵان بەسە
+       فری پلان 500MB دەدات — داتاکەت تەنیا ${estKB}KB یە، بۆ ساڵان بەسە
     </div>`;
 }
 
