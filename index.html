@@ -4063,10 +4063,12 @@ body.innerHTML = sorted.length ? sorted.map((r,i)=>`<tr>
   <td data-label="بەروار" class="td-muted">${dateStr(r.createdAt)}</td>
   <td data-label="کردار">
 <div style="display:flex;gap:6px">
+<button class="btn btn-ghost btn-sm btn-icon" onclick="whatsappRepair('${r.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i></button>
   <button class="btn btn-ghost btn-sm btn-icon" onclick="viewRepair('${r.id}')"><i class="ti ti-eye"></i></button>
   <button class="btn btn-ghost btn-sm btn-icon" onclick="printRepair('${r.id}')" title="چاپکردن"><i class="ti ti-printer"></i></button>
   <button class="btn btn-ghost btn-sm btn-icon" onclick="editRepair('${r.id}')"><i class="ti ti-edit"></i></button>
   <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRepair('${r.id}')"><i class="ti ti-trash"></i></button>
+  
 </div>
 
   </td>
@@ -4227,6 +4229,7 @@ return `<tr>
   <td data-label="ستاتوس">${d.status==='paid' ? '<span class="badge badge-green">دراوەتەوە</span>' : '<span class="badge badge-yellow">چاوەڕوان</span>'}</td>
   <td data-label="کردار">
     <div style="display:flex;gap:6px">
+    ${d.status==='pending' ? `<button class="btn btn-ghost btn-sm btn-icon" onclick="whatsappDebt('${d.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i></button>` : ''}
       ${d.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="openPayDebtModal('${d.id}')">پارەدانەوە</button>` : ''}
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteDebt('${d.id}')"><i class="ti ti-trash"></i></button>
     </div>
@@ -5101,6 +5104,58 @@ function printRepair(id) {
   const win = window.open(url, '_blank', 'width=400,height=600');
   if(!win) { toast('تکایە popup بلۆکەکە غەیری چالاک بکە','error'); return; }
   setTimeout(()=> URL.revokeObjectURL(url), 5000);
+}
+
+function whatsappRepair(id) {
+  const r = DB.get('repairs').find(x=>x.id===id);
+  if(!r) return;
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const status = repairStatusLabel(r.status);
+
+  const message = 
+`سڵاو ${r.customerName} 👋
+
+${r.status === 'completed' || r.status === 'delivered' 
+  ? `ئامێرەکەت ئامادەیە وەریبگریت ✅` 
+  : `نوێترین زانیاری چاکسازیەکەت:`}
+
+📱 ئامێر: ${r.device}
+🔧 کێشە: ${r.problem}
+📊 ستاتوس: ${status}
+💰 هزینە: ${Number(r.cost).toLocaleString()} د.ع
+
+🏪 ${store}${phone ? `\n📞 ${phone}` : ''}`;
+
+  const cleaned = r.phone.replace(/\D/g,'').replace(/^0/,'');
+  const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+function whatsappDebt(id) {
+  const d = DB.get('debts').find(x=>x.id===id);
+  if(!d) return;
+  const store = SETTINGS.store_name || 'Mobile Store';
+  const phone = SETTINGS.store_phone || '';
+  const remaining = debtRemaining(d);
+  const isOverdue = d.dueDate && new Date(d.dueDate) < new Date();
+
+  const message =
+`سڵاو ${d.customerName} 👋
+
+${isOverdue 
+  ? `یادەوەریت دەکەمەوە بەرواری قەرزەکەت تێپەڕیوە ⚠️` 
+  : `یادەوەریت دەکەمەوە قەرزەکەت:`}
+
+💰 کۆی قەرز: ${Number(d.amount).toLocaleString()} د.ع
+✅ دراوەتەوە: ${Number(d.paidAmount).toLocaleString()} د.ع
+🔴 ماوە: ${Number(remaining).toLocaleString()} د.ع${d.dueDate ? `\n📅 بەروار: ${new Date(d.dueDate).toLocaleDateString('ku')}` : ''}
+
+🏪 ${store}${phone ? `\n📞 ${phone}` : ''}`;
+
+  const cleaned = d.phone.replace(/\D/g,'').replace(/^0/,'');
+  const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
 }
 
 init();
