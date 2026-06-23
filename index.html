@@ -2433,9 +2433,9 @@ kbd {
 	</div>
 <div class="modal-footer">
   <button class="btn btn-ghost" onclick="closeModal('saleModal')">هەڵوەشاندنەوە</button>
-  <button class="btn btn-ghost" id="salePrintBtn" onclick="previewReceipt()"><i class="ti ti-printer"></i> پێش چاپکردن</button>
-  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردن + چاپ</button>
+  <button class="btn btn-success" id="saleCompleteBtn" onclick="completeSale()"><i class="ti ti-check"></i> تەواوکردنی فرۆشتن</button>
 </div>
+
 
   </div>
 </div>
@@ -3790,7 +3790,15 @@ function renderSales() {
   <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
   <td data-label="قازانج" class="text-mono color-green">${fmt(s.profit)}</td>
   <td data-label="بەروار" class="td-muted">${dateStr(s.createdAt)}</td>
-  <td data-label="کردار">${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}</td>
+<td data-label="کردار">
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="reprintSale('${s.id}')" title="چاپکردن">
+      <i class="ti ti-printer"></i>
+    </button>
+    ${!s.returned ? `<button class="btn btn-danger btn-sm" onclick="returnSale('${s.id}')">گەڕاندنەوە</button>` : ''}
+  </div>
+</td>
+
 </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><i class="ti ti-shopping-cart"></i><p>هیچ فرۆشتنێک نیە</p></div></td></tr>`;
 }
 
@@ -4949,17 +4957,16 @@ setTimeout(()=> URL.revokeObjectURL(url), 5000);
 
 }
 
-function previewReceipt() {
-  if(!saleCart.length) { toast('تکایە کاڵایەک هەڵبژێرە','error'); return; }
-  const previewRows = saleCart.map(item => ({
-    product_name: item.name,
-    qty: item.qty,
-    unit_price: item.unitPrice,
-    total: item.unitPrice * item.qty,
-    profit: (item.unitPrice - item.buyPrice) * item.qty
-  }));
-  const total = saleCart.reduce((a,i)=>a+i.unitPrice*i.qty, 0);
-  printReceipt(previewRows, total);
+function reprintSale(id) {
+  const s = DB.get('sales').find(x=>x.id===id);
+  if(!s) return;
+  printReceipt([{
+    product_name: s.productName,
+    qty: s.qty,
+    unit_price: s.unitPrice,
+    total: s.total,
+    profit: s.profit
+  }], s.total);
 }
 
 init();
