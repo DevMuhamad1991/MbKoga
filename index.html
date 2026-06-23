@@ -1916,11 +1916,24 @@ kbd {
   <div class="card mb-16">
     <div class="card-body" style="text-align:center">
       <i class="ti ti-database-export color-primary" style="font-size:32px"></i>
-      <div style="font-size:14px;font-weight:700;margin-top:10px">دابگرتنی هەموو داتاکان</div>
+      <div style="font-size:14px;font-weight:700;margin-top:10px">دابەزاندنی هەموو داتاکان</div>
       <div style="font-size:12.5px;color:var(--text2);margin:8px 0 16px">هەموو کاڵا، فرۆشتن، چاکسازی، قەرز و پلانەکان بکەوێتە فایلێکی JSON</div>
-      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابگرتنی داتا (JSON)</button>
+      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابەزاندی داتا (JSON)</button>
     </div>
   </div>
+  
+  <div class="card mb-16">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-database" style="color:var(--info)"></i>
+      زانیاری داتابەیس
+    </div>
+    <div id="dataUsageInfo">
+      <div style="color:var(--text3);font-size:13px">بارکردن...</div>
+    </div>
+  </div>
+</div>
+
 
   <div class="card" style="border-color:rgba(255,107,107,0.25)">
     <div class="card-body" style="text-align:center">
@@ -3340,6 +3353,7 @@ function openSettingsSection(el) {
     s.style.display = s.dataset.section===tab ? 'block' : 'none';
   });
   if(tab === 'info') setTimeout(() => updateInfoConnStatus(), 80);
+  if(tab === 'backup') setTimeout(() => renderDataUsage(), 80);
 }
 
 
@@ -3575,6 +3589,55 @@ function exportDataJSON() {
   a.href = url; a.download = `mobile-store-backup-${Date.now()}.json`;
   a.click(); URL.revokeObjectURL(url);
   toast('داتا دابگیرا','success');
+}
+
+function renderDataUsage() {
+  const products = CACHE.products?.length || 0;
+  const sales = CACHE.sales?.length || 0;
+  const repairs = CACHE.repairs?.length || 0;
+  const debts = CACHE.debts?.length || 0;
+  const plans = CACHE.plans?.length || 0;
+  const expenses = CACHE.expenses?.length || 0;
+  const total = products + sales + repairs + debts + plans + expenses;
+
+  const estBytes = products*300 + sales*200 + repairs*400 + debts*250 + plans*500 + expenses*200;
+  const estKB = (estBytes / 1024).toFixed(1);
+  const pct = Math.min((estBytes / (500*1024*1024)) * 100, 100).toFixed(3);
+
+  const rows = [
+    { label:'کاڵاکان',      icon:'ti-package',       color:'var(--primary)', count:products },
+    { label:'فرۆشتنەکان',  icon:'ti-shopping-cart', color:'var(--success)', count:sales    },
+    { label:'چاکسازییەکان', icon:'ti-tool',          color:'var(--warning)', count:repairs  },
+    { label:'قەرزەکان',    icon:'ti-credit-card',   color:'var(--danger)',  count:debts    },
+    { label:'پلانەکان',    icon:'ti-notebook',      color:'var(--info)',    count:plans    },
+    { label:'خەرجییەکان',  icon:'ti-wallet',        color:'var(--danger)',  count:expenses },
+  ];
+
+  document.getElementById('dataUsageInfo').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      ${rows.map(r=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px">
+          <i class="ti ${r.icon}" style="color:${r.color};font-size:16px"></i>
+          <div>
+            <div style="font-size:11px;color:var(--text3)">${r.label}</div>
+            <div style="font-size:14px;font-weight:700">${r.count.toLocaleString()}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text2)">تەخمینی بەکارهێنانی ستۆرەج</span>
+        <span style="font-size:12px;font-weight:700">${estKB} KB / 500 MB</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:var(--success);border-radius:4px;transition:width 0.5s ease"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">${pct}% بەکارهێنراوە — ${total.toLocaleString()} کۆی ریکۆرد</div>
+    </div>
+    <div style="background:var(--success-light);border:1px solid rgba(0,217,166,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px">
+      <i class="ti ti-circle-check" style="color:var(--success)"></i>
+      Supabase فری پلان 500MB دەدات — داتاکەت تەنیا ${estKB}KB یە، بۆ ساڵان بەسە
+    </div>`;
 }
 
 // ══════════════════════════════════════════
