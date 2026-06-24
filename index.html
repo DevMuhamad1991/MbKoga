@@ -1259,105 +1259,11 @@ kbd {
   50% { opacity: 0.4; transform: translateX(-50%) scale(1.4); }
 }
 
-@keyframes loadBar {
-  0% { width:0%; margin-left:0 }
-  50% { width:60%; margin-left:0 }
-  100% { width:0%; margin-left:100% }
-}
-@keyframes fadeInUp {
-  from { opacity:0; transform:translateY(16px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes pulse2 {
-  0%,100% { transform:scale(1); opacity:1; }
-  50%     { transform:scale(1.08); opacity:0.8; }
-}
-.post-pin-icon {
-  font-size:52px;
-  animation: pulse2 2s ease infinite;
-}
-.post-pin-title {
-  font-size:22px; font-weight:800; color:#111;
-  letter-spacing:-0.5px;
-  animation: fadeInUp 0.5s ease both;
-}
-.post-pin-sub {
-  font-size:12px; color:#888; font-weight:500;
-  animation: fadeInUp 0.5s ease 0.1s both;
-}
-.post-pin-bar-wrap {
-  width:220px; height:4px;
-  background:#eee; border-radius:2px; overflow:hidden;
-  animation: fadeInUp 0.5s ease 0.2s both;
-}
-.post-pin-bar {
-  height:100%; background:var(--primary);
-  border-radius:2px;
-  animation: loadBar 1.4s ease infinite;
-}
-.post-pin-steps {
-  display:flex; flex-direction:column; gap:8px;
-  margin-top:8px; width:240px;
-  animation: fadeInUp 0.5s ease 0.3s both;
-}
-.post-pin-step {
-  display:flex; align-items:center; gap:10px;
-  font-size:12px; color:#aaa;
-  transition: color 0.3s;
-}
-.post-pin-step.active { color:#555; font-weight:600; }
-.post-pin-step.done   { color:var(--primary); }
-.post-pin-step i { font-size:15px; }
-.post-pin-dev {
-  margin-top:24px; font-size:11px; color:#bbb;
-  display:flex; flex-direction:column; align-items:center; gap:4px;
-  animation: fadeInUp 0.5s ease 0.4s both;
-}
-.post-pin-dev b { color:#888; font-size:12px; }
-
 </style>
 </head>
 <body>
 
-<div id="postPinLoader" style="display:none; position:fixed; inset:0;
-  background:#fff; z-index:9998; flex-direction:column;
-  align-items:center; justify-content:center; gap:14px">
-
-  <div class="post-pin-icon">🔧</div>
-
-  <div class="post-pin-title">Mobile Store</div>
-  <div class="post-pin-sub">سیستەمی بەڕێوەبردنی دوکان</div>
-
-  <div class="post-pin-bar-wrap">
-    <div class="post-pin-bar"></div>
-  </div>
-
-  <div class="post-pin-steps" id="postPinSteps">
-    <div class="post-pin-step active" id="pstep1">
-      <i class="ti ti-database"></i> پەیوەندی بە داتابەیس...
-    </div>
-    <div class="post-pin-step" id="pstep2">
-      <i class="ti ti-package"></i> بارکردنی کاڵاکان...
-    </div>
-    <div class="post-pin-step" id="pstep3">
-      <i class="ti ti-chart-bar"></i> ئامادەکردنی داشبۆرد...
-    </div>
-  </div>
-
-  <div class="post-pin-dev">
-    <b>DevMuhamad</b>
-    <span>پرۆگرامەری سیستەمەکە</span>
-    <a href="https://wa.me/9647509628683" target="_blank"
-      style="color:#25D366; font-size:11px; text-decoration:none;
-             display:flex; align-items:center; gap:4px; margin-top:2px">
-      <i class="ti ti-brand-whatsapp"></i> 07509628683
-    </a>
-  </div>
-
-</div>
-
-
-<div class="lock-overlay" id="lockOverlay" style="display:none">
+<div class="lock-overlay" id="lockOverlay">
   <div class="lock-box">
     <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
     <div style="font-size:15px;font-weight:700">Mobile Store</div>
@@ -1368,7 +1274,7 @@ kbd {
 </div>
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
-<div class="loading-overlay" id="loadingOverlay">
+<div class="lock-overlay" id="lockOverlay" style="display:none">
   <div class="loading-spinner"></div>
   <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
 </div>
@@ -4831,34 +4737,6 @@ function checkPin(val) {
   if(val === SETTINGS.app_pin) {
     document.getElementById('lockOverlay').style.display = 'none';
     document.documentElement.requestFullscreen().catch(()=>{});
-
-    const loader = document.getElementById('postPinLoader');
-    loader.style.display = 'flex';
-    loader.style.opacity = '1';
-    loader.style.transition = '';
-
-    const s1 = document.getElementById('pstep1');
-    const s2 = document.getElementById('pstep2');
-    const s3 = document.getElementById('pstep3');
-
-    setTimeout(()=>{
-      s1.classList.add('done'); s1.classList.remove('active');
-      s2.classList.add('active');
-    }, 600);
-    setTimeout(()=>{
-      s2.classList.add('done'); s2.classList.remove('active');
-      s3.classList.add('active');
-    }, 1300);
-
-    init().then(()=>{
-      s3.classList.add('done'); s3.classList.remove('active');
-      setTimeout(()=>{
-        loader.style.opacity = '0';
-        loader.style.transition = 'opacity 0.4s ease';
-        setTimeout(()=>{ loader.style.display = 'none'; }, 400);
-      }, 300);
-    });
-
   } else {
     document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
     document.getElementById('pinInput').value = '';
@@ -4868,15 +4746,9 @@ function checkPin(val) {
 (async function preload(){
   try {
     const { data } = await sb.from('settings').select('*').eq('id',1).single();
-    if(data) { SETTINGS = data; applyDesignSettings(); }
+    if(data) SETTINGS = data;
+    applyDesignSettings();
   } catch(e) { console.error('preload settings error', e); }
-  
-  // پاش لۆدینگ، پینکۆد نیشان بدە
-  setTimeout(()=>{
-    document.getElementById('loadingOverlay').style.display = 'none';
-    document.getElementById('lockOverlay').style.display = 'flex';
-    document.getElementById('pinInput').focus();
-  }, 1800);
 })();
 
 // ── FAB ──
@@ -5534,6 +5406,7 @@ async function saveCurrency() {
   renderSettings();
 }
 
+init();
 </script>
 </body>
 </html>
