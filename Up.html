@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6C63FF">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -1274,7 +1275,7 @@ kbd {
 </div>
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
-<div class="loading-overlay" id="loadingOverlay">
+<div class="lock-overlay" id="lockOverlay" style="display:none">
   <div class="loading-spinner"></div>
   <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
 </div>
@@ -2517,6 +2518,16 @@ kbd {
 		  <label>بڕ *</label>
 		  <input class="form-control" id="pQty" type="number" placeholder="0" min="0">
 		</div>
+    <div class="form-group">
+  <label>بارکۆد (ئارەزووی)</label>
+  <div style="display:flex;gap:8px">
+    <input class="form-control" id="pBarcode" placeholder="بارکۆد بنووسە یان سکان بکە">
+    <button class="btn btn-ghost" type="button" onclick="openBarcodeScanner('pBarcode')">
+      <i class="ti ti-camera"></i>
+    </button>
+  </div>
+</div>
+
 		<div class="form-group">
 		  <label>تێبینی</label>
 		  <textarea class="form-control" id="pNotes" placeholder="تێبینی دیاری..."></textarea>
@@ -2542,6 +2553,10 @@ kbd {
 		<label>گەڕان و هەڵبژاردنی کاڵا</label>
 		<input class="form-control" id="saleProductSearch" placeholder="ناوی کاڵا بنووسە..." oninput="filterSaleProducts()">
 	  </div>
+    <button class="btn btn-ghost" type="button" onclick="openBarcodeScanner('sale')" style="margin-bottom:12px;width:100%">
+  <i class="ti ti-camera"></i> سکانکردنی بارکۆد بۆ فرۆشتن
+</button>
+
 	  <div class="product-search-list" id="saleProductList"></div>
 	  <div class="sale-cart" id="saleCart"></div>
 	  <div id="saleTotalBox" style="display:none">
@@ -2771,6 +2786,32 @@ kbd {
   <i class="ti ti-wallet"></i> خەرجی نوێ
 </div>
 
+<!-- BARCODE SCANNER MODAL -->
+<div class="modal-overlay" id="barcodeScanModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h3><i class="ti ti-camera"></i> سکانکردنی بارکۆد</h3>
+      <button class="modal-close" onclick="closeBarcodeScanner()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" style="padding:16px">
+      <div style="position:relative;border-radius:12px;overflow:hidden;background:#000">
+        <video id="barcodeVideo" style="width:100%;height:260px;object-fit:cover;display:block"></video>
+        <!-- خەتی سکانکردن -->
+        <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:rgba(108,99,255,0.8);transform:translateY(-50%);box-shadow:0 0 8px rgba(108,99,255,0.6)"></div>
+        <!-- چوارگۆشەکان -->
+        <div style="position:absolute;top:20%;left:10%;width:24px;height:24px;border-top:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:2px"></div>
+        <div style="position:absolute;top:20%;right:10%;width:24px;height:24px;border-top:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:2px"></div>
+        <div style="position:absolute;bottom:20%;left:10%;width:24px;height:24px;border-bottom:3px solid var(--primary);border-left:3px solid var(--primary);border-radius:2px"></div>
+        <div style="position:absolute;bottom:20%;right:10%;width:24px;height:24px;border-bottom:3px solid var(--primary);border-right:3px solid var(--primary);border-radius:2px"></div>
+      </div>
+      <div id="barcodeScanStatus" style="text-align:center;margin-top:12px;font-size:13px;color:var(--text2)">
+        <i class="ti ti-camera"></i> کامێرا چاوەڕوانە...
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </div>
 
 
@@ -2970,7 +3011,7 @@ function setConnStatus(state) {
 }
 
 // Map DB row (snake_case) <-> App object (camelCase)
-function productFromDb(r) { return { id: r.id, name: r.name, brand: r.brand, model: r.model, category: r.category, buyPrice: Number(r.buy_price), sellPrice: Number(r.sell_price), qty: r.qty, notes: r.notes, createdAt: r.created_at }; }
+function productFromDb(r) { return { id: r.id, name: r.name, brand: r.brand, model: r.model, category: r.category, buyPrice: Number(r.buy_price), sellPrice: Number(r.sell_price), qty: r.qty, notes: r.notes, barcode: r.barcode || null, createdAt: r.created_at }; }
 function saleFromDb(r) { return { id: r.id, productId: r.product_id, productName: r.product_name, unitPrice: Number(r.unit_price), qty: r.qty, total: Number(r.total), profit: Number(r.profit), returned: r.returned||false, returnedAt: r.returned_at, createdAt: r.created_at }; }
 function debtFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, amount: Number(r.amount), paidAmount: Number(r.paid_amount), source: r.source, notes: r.notes, dueDate: r.due_date, status: r.status, createdAt: r.created_at }; }
 function repairFromDb(r) { return { id: r.id, customerName: r.customer_name, phone: r.phone, device: r.device, deviceType: r.device_type, problem: r.problem, cost: Number(r.cost), status: r.status, notes: r.notes, createdAt: r.created_at }; }
@@ -3891,11 +3932,12 @@ function openProductModal(id) {
   document.getElementById('productModalTitle').textContent = id ? 'دەستکاریکردنی کاڵا' : 'کاڵای نوێ زیاد بکە';
   if(id) {
 	const p = DB.get('products').find(x=>x.id===id);
-	if(p) { document.getElementById('pName').value=p.name; document.getElementById('pBrand').value=p.brand; document.getElementById('pModel').value=p.model||''; document.getElementById('pCategory').value=p.category; document.getElementById('pBuyPrice').value=p.buyPrice; document.getElementById('pSellPrice').value=p.sellPrice; document.getElementById('pQty').value=p.qty; document.getElementById('pNotes').value=p.notes||''; }
-  } else {
-	['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes'].forEach(id=>document.getElementById(id).value='');
-	document.getElementById('pCategory').value='';
-  }
+if(p) { document.getElementById('pName').value=p.name; document.getElementById('pBrand').value=p.brand; document.getElementById('pModel').value=p.model||''; document.getElementById('pCategory').value=p.category; document.getElementById('pBuyPrice').value=p.buyPrice; document.getElementById('pSellPrice').value=p.sellPrice; document.getElementById('pQty').value=p.qty; document.getElementById('pNotes').value=p.notes||''; document.getElementById('pBarcode').value=p.barcode||''; }
+} else {
+  ['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes','pBarcode'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pCategory').value='';
+}
+
   const catSelect = document.getElementById('pCategory');
 catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
   (CACHE.categories||[]).map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
@@ -3911,35 +3953,41 @@ async function saveProduct() {
   const buy=parseFloat(document.getElementById('pBuyPrice').value)||0;
   const sell=parseFloat(document.getElementById('pSellPrice').value)||0;
   const qty=parseInt(document.getElementById('pQty').value)||0;
+  const barcode=document.getElementById('pBarcode').value.trim()||null; // ✅ زیادکرا
   if(!name||!cat||!sell) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
 
   const btn = document.getElementById('pSaveBtn');
   btn.disabled = true;
   try {
-	if(editProductId) {
-	  const { error } = await sb.from('products').update({
-		name, brand, model: document.getElementById('pModel').value, category: cat,
-		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
-	  }).eq('id', editProductId);
-	  if(error) throw error;
-	  toast('کاڵاکە نوێ کرایەوە','success');
-	} else {
-	  const { error } = await sb.from('products').insert({
-		name, brand, model: document.getElementById('pModel').value, category: cat,
-		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
-	  });
-	  if(error) throw error;
-	  toast('کاڵای نوێ زیادکرا','success');
-	}
-	await loadAllData();
-	closeModal('productModal'); renderInventory(); buildNotifications();
+    if(editProductId) {
+      const { error } = await sb.from('products').update({
+        name, brand, model: document.getElementById('pModel').value, category: cat,
+        buy_price: buy, sell_price: sell, qty, 
+        notes: document.getElementById('pNotes').value,
+        barcode  // ✅ زیادکرا
+      }).eq('id', editProductId);
+      if(error) throw error;
+      toast('کاڵاکە نوێ کرایەوە','success');
+    } else {
+      const { error } = await sb.from('products').insert({
+        name, brand, model: document.getElementById('pModel').value, category: cat,
+        buy_price: buy, sell_price: sell, qty, 
+        notes: document.getElementById('pNotes').value,
+        barcode  // ✅ زیادکرا
+      });
+      if(error) throw error;
+      toast('کاڵای نوێ زیادکرا','success');
+    }
+    await loadAllData();
+    closeModal('productModal'); renderInventory(); buildNotifications();
   } catch(err) {
-	console.error(err);
-	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+    console.error(err);
+    toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
   } finally {
-	btn.disabled = false;
+    btn.disabled = false;
   }
 }
+
 async function deleteProduct(id) {
   if(!confirm('دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')) return;
   try {
@@ -5404,6 +5452,72 @@ async function saveCurrency() {
     toast('کێشە: ' + (err.message||err), 'error');
   }
   renderSettings();
+}
+
+// ══════════════════════════════════════════
+//  BARCODE SCANNER
+// ══════════════════════════════════════════
+let barcodeReader = null;
+let barcodeScanTarget = null; // 'pBarcode' یان 'sale'
+
+function openBarcodeScanner(target) {
+  barcodeScanTarget = target;
+  document.getElementById('barcodeScanStatus').innerHTML = 
+    '<i class="ti ti-camera"></i> کامێرا چاوەڕوانە...';
+  openModal('barcodeScanModal');
+  startBarcodeScanner();
+}
+
+function closeBarcodeScanner() {
+  stopBarcodeScanner();
+  closeModal('barcodeScanModal');
+}
+
+function startBarcodeScanner() {
+  const video = document.getElementById('barcodeVideo');
+  
+  try {
+    barcodeReader = new ZXing.BrowserMultiFormatReader();
+    barcodeReader.decodeFromVideoDevice(null, video, (result, err) => {
+      if(result) {
+        const code = result.getText();
+        handleBarcodeResult(code);
+      }
+    });
+    document.getElementById('barcodeScanStatus').innerHTML = 
+      '<span style="color:var(--success)"><i class="ti ti-circle-check"></i> ئامادەیە — بارکۆد بەرامبەر کامێرا بگرە</span>';
+  } catch(err) {
+    document.getElementById('barcodeScanStatus').innerHTML = 
+      '<span style="color:var(--danger)"><i class="ti ti-x"></i> کامێرا نەکرایەوە: ' + err.message + '</span>';
+  }
+}
+
+function stopBarcodeScanner() {
+  if(barcodeReader) {
+    barcodeReader.reset();
+    barcodeReader = null;
+  }
+}
+
+function handleBarcodeResult(code) {
+  stopBarcodeScanner();
+  closeModal('barcodeScanModal');
+  
+  // ئەگەر کاتی فرۆشتنە
+  if(barcodeScanTarget === 'sale') {
+    const product = CACHE.products.find(p => p.barcode === code);
+    if(product) {
+      addToCart(product.id);
+      toast('✓ ' + product.name + ' زیادکرا', 'success');
+    } else {
+      toast('بارکۆد نەدۆزرایەوە: ' + code, 'error');
+    }
+    return;
+  }
+  
+  // ئەگەر کاتی زیادکردنی کاڵایە
+  document.getElementById(barcodeScanTarget).value = code;
+  toast('بارکۆد سکانکرا: ' + code, 'success');
 }
 
 init();
