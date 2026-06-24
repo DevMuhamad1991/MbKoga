@@ -745,25 +745,6 @@ select.filter-input { cursor: pointer; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 16px;
 }
-.dot-pulse {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-.dot-pulse span {
-  width: 12px;
-  height: 12px;
-  background: var(--primary);
-  border-radius: 50%;
-  animation: dotBounce 1.2s infinite ease-in-out;
-}
-.dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
-.dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dotBounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1.2); opacity: 1; }
-}
-
 .loading-spinner {
   width: 40px; height: 40px;
   border: 3px solid var(--card-border);
@@ -1294,11 +1275,8 @@ kbd {
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
 <div class="loading-overlay" id="loadingOverlay">
- <i class="ti ti-device-mobile" style="font-size:48px;color:var(--primary);margin-bottom:8px"></i>
-<div style="font-size:16px;font-weight:700;margin-bottom:4px" id="splashStoreName">Mobile Store</div>
-<div style="font-size:12px;color:var(--text2);margin-bottom:20px">سیستەمی بەڕێوەبردن</div>
-<div class="dot-pulse"><span></span><span></span><span></span></div>
-<div style="color:var(--text3);font-size:12px;margin-top:16px" id="splashMsg">پەیوەندیکردن...</div>
+  <div class="loading-spinner"></div>
+  <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
 </div>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -4743,21 +4721,10 @@ function updateStoreName() {
 // ══════════════════════════════════════════
 async function init() {
   const ok = await loadAllData();
-  
-  const splashName = document.getElementById('splashStoreName');
-  if(splashName && SETTINGS.store_name) splashName.textContent = SETTINGS.store_name;
-
   updateStoreName();
   renderDashboard();
   buildNotifications();
-const overlay = document.getElementById('loadingOverlay');
-overlay.style.transition = 'opacity 0.5s ease';
-overlay.style.opacity = '0';
-setTimeout(() => overlay.style.display = 'none', 500);
-
-const splashName = document.getElementById('splashStoreName');
-if(splashName && SETTINGS.store_name) splashName.textContent = SETTINGS.store_name;
-
+  document.getElementById('loadingOverlay').style.display = 'none';
   if (!ok) {
 	toast('نەتوانرا پەیوەندی بە داتابەیس بکرێت. تکایە بەستنەوەی Supabase و خشتەکان بپشکنە.', 'error');
   }
