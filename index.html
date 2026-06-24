@@ -3761,19 +3761,22 @@ function renderDashboard() {
 // تەنها ئەو کارتانە نیشان بدە کە چالاکن
 const activeWidgets = loadWidgetSettings();
 
+const activeWidgets = loadWidgetSettings();
+
 const allStats = {
-  total_products: `<div class="stat-card purple">...</div>`,
-  monthly_sales:  `<div class="stat-card green">...</div>`,
-  total_profit:   `<div class="stat-card blue">...</div>`,
-  pending_repairs:`<div class="stat-card yellow">...</div>`,
-  low_stock:      `<div class="stat-card red">...</div>`,
-  monthly_expense:`<div class="stat-card red">...</div>`,
-  net_profit:     `<div class="stat-card ${netProfit>=0?'green':'red'}">...</div>`,
-  pending_debts:  `<div class="stat-card red">...</div>`,
+  total_products: `<div class="stat-card purple"><div class="stat-icon"><i class="ti ti-package"></i></div><div class="stat-value text-mono">${fmtN(products.length)}</div><div class="stat-label">کۆی کاڵاکان</div><div class="stat-sub">کۆی حەدەد: ${fmtN(totalStock)}</div></div>`,
+  monthly_sales: `<div class="stat-card green"><div class="stat-icon"><i class="ti ti-cash"></i></div><div class="stat-value text-mono">${fmtN(monthSales.reduce((a,s)=>a+s.total,0))}</div><div class="stat-label">فرۆشتنی مانگانە</div><div class="stat-sub">ئەمڕۆ: ${fmt(todaySales.reduce((a,s)=>a+s.total,0))}</div></div>`,
+  total_profit: `<div class="stat-card blue"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-value text-mono">${fmtN(totalProfit)}</div><div class="stat-label">کۆی قازانج</div><div class="stat-sub">ئەم مانگە: ${fmt(monthProfit)}</div></div>`,
+  pending_repairs: `<div class="stat-card yellow"><div class="stat-icon"><i class="ti ti-tool"></i></div><div class="stat-value text-mono">${pendingRepairs}</div><div class="stat-label">چاکسازی چاوەڕوان</div><div class="stat-sub">کۆی: ${repairs.length} چاکسازی</div></div>`,
+  low_stock: `<div class="stat-card red"><div class="stat-icon"><i class="ti ti-alert-triangle"></i></div><div class="stat-value text-mono">${lowStock}</div><div class="stat-label">کاڵای کەمماو</div><div class="stat-sub">کمتر یان ٥ دانە</div></div>`,
+  monthly_expense: `<div class="stat-card red"><div class="stat-icon"><i class="ti ti-wallet"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(monthExpenses)}</div><div class="stat-label">خەرجی مانگانە</div></div>`,
+  net_profit: `<div class="stat-card ${netProfit>=0?'green':'red'}"><div class="stat-icon"><i class="ti ti-trending-${netProfit>=0?'up':'down'}"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(netProfit)}</div><div class="stat-label">قازانجی ڕاستەقینە</div><div class="stat-sub">قازانج - خەرجی</div></div>`,
+  pending_debts: `<div class="stat-card red"><div class="stat-icon"><i class="ti ti-credit-card"></i></div><div class="stat-value text-mono" style="font-size:20px">${fmtN(totalPendingDebt)}</div><div class="stat-label">کۆی قەرزی چاوەڕوان</div></div>`,
 };
 
 document.getElementById('dashStats').innerHTML = 
   activeWidgets.map(id => allStats[id] || '').join('');
+
 
 	<div class="stat-card purple">
 	  <div class="stat-icon"><i class="ti ti-package"></i></div>
