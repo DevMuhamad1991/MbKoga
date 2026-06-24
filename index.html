@@ -5530,25 +5530,6 @@ async function saveCurrency() {
   renderSettings();
 }
 
-// یەکەم لۆدینگ نیشان بدە، پاشان پینکۆد
-window.addEventListener('load', async ()=>{
-  // لۆدینگ ئۆڤەرلەی ئێستا نیشانە
-  document.getElementById('loadingOverlay').style.display = 'flex';
-  
-  // settings لۆد بکە بۆ پینکۆد
-  try {
-    const { data } = await sb.from('settings').select('*').eq('id',1).single();
-    if(data) { SETTINGS = data; applyDesignSettings(); }
-  } catch(e) {}
-
-  // لۆدینگ داخە، پینکۆد نیشان بدە
-  setTimeout(()=>{
-    document.getElementById('loadingOverlay').style.display = 'none';
-    document.getElementById('lockOverlay').style.display = 'flex';
-    document.getElementById('pinInput').focus();
-  }, 1800);
-});
-
 init();
 </script>
 </body>
