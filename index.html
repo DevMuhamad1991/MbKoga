@@ -4750,7 +4750,14 @@ async function init() {
   updateStoreName();
   renderDashboard();
   buildNotifications();
-  document.getElementById('loadingOverlay').style.display = 'none';
+const overlay = document.getElementById('loadingOverlay');
+overlay.style.transition = 'opacity 0.5s ease';
+overlay.style.opacity = '0';
+setTimeout(() => overlay.style.display = 'none', 500);
+
+const splashName = document.getElementById('splashStoreName');
+if(splashName && SETTINGS.store_name) splashName.textContent = SETTINGS.store_name;
+
   if (!ok) {
 	toast('نەتوانرا پەیوەندی بە داتابەیس بکرێت. تکایە بەستنەوەی Supabase و خشتەکان بپشکنە.', 'error');
   }
