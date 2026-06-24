@@ -4481,12 +4481,6 @@ document.addEventListener('fullscreenchange', function() {
   }
 });
 
-document.addEventListener('click', function() {
-  if(!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-});
-
 
 function toggleFullscreen() {
   if(!document.fullscreenElement) {
@@ -4738,12 +4732,16 @@ async function confirmResetAll() {
 	if(productsErr) throw productsErr;
   const { error: plansErr } = await sb.from('plans').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 if(plansErr) throw plansErr;
+const { error: expensesErr } = await sb.from('expenses')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000');
+  if(expensesErr) throw expensesErr;
 
 
 	await loadAllData();
 	closeModal('resetAllModal');
 	toast('هەموو داتاکان سڕانەوە','success');
-renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans();
+renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans(); renderExpenses();
 	navigate(null, 'dashboard');
   } catch(err) {
 	console.error(err);
