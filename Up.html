@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mobile Store — سیستەمی بەڕێوەبردنی دوکان</title>
+<title>Mobile System — سیستەمی بەڕێوەبردنی دوکان</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
@@ -1254,6 +1254,11 @@ kbd {
 }
 .toggle-switch.on .toggle-knob { transform: translateX(-22px); }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.4; transform: translateX(-50%) scale(1.4); }
+}
+
 </style>
 </head>
 <body>
@@ -1288,7 +1293,6 @@ kbd {
   </div>
   <nav class="sidebar-nav">
 	<div class="nav-section">
-	  <div class="nav-label">سەرەکی</div>
 	  <div class="nav-item active" data-page="dashboard" onclick="navigate(this)">
 		<i class="ti ti-layout-dashboard"></i> داشبۆرد
 	  </div>
@@ -1376,7 +1380,7 @@ kbd {
   <!-- OFFLINE BANNER -->
 <div class="offline-banner" id="offlineBanner">
   <i class="ti ti-wifi-off"></i>
-  ئۆفلاین مۆد — گۆڕانکاریەکان پاشەکەوت دەبن و sync دەکرێن کاتێک ئینتەرنێت بگەڕێتەوە
+  ئۆفلاین مۆدچالاک کرا - لەگەل گەرانەوە ئینتەرنێت گۆرانکاریەکان بۆ داتا دەنێردرێت
 </div>
 
 
@@ -1428,7 +1432,7 @@ kbd {
 		  <div class="chart-header">
 			<div>
 			  <div class="chart-title">باشترین کاڵاکان</div>
-			  <div class="chart-sub">لەپێی فرۆشتن</div>
+			  <div class="chart-sub">بەپێی فرۆشتن</div>
 			</div>
 		  </div>
 		  <div class="chart-wrap"><canvas id="chartTop"></canvas></div>
@@ -1494,7 +1498,7 @@ kbd {
 		<div class="table-wrap">
 		  <table>
 			<thead><tr>
-			  <th>#</th><th>ناوی کاڵا</th><th>بران</th><th>کاتیگۆری</th>
+			  <th>#</th><th>ناوی کاڵا</th><th>براند</th><th>کاتیگۆری</th>
 			  <th>نرخی کڕین</th><th>نرخی فرۆشتن</th><th>قازانج</th><th>بڕ</th><th>کردار</th>
 			</tr></thead>
 			<tbody id="productBody"></tbody>
@@ -1638,7 +1642,7 @@ kbd {
     <div class="settings-menu-icon" style="background:var(--success-light);color:var(--success)"><i class="ti ti-info-circle"></i></div>
     <div class="settings-menu-text">
       <div class="settings-menu-title">زانیاری سیستەم</div>
-      <div class="settings-menu-desc">وەرژن و تایبەتمەندییەکان</div>
+      <div class="settings-menu-desc">ڤێرژن و تایبەتمەندییەکان</div>
     </div>
     <i class="ti ti-chevron-left settings-menu-arrow"></i>
   </div>
@@ -1647,7 +1651,7 @@ kbd {
     <div class="settings-menu-icon" style="background:var(--danger-light);color:var(--danger)"><i class="ti ti-database-export"></i></div>
     <div class="settings-menu-text">
       <div class="settings-menu-title">پشتگیری داتا</div>
-      <div class="settings-menu-desc">دابگرتنی هەموو داتاکان</div>
+      <div class="settings-menu-desc">دابەزاندنی هەموو داتاکان</div>
     </div>
     <i class="ti ti-chevron-left settings-menu-arrow"></i>
   </div>
@@ -1691,6 +1695,7 @@ kbd {
       <div class="card-body">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px">گۆڕینی پاسۆردی داخستن</div>
         <div class="form-grid">
+          
           <div class="form-group">
             <label>کۆدی ئێستا</label>
             <input class="form-control" id="oldAppPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
@@ -1749,6 +1754,24 @@ kbd {
   </div>
 </div>
 
+  <div class="card mb-16">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">دراوی سیستەم</div>
+    <div class="form-group">
+      <select class="form-control" id="setCurrency">
+        <option value="iqd">دینار عێراقی (د.ع)</option>
+        <option value="usd">دۆلاری ئەمریکی ($)</option>
+      </select>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary" onclick="saveCurrency()">
+        <i class="ti ti-check"></i> پاشەکەوتکردن
+      </button>
+    </div>
+  </div>
+</div>
+
+
   </div>
 
   <!-- ٣. ڕێکخستنی دیزاین -->
@@ -1795,10 +1818,10 @@ kbd {
       <label>وێنەی پاشبنەما</label>
       <select class="form-control" id="setBgPattern">
         <option value="default">ئاسایی</option>
-        <option value="aurora">ئەورۆرا (ڕواڵەتی زیاتر)</option>
+        <option value="aurora">وەردەکاری زۆر</option>
         <option value="dots">خاڵ-خاڵ</option>
           <input class="form-control" id="setBgColor" type="color" style="height:44px;padding:4px;cursor:pointer">
-        <option value="none">هیچ</option>
+        <option value="none">هیچیان</option>
       </select>
     </div>
   </div>
@@ -1816,7 +1839,7 @@ kbd {
     <div class="card">
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-          <span class="td-muted">وەرژنی سیستەم</span><span class="fw-700">1.0.0</span>
+          <span class="td-muted">ڤێرژنی سیستەم</span><span class="fw-700">1.0.0</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
           <span class="td-muted">بەرواری دوایین نوێکردنەوە</span><span class="fw-700">2026-06-21</span>
@@ -1824,12 +1847,70 @@ kbd {
         <div style="padding:14px 0 0">
           <div class="td-muted" style="margin-bottom:8px">تایبەتمەندیە نوێیەکان:</div>
           <ul style="font-size:12.5px;color:var(--text2);padding-right:18px;line-height:1.9">
-            <li>زیادکردنی بەشی پلانەکان</li>
-            <li>زیادکردنی بەشی ڕێکخستن</li>
-            <li>پشتگیری گەڕاندنەوەی فرۆشتن</li>
+            <li>زیادکردنی fab</li>
+            <li>زیادکردنی بەشی نوێ</li>
+            <li>پشتگیری داتا</li>
           </ul>
         </div>
         </div>
+        
+        <div class="card" style="margin-top:16px">
+  <div class="card-body">
+    
+    <!-- سەردێر -->
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-wifi" style="color:var(--success)"></i>
+      دۆخی پەیوەندی
+    </div>
+
+    <!-- دوو ئایکۆن + هەڵ -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:20px 0">
+      
+      <!-- ئایکۆنی وێب -->
+      <div style="text-align:center">
+        <div style="width:52px;height:52px;border-radius:14px;background:var(--success-light);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+          <i class="ti ti-world" style="font-size:26px;color:var(--success)"></i>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">ئینتەرنێت</div>
+      </div>
+
+      <!-- هەڵ لەنێوان -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:40px;height:2px;background:var(--success);border-radius:2px;position:relative">
+          <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 1.5s infinite"></div>
+        </div>
+        <div style="font-size:10px;color:var(--success);font-weight:600" id="infoConnLabel">پەیوەستە</div>
+      </div>
+
+      <!-- ئایکۆنی سیستەم/داتابەیس -->
+      <div style="text-align:center">
+        <div style="width:52px;height:52px;border-radius:14px;background:var(--success-light);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
+          <i class="ti ti-database" style="font-size:26px;color:var(--success)"></i>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">داتابەیس</div>
+      </div>
+
+    </div>
+
+    <!-- ڕوونکردنەوە -->
+    <div style="display:grid;gap:8px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--success-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--success);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>سەوز</b> — پەیوەندی باشە، هەموو داتاکان sync دەکرێن</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--warning-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--warning);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>زەرد</b> — sync دەکرێت، چاوەڕوان بە</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--danger-light);border-radius:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--danger);flex-shrink:0"></div>
+        <div style="font-size:12.5px;color:var(--text)"><b>سوور</b> — ئۆفلاین، داتاکان پاشەکەوت دەبن</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+        
     </div>
 
     <div style="display:flex;align-items:center;gap:14px;background:var(--primary-light);border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius);padding:16px;margin-top:10px">
@@ -1854,11 +1935,24 @@ kbd {
   <div class="card mb-16">
     <div class="card-body" style="text-align:center">
       <i class="ti ti-database-export color-primary" style="font-size:32px"></i>
-      <div style="font-size:14px;font-weight:700;margin-top:10px">دابگرتنی هەموو داتاکان</div>
+      <div style="font-size:14px;font-weight:700;margin-top:10px">دابەزاندنی هەموو داتاکان</div>
       <div style="font-size:12.5px;color:var(--text2);margin:8px 0 16px">هەموو کاڵا، فرۆشتن، چاکسازی، قەرز و پلانەکان بکەوێتە فایلێکی JSON</div>
-      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابگرتنی داتا (JSON)</button>
+      <button class="btn btn-primary" onclick="exportDataJSON()"><i class="ti ti-download"></i> دابەزاندی داتا (JSON)</button>
     </div>
   </div>
+  
+  <div class="card mb-16">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-database" style="color:var(--info)"></i>
+      زانیاری داتابەیس
+    </div>
+    <div id="dataUsageInfo">
+      <div style="color:var(--text3);font-size:13px">بارکردن...</div>
+    </div>
+  </div>
+</div>
+
 
   <div class="card" style="border-color:rgba(255,107,107,0.25)">
     <div class="card-body" style="text-align:center">
@@ -1876,7 +1970,7 @@ kbd {
 	<!-- ═══════════════════════ REPORTS ═══════════════════════ -->
 	<div class="page" id="page-reports">
 	  <div class="page-title">
-		<div><h2>ڕاپۆرتەکان</h2><p>ئەنالیزی فرۆشتن، قازانج و چاکسازی</p></div>
+		<div><h2>ڕاپۆرتەکان</h2><p>ئەنالایزی فرۆشتن، قازانج و چاکسازی</p></div>
 	  </div>
 	  <div class="report-period-tabs">
 		<div class="period-tab active" data-p="today" onclick="setReportPeriod(this)">ئەمڕۆ</div>
@@ -1945,11 +2039,10 @@ kbd {
           placeholder="گەڕان..." id="expenseSearch" oninput="renderExpenses()">
         <select class="filter-input" id="expenseCatFilter" onchange="renderExpenses()">
           <option value="">هەموو کاتیگۆریەکان</option>
-          <option>کرێی دوکان</option>
-          <option>بریشتی</option>
+          <option>خەرجی دوکان</option>
           <option>مووچەی کارمەند</option>
           <option>گواستنەوە</option>
-          <option>تر</option>
+          <option>هیتر</option>
         </select>
       </div>
       <div class="grid-2 mb-24">
@@ -2141,7 +2234,7 @@ kbd {
           <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:4px">کاڵا (Inventory)</div>
             <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
-              • زیادکردنی کاڵای نوێ بە ناو، بران، نرخ و بڕ<br>
+              • زیادکردنی کاڵای نوێ بە ناو، براند، نرخ و بڕ<br>
               • دەستکاری و سڕینەوەی کاڵا<br>
               • ئاگادارکردنەوەی کاڵای کەمماو (کەمتر لە ٥)<br>
               • فلتەرکردن بەپێی کاتیگۆری و ستوکی
@@ -2386,7 +2479,7 @@ kbd {
 			<input class="form-control" id="pName" placeholder="iPhone 15 Pro">
 		  </div>
 		  <div class="form-group">
-			<label>بران *</label>
+			<label>براند *</label>
 			<input class="form-control" id="pBrand" placeholder="Apple">
 		  </div>
 		</div>
@@ -2805,6 +2898,7 @@ window.addEventListener('online', async () => {
   await loadAllData();
   renderPage(getCurrentPage());
   toast('داتاکان sync کران', 'success');
+  updateInfoConnStatus();
 });
 
 window.addEventListener('offline', () => {
@@ -2815,6 +2909,8 @@ window.addEventListener('offline', () => {
 
 window.addEventListener('offline', () => {
   document.getElementById('offlineBanner').classList.add('show');
+  updateInfoConnStatus();
+
 });
 window.addEventListener('online', () => {
   document.getElementById('offlineBanner').classList.remove('show');
@@ -3152,7 +3248,13 @@ function closeSearch() { document.getElementById('searchResults').classList.remo
 // ══════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════
-const fmt = n => Number(n||0).toLocaleString('en') + ' د.ع';
+const fmt = n => {
+  const num = Number(n||0).toLocaleString('en');
+  return SETTINGS.currency === 'usd' 
+    ? '$' + num 
+    : num + ' د.ع';
+}
+
 const fmtN = n => Number(n||0).toLocaleString('en');
 function repairStatusLabel(s) {
   return {received:'وەرگیراو',under_repair:'لەژێر چاکسازی',waiting_parts:'چاوەڕوانی پارچە',completed:'تەواوبوو',delivered:'دراوەتەوە'}[s]||s;
@@ -3275,7 +3377,10 @@ function openSettingsSection(el) {
   document.querySelectorAll('.settings-section').forEach(s=>{
     s.style.display = s.dataset.section===tab ? 'block' : 'none';
   });
+  if(tab === 'info') setTimeout(() => updateInfoConnStatus(), 80);
+  if(tab === 'backup') setTimeout(() => renderDataUsage(), 80);
 }
+
 
 function closeSettingsSection() {
   document.getElementById('settingsMenu').style.display = 'block';
@@ -3299,10 +3404,15 @@ document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
 document.getElementById('setDensity').value = SETTINGS.density || 'normal';
 document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
 document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
+document.getElementById('setCurrency').value = SETTINGS.currency || 'iqd';
+
+const currLabel = SETTINGS.currency === 'usd' ? '($)' : '(د.ع)';
+document.querySelectorAll('.currency-label')
+  .forEach(el => el.textContent = currLabel);
 
   renderCategoryList();  
   updateAutoPrintUI();
-
+  updateInfoConnStatus();
 }
 
 async function saveStoreInfo() {
@@ -3511,6 +3621,55 @@ function exportDataJSON() {
   toast('داتا دابگیرا','success');
 }
 
+function renderDataUsage() {
+  const products = CACHE.products?.length || 0;
+  const sales = CACHE.sales?.length || 0;
+  const repairs = CACHE.repairs?.length || 0;
+  const debts = CACHE.debts?.length || 0;
+  const plans = CACHE.plans?.length || 0;
+  const expenses = CACHE.expenses?.length || 0;
+  const total = products + sales + repairs + debts + plans + expenses;
+
+  const estBytes = products*300 + sales*200 + repairs*400 + debts*250 + plans*500 + expenses*200;
+const estKB = (estBytes / 1024).toFixed(1).toLocaleString('en');
+  const pct = Math.min((estBytes / (500*1024*1024)) * 100, 100).toFixed(3);
+
+  const rows = [
+    { label:'کاڵاکان',      icon:'ti-package',       color:'var(--primary)', count:products },
+    { label:'فرۆشتنەکان',  icon:'ti-shopping-cart', color:'var(--success)', count:sales    },
+    { label:'چاکسازییەکان', icon:'ti-tool',          color:'var(--warning)', count:repairs  },
+    { label:'قەرزەکان',    icon:'ti-credit-card',   color:'var(--danger)',  count:debts    },
+    { label:'پلانەکان',    icon:'ti-notebook',      color:'var(--info)',    count:plans    },
+    { label:'خەرجییەکان',  icon:'ti-wallet',        color:'var(--danger)',  count:expenses },
+  ];
+
+  document.getElementById('dataUsageInfo').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      ${rows.map(r=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px">
+          <i class="ti ${r.icon}" style="color:${r.color};font-size:16px"></i>
+          <div>
+            <div style="font-size:11px;color:var(--text3)">${r.label}</div>
+            <div style="font-size:14px;font-weight:700">${r.count.toLocaleString()}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text2)">تەخمینی بەکارهێنانی کۆگا</span>
+<span style="font-size:12px;font-weight:700">${estKB} KB &nbsp;/&nbsp; 500 MB</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:var(--success);border-radius:4px;transition:width 0.5s ease"></div>
+      </div>
+<div style="font-size:11px;color:var(--text3);margin-top:6px">${pct}% &nbsp;بەکارهێنراوە — &nbsp;${total.toLocaleString()} کۆی ریکۆرد</div>
+    </div>
+    <div style="background:var(--success-light);border:1px solid rgba(0,217,166,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px">
+      <i class="ti ti-circle-check" style="color:var(--success)"></i>
+ئەم داتابەیسە بەنزیکەی بەرگەی سەروو ساڵێک دەکرێت - بۆگەورەکردنی داتاکەت پەیوەندی بکە بە Dev.Muhamad@ 07509628683
+    </div>`;
+}
+
 // ══════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════
@@ -3549,13 +3708,13 @@ function renderDashboard() {
 	  <div class="stat-icon"><i class="ti ti-cash"></i></div>
 	  <div class="stat-value text-mono">${fmtN(monthSales.reduce((a,s)=>a+s.total,0))}</div>
 	  <div class="stat-label">فرۆشتنی مانگانە</div>
-	  <div class="stat-sub">ئەمڕۆ: ${fmtN(todaySales.reduce((a,s)=>a+s.total,0))} د.ع</div>
+<div class="stat-sub">ئەمڕۆ: ${fmt(todaySales.reduce((a,s)=>a+s.total,0))}</div>
 	</div>
 	<div class="stat-card blue">
 	  <div class="stat-icon"><i class="ti ti-trending-up"></i></div>
 	  <div class="stat-value text-mono">${fmtN(totalProfit)}</div>
 	  <div class="stat-label">کۆی قازانج</div>
-	  <div class="stat-sub">ئەم مانگە: ${fmtN(monthProfit)} د.ع</div>
+<div class="stat-sub">ئەم مانگە: ${fmt(monthProfit)}</div>
 	</div>
 	<div class="stat-card yellow">
 	  <div class="stat-icon"><i class="ti ti-tool"></i></div>
@@ -3710,7 +3869,7 @@ function renderProducts() {
       <td data-label="#" class="td-muted">${i+1}</td>
       <td data-label="ناوی کاڵا"><div style="font-weight:600">${p.name}</div>
       <div class="td-muted" style="font-size:11.5px">${p.model||''}</div></td>
-      <td data-label="بران" class="td-muted">${p.brand}</td>
+      <td data-label="براند" class="td-muted">${p.brand}</td>
       <td data-label="کاتیگۆری"><span class="badge badge-purple">${p.category}</span></td>
       <td data-label="نرخی کڕین" class="text-mono td-muted">${fmt(p.buyPrice)}</td>
       <td data-label="نرخی فرۆشتن" class="text-mono fw-700">${fmt(p.sellPrice)}</td>
@@ -5030,6 +5189,20 @@ async function toggleAutoPrint() {
   }
 }
 
+async function saveCurrency() {
+  const currency = document.getElementById('setCurrency').value;
+  try {
+    const { error } = await sb.from('settings')
+      .update({ currency })
+      .eq('id', 1);
+    if(error) throw error;
+    await loadAllData();
+    toast('دراوی سیستەم پاشەکەوتکرا — پەیجەکە نوێ بکەرەوە', 'success');
+  } catch(err) {
+    toast('کێشە: ' + (err.message||err), 'error');
+  }
+}
+
 function updateAutoPrintUI() {
   const isOn = SETTINGS.auto_print || false;
   const toggle = document.getElementById('autoPrintToggle');
@@ -5156,6 +5329,81 @@ ${isOverdue
   const cleaned = d.phone.replace(/\D/g,'').replace(/^0/,'');
   const url = `https://wa.me/964${cleaned}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
+}
+
+function updateInfoConnStatus() {
+  const label = document.getElementById('infoConnLabel');
+  if(!label) return;
+
+  const iconBoxes = document.querySelectorAll(
+    '#page-settings [data-section="info"] .ti-world, ' +
+    '#page-settings [data-section="info"] .ti-database'
+  );
+  const dot = document.querySelector(
+    '#page-settings [data-section="info"] [style*="width:40px"][style*="height:40px"]'
+  );
+
+  // دۆخی پەیوەندی
+  const connEl = document.getElementById('connStatus');
+  const isLoading = connEl && connEl.classList.contains('loading');
+
+  if(isLoading) {
+    label.textContent = 'پەیوەندی دەکرێت...';
+    label.style.cssText = 'color:#F7B731; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#F7B731';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(247,183,49,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#F7B731';
+      dot.style.boxShadow = '0 0 8px rgba(247,183,49,0.8)';
+    }
+  } else if(isOnline) {
+    label.textContent = 'پەیوەستە ✓';
+    label.style.cssText = 'color:#00D9A6; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#00D9A6';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(0,217,166,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#00D9A6';
+      dot.style.boxShadow = '0 0 8px rgba(0,217,166,0.8)';
+    }
+  } else {
+    label.textContent = 'ئۆفلاین ✗';
+    label.style.cssText = 'color:#FF6B6B; font-size:14px; font-weight:800;';
+    iconBoxes.forEach(i => {
+      i.style.color = '#FF6B6B';
+      i.style.fontSize = '30px';
+      const box = i.closest('div');
+      if(box) box.style.background = 'rgba(255,107,107,0.25)';
+    });
+    if(dot) {
+      dot.style.background = '#FF6B6B';
+      dot.style.boxShadow = '0 0 8px rgba(255,107,107,0.8)';
+    }
+  }
+}
+
+async function saveCurrency() {
+  const currency = document.getElementById('setCurrency').value;
+  try {
+    const { error } = await sb.from('settings')
+      .update({ currency })
+      .eq('id', 1);
+    if(error) throw error;
+    await loadAllData();
+    renderPage(getCurrentPage());
+    renderDashboard();
+    toast('دراوی سیستەم پاشەکەوتکرا', 'success');
+  } catch(err) {
+    toast('کێشە: ' + (err.message||err), 'error');
+  }
+  renderSettings();
 }
 
 init();
