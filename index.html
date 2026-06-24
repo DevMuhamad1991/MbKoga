@@ -4865,14 +4865,18 @@ function checkPin(val) {
   }
 }
 
-
-
 (async function preload(){
   try {
     const { data } = await sb.from('settings').select('*').eq('id',1).single();
-    if(data) SETTINGS = data;
-    applyDesignSettings();
+    if(data) { SETTINGS = data; applyDesignSettings(); }
   } catch(e) { console.error('preload settings error', e); }
+  
+  // پاش لۆدینگ، پینکۆد نیشان بدە
+  setTimeout(()=>{
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('lockOverlay').style.display = 'flex';
+    document.getElementById('pinInput').focus();
+  }, 1800);
 })();
 
 // ── FAB ──
@@ -5530,7 +5534,6 @@ async function saveCurrency() {
   renderSettings();
 }
 
-init();
 </script>
 </body>
 </html>
