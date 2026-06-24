@@ -1357,7 +1357,7 @@ kbd {
 </div>
 
 
-<div class="lock-overlay" id="lockOverlay">
+<div class="lock-overlay" id="lockOverlay" style="display:none">
   <div class="lock-box">
     <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
     <div style="font-size:15px;font-weight:700">Mobile Store</div>
@@ -4827,43 +4827,44 @@ async function init() {
 const SESSION_KEY = 'ms_unlocked';
 
 function checkPin(val) {
- if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
- if(val === SETTINGS.app_pin) {
-   document.getElementById('lockOverlay').style.display = 'none';
-   document.documentElement.requestFullscreen().catch(()=>{});
+  if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
+  if(val === SETTINGS.app_pin) {
+    document.getElementById('lockOverlay').style.display = 'none';
+    document.documentElement.requestFullscreen().catch(()=>{});
 
-   const loader = document.getElementById('postPinLoader');
-   loader.style.display = 'flex';
-   loader.style.opacity = '1';
-   loader.style.transition = '';
+    const loader = document.getElementById('postPinLoader');
+    loader.style.display = 'flex';
+    loader.style.opacity = '1';
+    loader.style.transition = '';
 
-   const s1 = document.getElementById('pstep1');
-   const s2 = document.getElementById('pstep2');
-   const s3 = document.getElementById('pstep3');
+    const s1 = document.getElementById('pstep1');
+    const s2 = document.getElementById('pstep2');
+    const s3 = document.getElementById('pstep3');
 
-   setTimeout(()=>{
-     s1.classList.add('done'); s1.classList.remove('active');
-     s2.classList.add('active');
-   }, 600);
-   setTimeout(()=>{
-     s2.classList.add('done'); s2.classList.remove('active');
-     s3.classList.add('active');
-   }, 1300);
+    setTimeout(()=>{
+      s1.classList.add('done'); s1.classList.remove('active');
+      s2.classList.add('active');
+    }, 600);
+    setTimeout(()=>{
+      s2.classList.add('done'); s2.classList.remove('active');
+      s3.classList.add('active');
+    }, 1300);
 
-   init().then(()=>{
-     s3.classList.add('done'); s3.classList.remove('active');
-     setTimeout(()=>{
-       loader.style.opacity = '0';
-       loader.style.transition = 'opacity 0.4s ease';
-       setTimeout(()=>{ loader.style.display = 'none'; }, 400);
-     }, 300);
-   });
+    init().then(()=>{
+      s3.classList.add('done'); s3.classList.remove('active');
+      setTimeout(()=>{
+        loader.style.opacity = '0';
+        loader.style.transition = 'opacity 0.4s ease';
+        setTimeout(()=>{ loader.style.display = 'none'; }, 400);
+      }, 300);
+    });
 
- } else {
-   document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
-   document.getElementById('pinInput').value = '';
- }
+  } else {
+    document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
+    document.getElementById('pinInput').value = '';
+  }
 }
+
 
 
 (async function preload(){
@@ -5528,6 +5529,25 @@ async function saveCurrency() {
   }
   renderSettings();
 }
+
+// یەکەم لۆدینگ نیشان بدە، پاشان پینکۆد
+window.addEventListener('load', async ()=>{
+  // لۆدینگ ئۆڤەرلەی ئێستا نیشانە
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  
+  // settings لۆد بکە بۆ پینکۆد
+  try {
+    const { data } = await sb.from('settings').select('*').eq('id',1).single();
+    if(data) { SETTINGS = data; applyDesignSettings(); }
+  } catch(e) {}
+
+  // لۆدینگ داخە، پینکۆد نیشان بدە
+  setTimeout(()=>{
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('lockOverlay').style.display = 'flex';
+    document.getElementById('pinInput').focus();
+  }, 1800);
+});
 
 init();
 </script>
