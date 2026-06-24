@@ -1695,6 +1695,7 @@ kbd {
       <div class="card-body">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px">گۆڕینی پاسۆردی داخستن</div>
         <div class="form-grid">
+          
           <div class="form-group">
             <label>کۆدی ئێستا</label>
             <input class="form-control" id="oldAppPin" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
@@ -1752,6 +1753,24 @@ kbd {
     </div>
   </div>
 </div>
+
+  <div class="card mb-16">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">دراوی سیستەم</div>
+    <div class="form-group">
+      <select class="form-control" id="setCurrency">
+        <option value="iqd">دینار عێراقی (د.ع)</option>
+        <option value="usd">دۆلاری ئەمریکی ($)</option>
+      </select>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary" onclick="saveCurrency()">
+        <i class="ti ti-check"></i> پاشەکەوتکردن
+      </button>
+    </div>
+  </div>
+</div>
+
 
   </div>
 
@@ -3229,7 +3248,13 @@ function closeSearch() { document.getElementById('searchResults').classList.remo
 // ══════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════
-const fmt = n => Number(n||0).toLocaleString('en') + ' د.ع';
+const fmt = n => {
+  const num = Number(n||0).toLocaleString('en');
+  return SETTINGS.currency === 'usd' 
+    ? '$' + num 
+    : num + ' د.ع';
+}
+
 const fmtN = n => Number(n||0).toLocaleString('en');
 function repairStatusLabel(s) {
   return {received:'وەرگیراو',under_repair:'لەژێر چاکسازی',waiting_parts:'چاوەڕوانی پارچە',completed:'تەواوبوو',delivered:'دراوەتەوە'}[s]||s;
@@ -3379,6 +3404,7 @@ document.getElementById('setFontSize').value = SETTINGS.font_size || 'medium';
 document.getElementById('setDensity').value = SETTINGS.density || 'normal';
 document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default';
 document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
+document.getElementById('setCurrency').value = SETTINGS.currency || 'iqd';
 
   renderCategoryList();  
   updateAutoPrintUI();
@@ -5156,6 +5182,20 @@ async function toggleAutoPrint() {
     toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
   } catch(err) {
     toast('کێشە: '+(err.message||err),'error');
+  }
+}
+
+async function saveCurrency() {
+  const currency = document.getElementById('setCurrency').value;
+  try {
+    const { error } = await sb.from('settings')
+      .update({ currency })
+      .eq('id', 1);
+    if(error) throw error;
+    await loadAllData();
+    toast('دراوی سیستەم پاشەکەوتکرا — پەیجەکە نوێ بکەرەوە', 'success');
+  } catch(err) {
+    toast('کێشە: ' + (err.message||err), 'error');
   }
 }
 
