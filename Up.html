@@ -1264,7 +1264,7 @@ kbd {
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay">
+<div class="lock-overlay" id="lockOverlay" >
   <div class="lock-box">
     <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
     <div style="font-size:15px;font-weight:700">Mobile Store</div>
@@ -1275,10 +1275,6 @@ kbd {
 </div>
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
-<div class="lock-overlay" id="lockOverlay" style="display:none">
-  <div class="loading-spinner"></div>
-  <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
-</div>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
@@ -1840,10 +1836,10 @@ kbd {
     <div class="card">
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-          <span class="td-muted">ڤێرژنی سیستەم</span><span class="fw-700">1.0.0</span>
+          <span class="td-muted">ڤێرژنی سیستەم</span><span class="fw-700">2.5.0</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-          <span class="td-muted">بەرواری دوایین نوێکردنەوە</span><span class="fw-700">2026-06-21</span>
+          <span class="td-muted">بەرواری دوایین نوێکردنەوە</span><span class="fw-700">2026-06-25</span>
         </div>
         <div style="padding:14px 0 0">
           <div class="td-muted" style="margin-bottom:8px">تایبەتمەندیە نوێیەکان:</div>
@@ -2086,7 +2082,7 @@ kbd {
         <input class="form-control" id="planTitle" placeholder="نموونە: پلانی مانگی ١">
       </div>
       <div class="form-group">
-        <label>تێبینی ئازاد</label>
+        <label>تێبینی بنووسە</label>
         <textarea class="form-control" id="planContent" placeholder="هەر چی دەتەوێت بنووسە..." style="min-height:200px;font-size:14px;line-height:1.8"></textarea>
       </div>
     </div>
@@ -2185,7 +2181,7 @@ kbd {
             <i class="ti ti-package" style="color:var(--primary)"></i>
             <div>
               <div style="font-weight:700;font-size:13px">کاڵا</div>
-              <div style="font-size:12px;color:var(--text2)">بەڕێوەبردنی موجودی دوکان</div>
+              <div style="font-size:12px;color:var(--text2)">ئەوکاڵایانەی موجودن لە دوکان</div>
             </div>
           </div>
           <div class="help-feature-card">
@@ -2199,7 +2195,7 @@ kbd {
             <i class="ti ti-tool" style="color:var(--warning)"></i>
             <div>
               <div style="font-weight:700;font-size:13px">چاکسازی</div>
-              <div style="font-size:12px;color:var(--text2)">شوێنکەوتنی ئامێرەکان</div>
+              <div style="font-size:12px;color:var(--text2)">چارەسەری ئامێرەکان</div>
             </div>
           </div>
           <div class="help-feature-card">
@@ -2220,7 +2216,7 @@ kbd {
             <i class="ti ti-chart-bar" style="color:var(--primary)"></i>
             <div>
               <div style="font-weight:700;font-size:13px">ڕاپۆرت</div>
-              <div style="font-size:12px;color:var(--text2)">ئەنالیز و ئامارەکان</div>
+              <div style="font-size:12px;color:var(--text2)">دارایی و ئامارەکان</div>
             </div>
           </div>
         </div>
@@ -2265,7 +2261,7 @@ kbd {
             <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
               • تۆمارکردنی ناو، ژمارە، ئامێر و کێشە<br>
               • شوێنکەوتنی ستاتوس: وەرگیراو → چاکسازی → تەواو → دراوەتەوە<br>
-              • نیشاندانی هزینەی چاکسازی<br>
+              • نیشاندانی نرخی چاکردنەوە<br>
               • کلیک لە چاو بکە بۆ گۆڕینی ستاتوس بە خێرایی
             </div>
           </div>
@@ -2291,10 +2287,10 @@ kbd {
           <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:4px">خەرجی (Expenses)</div>
             <div style="font-size:12.5px;color:var(--text2);line-height:1.7">
-              • تۆمارکردنی خەرجی دوکان: کرێ، بریشتی، مووچە...<br>
+              • تۆمارکردنی خەرجی دوکان: کرێ، کارەبا، مووچە...<br>
               • چارتی خەرجی بەپێی کاتیگۆری و ڕۆژ<br>
               • قازانجی ڕاستەقینە = داهات - خەرجی<br>
-              • دیمەنی ئایینەیی لە داشبۆرد
+              • دیمەنی راستەوخۆ لە داشبۆرد
             </div>
           </div>
         </div>
@@ -2390,7 +2386,7 @@ kbd {
             </div>
             <div>
               <i class="ti ti-check" style="color:var(--success)"></i>
-              پاشەکەوتکردن (کاتێک مۆدال کراوەیە)
+              پاشەکەوتکردن
             </div>
           </div>
           <div class="shortcut-row">
@@ -2399,7 +2395,7 @@ kbd {
             </div>
             <div>
               <i class="ti ti-x" style="color:var(--danger)"></i>
-              داخستنی مۆدال
+              داخستن
             </div>
           </div>
         </div>
@@ -2431,7 +2427,7 @@ kbd {
               <i class="ti ti-bell" style="font-size:20px;color:var(--warning);flex-shrink:0;margin-top:2px"></i>
               <div>
                 <div style="font-weight:700;font-size:13px;margin-bottom:4px">ئاگادارکردنەوەکان</div>
-                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">زنگی سەرەوە ئاگادارکردنەوەی کاڵای کەمماو، چاکسازی چاوەڕوان و قەرزی تێپەڕیوو نیشان دەدات</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">زەنگی سەرەوە ئاگادارکردنەوەی کاڵای کەمماو، چاکسازی چاوەڕوان و قەرزی تێپەڕیوو نیشان دەدات</div>
               </div>
             </div>
           </div>
@@ -2486,8 +2482,8 @@ kbd {
 		</div>
 		<div class="form-row">
 		  <div class="form-group">
-			<label>مۆدێل</label>
-			<input class="form-control" id="pModel" placeholder="A3101">
+			<label>مواسەفات</label>
+			<input class="form-control" id="pModel" placeholder="256GB 2SIM">
 		  </div>
 		  <div class="form-group">
 			<label>کاتیگۆری *</label>
@@ -2519,7 +2515,7 @@ kbd {
 		  <input class="form-control" id="pQty" type="number" placeholder="0" min="0">
 		</div>
     <div class="form-group">
-  <label>بارکۆد (ئارەزووی)</label>
+  <label>بارکۆد (ئارەزوومەندانە)</label>
   <div style="display:flex;gap:8px">
     <input class="form-control" id="pBarcode" placeholder="بارکۆد بنووسە یان سکان بکە">
     <button class="btn btn-ghost" type="button" onclick="openBarcodeScanner('pBarcode')">
@@ -3263,7 +3259,7 @@ if(!q.trim()) {
   const repairs = DB.get('repairs').filter(r=>!['completed','delivered'].includes(r.status)).slice(0,2);
   const debts = DB.get('debts').filter(d=>d.status==='pending').slice(0,2);
   let html = '';
-  products.forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand} <span class="td-muted" style="margin-right:auto">${fmt(p.sellPrice)}</span></div>`);
+products.forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand}${p.model?' ('+p.model+')':''} <span class="td-muted" style="margin-right:auto">${fmt(p.sellPrice)}</span></div>`);
   repairs.forEach(r=>html+=`<div class="search-result-item" onclick="navigate(null,'repairs')"><span class="search-result-tag tag-repair">چاکسازی</span>${r.customerName} — ${r.device} <span class="td-muted" style="margin-right:auto">${repairStatusLabel(r.status)}</span></div>`);
   debts.forEach(d=>html+=`<div class="search-result-item" onclick="navigate(null,'debts')"><span class="search-result-tag" style="background:var(--danger-light);color:var(--danger)">قەرز</span>${d.customerName} <span class="td-muted" style="margin-right:auto">${fmt(debtRemaining(d))}</span></div>`);
   box.innerHTML = html || '<div style="padding:14px;text-align:center;font-size:13px;color:var(--text3)">هیچ داتایەک نیە</div>';
@@ -3271,12 +3267,17 @@ if(!q.trim()) {
   return;
 }
 
-  const products = DB.get('products').filter(p=>p.name.includes(q)||p.brand.includes(q));
+const products = DB.get('products').filter(p=>
+  p.name.toLowerCase().includes(q)||
+  p.brand.toLowerCase().includes(q)||
+  (p.model&&p.model.toLowerCase().includes(q))
+);
+
   const repairs = DB.get('repairs').filter(r=>r.customerName.includes(q)||r.device.includes(q));
   const sales = DB.get('sales').filter(s=>s.productName.includes(q));
   const debts = DB.get('debts').filter(d=>d.customerName.includes(q)||d.phone.includes(q));
   let html = '';
-  products.slice(0,4).forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand}</div>`);
+products.slice(0,4).forEach(p=>html+=`<div class="search-result-item" onclick="navigate(null,'inventory')"><span class="search-result-tag tag-product">کاڵا</span>${p.name} — ${p.brand}${p.model?' ('+p.model+')':''}</div>`);
   repairs.slice(0,3).forEach(r=>html+=`<div class="search-result-item" onclick="navigate(null,'repairs')"><span class="search-result-tag tag-repair">چاکسازی</span>${r.customerName} — ${r.device}</div>`);
   sales.slice(0,3).forEach(s=>html+=`<div class="search-result-item" onclick="navigate(null,'sales')"><span class="search-result-tag tag-sale">فرۆشتن</span>${s.productName}</div>`);
   debts.slice(0,3).forEach(d=>html+=`<div class="search-result-item" onclick="navigate(null,'debts')"><span class="search-result-tag" style="background:var(--danger-light);color:var(--danger)">قەرز</span>${d.customerName} — ${fmt(debtRemaining(d))}</div>`);
@@ -3855,7 +3856,7 @@ function renderDashboard() {
   const recent = [...activeSales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
   document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
 	<tr>
-	  <td><b>${s.productName}</b></td>
+	  <td><b>${s.productName}</b>${s.productModel?`<div class="td-muted" style="font-size:11.5px">${s.productModel}</div>`:''}</td>
 	  <td class="td-muted">${s.qty}</td>
 	  <td class="text-mono color-primary">${fmt(s.total)}</td>
 	  <td class="text-mono color-green">${fmt(s.profit)}</td>
@@ -4030,7 +4031,7 @@ function renderSales() {
   const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr style="${s.returned?'opacity:0.5':''}">
   <td data-label="#" class="td-muted">${i+1}</td>
-  <td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
+<td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}<div class="td-muted" style="font-size:11.5px">${(()=>{const p=DB.get('products').find(x=>x.id===s.productId);return p&&p.model?p.model:'';})()}</div>
   <td data-label="بڕ" class="td-muted">${s.qty}</td>
   <td data-label="نرخی یەکە" class="text-mono td-muted">${fmt(s.unitPrice)}</td>
   <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
@@ -4076,7 +4077,7 @@ function addToCart(id) {
   if(!p) return;
   const ex = saleCart.find(c=>c.id===id);
   if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('کاڵا بەسەر چووە','error'); return; } }
-  else saleCart.push({id, name:p.name, qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
+else saleCart.push({id, name:p.name, model:p.model||'', qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
   renderSaleProducts(); renderSaleCart();
 }
 function renderSaleCart() {
@@ -4121,7 +4122,8 @@ async function completeSale() {
       productId: item.id,
       product_id: item.id,
       productName: item.name,
-      product_name: item.name,
+product_name: item.name,
+product_model: item.model||'',
       unit_price: item.unitPrice,
       unitPrice: item.unitPrice,
       qty: item.qty,
@@ -4485,12 +4487,6 @@ document.addEventListener('fullscreenchange', function() {
   }
 });
 
-document.addEventListener('click', function() {
-  if(!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-});
-
 
 function toggleFullscreen() {
   if(!document.fullscreenElement) {
@@ -4742,12 +4738,16 @@ async function confirmResetAll() {
 	if(productsErr) throw productsErr;
   const { error: plansErr } = await sb.from('plans').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 if(plansErr) throw plansErr;
+const { error: expensesErr } = await sb.from('expenses')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000');
+  if(expensesErr) throw expensesErr;
 
 
 	await loadAllData();
 	closeModal('resetAllModal');
 	toast('هەموو داتاکان سڕانەوە','success');
-renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans();
+renderDashboard(); renderInventory(); renderSales(); renderRepairs(); renderDebts(); renderReports(); renderPlans(); renderExpenses();
 	navigate(null, 'dashboard');
   } catch(err) {
 	console.error(err);
@@ -5234,20 +5234,6 @@ async function toggleAutoPrint() {
     toast(newVal ? 'چاپکردنی ئۆتۆماتیک چالاکبوو' : 'چاپکردنی ئۆتۆماتیک ناچالاکبوو', 'info');
   } catch(err) {
     toast('کێشە: '+(err.message||err),'error');
-  }
-}
-
-async function saveCurrency() {
-  const currency = document.getElementById('setCurrency').value;
-  try {
-    const { error } = await sb.from('settings')
-      .update({ currency })
-      .eq('id', 1);
-    if(error) throw error;
-    await loadAllData();
-    toast('دراوی سیستەم پاشەکەوتکرا — پەیجەکە نوێ بکەرەوە', 'success');
-  } catch(err) {
-    toast('کێشە: ' + (err.message||err), 'error');
   }
 }
 
