@@ -3932,11 +3932,12 @@ function openProductModal(id) {
   document.getElementById('productModalTitle').textContent = id ? 'دەستکاریکردنی کاڵا' : 'کاڵای نوێ زیاد بکە';
   if(id) {
 	const p = DB.get('products').find(x=>x.id===id);
-	if(p) { document.getElementById('pName').value=p.name; document.getElementById('pBrand').value=p.brand; document.getElementById('pModel').value=p.model||''; document.getElementById('pCategory').value=p.category; document.getElementById('pBuyPrice').value=p.buyPrice; document.getElementById('pSellPrice').value=p.sellPrice; document.getElementById('pQty').value=p.qty; document.getElementById('pNotes').value=p.notes||''; }
-  } else {
-	['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes'].forEach(id=>document.getElementById(id).value='');
-	document.getElementById('pCategory').value='';
-  }
+if(p) { document.getElementById('pName').value=p.name; document.getElementById('pBrand').value=p.brand; document.getElementById('pModel').value=p.model||''; document.getElementById('pCategory').value=p.category; document.getElementById('pBuyPrice').value=p.buyPrice; document.getElementById('pSellPrice').value=p.sellPrice; document.getElementById('pQty').value=p.qty; document.getElementById('pNotes').value=p.notes||''; document.getElementById('pBarcode').value=p.barcode||''; }
+} else {
+  ['pName','pBrand','pModel','pBuyPrice','pSellPrice','pQty','pNotes','pBarcode'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pCategory').value='';
+}
+
   const catSelect = document.getElementById('pCategory');
 catSelect.innerHTML = '<option value="">هەڵبژێرە...</option>' +
   (CACHE.categories||[]).map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
