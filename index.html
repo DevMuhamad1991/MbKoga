@@ -4742,10 +4742,10 @@ function updateStoreName() {
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
+  const ok = await loadAllData();
+  
   const splashName = document.getElementById('splashStoreName');
   if(splashName && SETTINGS.store_name) splashName.textContent = SETTINGS.store_name;
-  
-  const ok = await loadAllData();
 
   updateStoreName();
   renderDashboard();
