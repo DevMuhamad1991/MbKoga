@@ -737,22 +737,14 @@ select.filter-input { cursor: pointer; }
 .conn-status.loading { background: var(--warning-light); color: var(--warning); }
 .conn-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* ── LOADING OVERLAY ── */
-.loading-overlay {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 5000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 16px;
+@keyframes splashIcon {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
-.loading-spinner {
-  width: 40px; height: 40px;
-  border: 3px solid var(--card-border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+@keyframes splashText {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
@@ -1263,23 +1255,39 @@ kbd {
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay">
-  <div class="lock-box">
-    <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
-    <div style="font-size:15px;font-weight:700">Mobile Store</div>
-    <div style="font-size:12px;color:var(--text2)">پینکۆد بنووسە</div>
-    <input class="pin-input" id="pinInput" type="password" maxlength="4" inputmode="numeric" autofocus oninput="checkPin(this.value)">
-    <div style="font-size:12px;color:var(--danger);min-height:18px" id="pinError"></div>
-  </div>
-</div>
-
-<!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-spinner"></div>
-  <div style="color:var(--text2);font-size:13px">پەیوەندیکردن بە داتابەیس...</div>
-</div>
+  
+  <!-- لۆگۆ -->
+  <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--primary),#9C88FF);
+    border-radius:22px;display:flex;align-items:center;justify-content:center;
+    font-size:38px;color:#fff;box-shadow:0 8px 32px var(--primary-glow);
+    margin-bottom:20px;animation:splashIcon 0.6s ease">
+    <i class="ti ti-device-mobile"></i>
+  </div>
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <!-- ناوی دوکان -->
+  <div id="splashStoreName" style="font-size:22px;font-weight:800;color:var(--text);
+    margin-bottom:6px;animation:splashText 0.8s ease">
+    Mobile Store
+  </div>
+  
+  <!-- زیر ناو -->
+  <div style="font-size:13px;color:var(--text2);margin-bottom:32px">
+    سیستەمی بەڕێوەبردنی دوکان
+  </div>
+
+  <!-- loading bar -->
+  <div style="width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+    <div id="splashBar" style="height:100%;width:0%;background:var(--primary);
+      border-radius:2px;transition:width 0.4s ease"></div>
+  </div>
+  
+  <!-- تێکست -->
+  <div id="splashMsg" style="font-size:12px;color:var(--text3);margin-top:12px">
+    بارکردن...
+  </div>
+
+</div>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
@@ -5404,6 +5412,41 @@ async function saveCurrency() {
     toast('کێشە: ' + (err.message||err), 'error');
   }
   renderSettings();
+}
+
+async function init() {
+  // splash پرۆگرێس
+  const bar = document.getElementById('splashBar');
+  const msg = document.getElementById('splashMsg');
+  
+  bar.style.width = '30%';
+  msg.textContent = 'پەیوەندیکردن بە داتابەیس...';
+  
+  const ok = await loadAllData();
+  
+  bar.style.width = '80%';
+  msg.textContent = 'ئامادەکردنی داتاکان...';
+  
+  updateStoreName();
+  
+  // ناوی دوکان لە splash نیشان بدە
+  const splash = document.getElementById('splashStoreName');
+  if(splash && SETTINGS.store_name) splash.textContent = SETTINGS.store_name;
+  
+  renderDashboard();
+  buildNotifications();
+  
+  bar.style.width = '100%';
+  msg.textContent = 'ئامادەیە!';
+  
+  // splash داخە
+  setTimeout(() => {
+    document.getElementById('loadingOverlay').style.opacity = '0';
+    document.getElementById('loadingOverlay').style.transition = 'opacity 0.4s ease';
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }, 400);
+  }, 300);
 }
 
 init();
