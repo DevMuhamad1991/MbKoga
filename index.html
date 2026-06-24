@@ -3952,35 +3952,41 @@ async function saveProduct() {
   const buy=parseFloat(document.getElementById('pBuyPrice').value)||0;
   const sell=parseFloat(document.getElementById('pSellPrice').value)||0;
   const qty=parseInt(document.getElementById('pQty').value)||0;
+  const barcode=document.getElementById('pBarcode').value.trim()||null; // ✅ زیادکرا
   if(!name||!cat||!sell) { toast('تکایە خانەی پێویستەکان پڕبکەرەوە','error'); return; }
 
   const btn = document.getElementById('pSaveBtn');
   btn.disabled = true;
   try {
-	if(editProductId) {
-	  const { error } = await sb.from('products').update({
-		name, brand, model: document.getElementById('pModel').value, category: cat,
-		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
-	  }).eq('id', editProductId);
-	  if(error) throw error;
-	  toast('کاڵاکە نوێ کرایەوە','success');
-	} else {
-	  const { error } = await sb.from('products').insert({
-		name, brand, model: document.getElementById('pModel').value, category: cat,
-		buy_price: buy, sell_price: sell, qty, notes: document.getElementById('pNotes').value
-	  });
-	  if(error) throw error;
-	  toast('کاڵای نوێ زیادکرا','success');
-	}
-	await loadAllData();
-	closeModal('productModal'); renderInventory(); buildNotifications();
+    if(editProductId) {
+      const { error } = await sb.from('products').update({
+        name, brand, model: document.getElementById('pModel').value, category: cat,
+        buy_price: buy, sell_price: sell, qty, 
+        notes: document.getElementById('pNotes').value,
+        barcode  // ✅ زیادکرا
+      }).eq('id', editProductId);
+      if(error) throw error;
+      toast('کاڵاکە نوێ کرایەوە','success');
+    } else {
+      const { error } = await sb.from('products').insert({
+        name, brand, model: document.getElementById('pModel').value, category: cat,
+        buy_price: buy, sell_price: sell, qty, 
+        notes: document.getElementById('pNotes').value,
+        barcode  // ✅ زیادکرا
+      });
+      if(error) throw error;
+      toast('کاڵای نوێ زیادکرا','success');
+    }
+    await loadAllData();
+    closeModal('productModal'); renderInventory(); buildNotifications();
   } catch(err) {
-	console.error(err);
-	toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
+    console.error(err);
+    toast('کێشە ڕوویدا: ' + (err.message||err), 'error');
   } finally {
-	btn.disabled = false;
+    btn.disabled = false;
   }
 }
+
 async function deleteProduct(id) {
   if(!confirm('دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')) return;
   try {
