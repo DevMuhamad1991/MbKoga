@@ -3406,6 +3406,10 @@ document.getElementById('setBgPattern').value = SETTINGS.bg_pattern || 'default'
 document.getElementById('setBgColor').value = SETTINGS.bg_color || '#080d1a';
 document.getElementById('setCurrency').value = SETTINGS.currency || 'iqd';
 
+const currLabel = SETTINGS.currency === 'usd' ? '($)' : '(د.ع)';
+document.querySelectorAll('.currency-label')
+  .forEach(el => el.textContent = currLabel);
+
   renderCategoryList();  
   updateAutoPrintUI();
   updateInfoConnStatus();
@@ -3704,13 +3708,13 @@ function renderDashboard() {
 	  <div class="stat-icon"><i class="ti ti-cash"></i></div>
 	  <div class="stat-value text-mono">${fmtN(monthSales.reduce((a,s)=>a+s.total,0))}</div>
 	  <div class="stat-label">فرۆشتنی مانگانە</div>
-	  <div class="stat-sub">ئەمڕۆ: ${fmtN(todaySales.reduce((a,s)=>a+s.total,0))} د.ع</div>
+<div class="stat-sub">ئەمڕۆ: ${fmt(todaySales.reduce((a,s)=>a+s.total,0))}</div>
 	</div>
 	<div class="stat-card blue">
 	  <div class="stat-icon"><i class="ti ti-trending-up"></i></div>
 	  <div class="stat-value text-mono">${fmtN(totalProfit)}</div>
 	  <div class="stat-label">کۆی قازانج</div>
-	  <div class="stat-sub">ئەم مانگە: ${fmtN(monthProfit)} د.ع</div>
+<div class="stat-sub">ئەم مانگە: ${fmt(monthProfit)}</div>
 	</div>
 	<div class="stat-card yellow">
 	  <div class="stat-icon"><i class="ti ti-tool"></i></div>
@@ -5399,6 +5403,7 @@ async function saveCurrency() {
   } catch(err) {
     toast('کێشە: ' + (err.message||err), 'error');
   }
+  renderSettings();
 }
 
 init();
