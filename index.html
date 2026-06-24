@@ -3856,7 +3856,7 @@ function renderDashboard() {
   const recent = [...activeSales].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
   document.getElementById('recentSalesBody').innerHTML = recent.length ? recent.map(s=>`
 	<tr>
-	  <td><b>${s.productName}</b></td>
+	  <td><b>${s.productName}</b>${s.productModel?`<div class="td-muted" style="font-size:11.5px">${s.productModel}</div>`:''}</td>
 	  <td class="td-muted">${s.qty}</td>
 	  <td class="text-mono color-primary">${fmt(s.total)}</td>
 	  <td class="text-mono color-green">${fmt(s.profit)}</td>
@@ -4031,7 +4031,7 @@ function renderSales() {
   const sorted = [...shown].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   body.innerHTML = sorted.length ? sorted.map((s,i)=>`<tr style="${s.returned?'opacity:0.5':''}">
   <td data-label="#" class="td-muted">${i+1}</td>
-  <td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}</td>
+<td data-label="کاڵا"><b>${s.productName}</b> ${s.returned?'<span class="badge badge-red">گەڕاوەتەوە</span>':''}<div class="td-muted" style="font-size:11.5px">${(()=>{const p=DB.get('products').find(x=>x.id===s.productId);return p&&p.model?p.model:'';})()}</div>
   <td data-label="بڕ" class="td-muted">${s.qty}</td>
   <td data-label="نرخی یەکە" class="text-mono td-muted">${fmt(s.unitPrice)}</td>
   <td data-label="کۆی نرخ" class="text-mono fw-700 color-primary">${fmt(s.total)}</td>
@@ -4077,7 +4077,7 @@ function addToCart(id) {
   if(!p) return;
   const ex = saleCart.find(c=>c.id===id);
   if(ex) { if(ex.qty<p.qty) ex.qty++; else { toast('کاڵا بەسەر چووە','error'); return; } }
-  else saleCart.push({id, name:p.name, qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
+else saleCart.push({id, name:p.name, model:p.model||'', qty:1, unitPrice:p.sellPrice, buyPrice:p.buyPrice, maxQty:p.qty});
   renderSaleProducts(); renderSaleCart();
 }
 function renderSaleCart() {
@@ -4122,7 +4122,8 @@ async function completeSale() {
       productId: item.id,
       product_id: item.id,
       productName: item.name,
-      product_name: item.name,
+product_name: item.name,
+product_model: item.model||'',
       unit_price: item.unitPrice,
       unitPrice: item.unitPrice,
       qty: item.qty,
