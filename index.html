@@ -1828,6 +1828,25 @@ kbd {
   </div>
 </div>
 
+  <!-- ویجێتی داشبۆرد -->
+<div class="card mb-16">
+  <div class="card-body">
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-layout-dashboard" style="color:var(--primary)"></i>
+      ڕێکخستنی داشبۆرد
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">
+      هەڵبژێرە کام کارتەکان لە داشبۆرد نیشان بدرێن
+    </div>
+    <div id="widgetList" style="display:grid;gap:8px"></div>
+    <div style="margin-top:14px">
+      <button class="btn btn-primary" onclick="saveWidgetSettings()">
+        <i class="ti ti-check"></i> پاشەکەوتکردن
+      </button>
+    </div>
+  </div>
+</div>
+
         <div style="margin-top:16px">
           <button class="btn btn-primary" id="saveDesignBtn" onclick="saveDesignSettings()"><i class="ti ti-check"></i> پاشەکەوتکردن</button>
         </div>
@@ -3454,6 +3473,7 @@ document.querySelectorAll('.currency-label')
   renderCategoryList();  
   updateAutoPrintUI();
   updateInfoConnStatus();
+  renderWidgetList();
 }
 
 async function saveStoreInfo() {
@@ -3738,7 +3758,23 @@ function renderDashboard() {
     .reduce((a,e)=>a+e.amount,0);
   const netProfit = monthProfit - monthExpenses;
 
-  document.getElementById('dashStats').innerHTML = `
+// تەنها ئەو کارتانە نیشان بدە کە چالاکن
+const activeWidgets = loadWidgetSettings();
+
+const allStats = {
+  total_products: `<div class="stat-card purple">...</div>`,
+  monthly_sales:  `<div class="stat-card green">...</div>`,
+  total_profit:   `<div class="stat-card blue">...</div>`,
+  pending_repairs:`<div class="stat-card yellow">...</div>`,
+  low_stock:      `<div class="stat-card red">...</div>`,
+  monthly_expense:`<div class="stat-card red">...</div>`,
+  net_profit:     `<div class="stat-card ${netProfit>=0?'green':'red'}">...</div>`,
+  pending_debts:  `<div class="stat-card red">...</div>`,
+};
+
+document.getElementById('dashStats').innerHTML = 
+  activeWidgets.map(id => allStats[id] || '').join('');
+
 	<div class="stat-card purple">
 	  <div class="stat-icon"><i class="ti ti-package"></i></div>
 	  <div class="stat-value text-mono">${fmtN(products.length)}</div>
@@ -5518,6 +5554,81 @@ function handleBarcodeResult(code) {
   // ئەگەر کاتی زیادکردنی کاڵایە
   document.getElementById(barcodeScanTarget).value = code;
   toast('بارکۆد سکانکرا: ' + code, 'success');
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD WIDGETS
+// ══════════════════════════════════════════
+
+const ALL_WIDGETS = [
+  { id:'total_products',  label:'کۆی کاڵاکان',        icon:'ti-package',       color:'purple' },
+  { id:'monthly_sales',   label:'فرۆشتنی مانگانە',    icon:'ti-cash',          color:'green'  },
+  { id:'total_profit',    label:'کۆی قازانج',          icon:'ti-trending-up',   color:'blue'   },
+  { id:'pending_repairs', label:'چاکسازی چاوەڕوان',   icon:'ti-tool',          color:'yellow' },
+  { id:'low_stock',       label:'کاڵای کەمماو',        icon:'ti-alert-triangle',color:'red'    },
+  { id:'monthly_expense', label:'خەرجی مانگانە',       icon:'ti-wallet',        color:'red'    },
+  { id:'net_profit',      label:'قازانجی ڕاستەقینە',  icon:'ti-trending-up',   color:'green'  },
+  { id:'pending_debts',   label:'کۆی قەرزی چاوەڕوان', icon:'ti-credit-card',   color:'red'    },
+];
+
+// بارکردنی ڕێکخستنی ویجێت
+function loadWidgetSettings() {
+  const saved = SETTINGS.dashboard_widgets;
+  if(saved && Array.isArray(saved)) return saved;
+  // بە خۆکاری هەموویان چالاک
+  return ALL_WIDGETS.map(w => w.id);
+}
+
+// ڕێندەرکردنی لیستی ویجێتەکان لە ڕێکخستن
+function renderWidgetList() {
+  const el = document.getElementById('widgetList');
+  if(!el) return;
+  const active = loadWidgetSettings();
+  
+  el.innerHTML = ALL_WIDGETS.map(w => {
+    const isOn = active.includes(w.id);
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;
+                  padding:10px 14px;background:var(--bg);border-radius:10px;
+                  border:1px solid var(--card-border)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="ti ${w.icon}" style="font-size:18px;color:var(--${w.color === 'purple' ? 'primary' : w.color === 'blue' ? 'info' : w.color === 'yellow' ? 'warning' : w.color === 'green' ? 'success' : 'danger'})"></i>
+          <span style="font-size:13.5px;font-weight:500">${w.label}</span>
+        </div>
+        <div class="toggle-switch ${isOn?'on':''}" onclick="toggleWidget('${w.id}', this)">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// تۆگڵکردنی ویجێت
+function toggleWidget(id, toggleEl) {
+  toggleEl.classList.toggle('on');
+}
+
+// پاشەکەوتکردنی ویجێتەکان
+async function saveWidgetSettings() {
+  // کۆکردنەوەی ئەوانەی چالاکن
+  const active = [];
+  const toggles = document.querySelectorAll('#widgetList .toggle-switch');
+  toggles.forEach((t, i) => {
+    if(t.classList.contains('on')) {
+      active.push(ALL_WIDGETS[i].id);
+    }
+  });
+
+  try {
+    const { error } = await sb.from('settings')
+      .update({ dashboard_widgets: active })
+      .eq('id', 1);
+    if(error) throw error;
+    await loadAllData();
+    toast('ڕێکخستنی داشبۆرد پاشەکەوتکرا ✓', 'success');
+    renderDashboard();
+  } catch(err) {
+    toast('کێشە: ' + (err.message||err), 'error');
+  }
 }
 
 init();
