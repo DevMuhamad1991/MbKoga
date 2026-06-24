@@ -5385,6 +5385,21 @@ function updateInfoConnStatus() {
   }
 }
 
+async function saveCurrency() {
+  const currency = document.getElementById('setCurrency').value;
+  try {
+    const { error } = await sb.from('settings')
+      .update({ currency })
+      .eq('id', 1);
+    if(error) throw error;
+    await loadAllData();
+    renderPage(getCurrentPage());
+    renderDashboard();
+    toast('دراوی سیستەم پاشەکەوتکرا', 'success');
+  } catch(err) {
+    toast('کێشە: ' + (err.message||err), 'error');
+  }
+}
 
 init();
 </script>
