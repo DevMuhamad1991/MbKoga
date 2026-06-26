@@ -1260,19 +1260,84 @@ kbd {
   50% { opacity: 0.4; transform: translateX(-50%) scale(1.4); }
 }
 
+.auth-tab.active {
+  background: var(--primary);
+  color: #fff;
+}
+.auth-tab:not(.active) {
+  color: var(--text2);
+}
+
 </style>
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay" >
-  <div class="lock-box">
-    <i class="ti ti-lock" style="font-size:40px;color:var(--primary)"></i>
-    <div style="font-size:15px;font-weight:700">Mobile Store</div>
-    <div style="font-size:12px;color:var(--text2)">پینکۆد بنووسە</div>
-    <input class="pin-input" id="pinInput" type="password" maxlength="4" inputmode="numeric" autofocus oninput="checkPin(this.value)">
-    <div style="font-size:12px;color:var(--danger);min-height:18px" id="pinError"></div>
+<!-- AUTH OVERLAY -->
+<div id="authOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="width:100%;max-width:400px">
+    
+    <!-- لۆگۆ -->
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--primary),#9C88FF);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:30px;color:#fff">
+        <i class="ti ti-device-mobile"></i>
+      </div>
+      <div style="font-size:20px;font-weight:800">Mobile Store</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">سیستەمی بەڕێوەبردنی دوکانی مۆبایل</div>
+    </div>
+
+    <!-- تابەکان -->
+    <div style="display:flex;gap:0;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:4px;margin-bottom:24px">
+      <div class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')"
+        style="flex:1;padding:10px;text-align:center;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;transition:all 0.2s">
+        داخلبوون
+      </div>
+      <div class="auth-tab" data-tab="register" onclick="switchAuthTab('register')"
+        style="flex:1;padding:10px;text-align:center;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;transition:all 0.2s">
+        ثبتنام
+      </div>
+    </div>
+
+    <!-- فۆرمی داخلبوون -->
+    <div id="loginForm">
+      <div class="form-group" style="margin-bottom:14px">
+        <label>ئیمەیل</label>
+        <input class="form-control" id="loginEmail" type="email" placeholder="example@gmail.com">
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label>پاسۆرد</label>
+        <input class="form-control" id="loginPass" type="password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+      <button class="btn btn-primary" id="loginBtn" onclick="doLogin()" style="width:100%;justify-content:center;padding:12px">
+        <i class="ti ti-login"></i> داخلبوون
+      </button>
+    </div>
+
+    <!-- فۆرمی ثبتنام -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group" style="margin-bottom:14px">
+        <label>ناوی دوکان</label>
+        <input class="form-control" id="regStore" placeholder="Mobile Store">
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>ئیمەیل</label>
+        <input class="form-control" id="regEmail" type="email" placeholder="example@gmail.com">
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label>پاسۆرد (کەمتر لە ٦ پیت نەبێت)</label>
+        <input class="form-control" id="regPass" type="password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter') doRegister()">
+      </div>
+      <button class="btn btn-primary" id="regBtn" onclick="doRegister()" style="width:100%;justify-content:center;padding:12px">
+        <i class="ti ti-user-plus"></i> دروستکردنی ئەکاونت
+      </button>
+    </div>
+
   </div>
 </div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;min-height:100vh;width:100%">
 
 <!-- LOADING OVERLAY (shown until first Supabase fetch completes) -->
 
@@ -1339,6 +1404,10 @@ kbd {
   <button class="footer-btn" onclick="openHelpModal()">
     <i class="ti ti-help-circle"></i> چۆن بەکاربێنم؟
   </button>
+  <button class="footer-btn" onclick="doLogout()" style="color:var(--danger)">
+  <i class="ti ti-logout"></i> دەرچوون
+</button>
+
 </div>
 
 
@@ -2809,11 +2878,82 @@ kbd {
 
 
 </div>
+  </div><!-- /mainApp acc -->
+
 
 
 <script>
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
+}
+
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
+let currentUser = null;
+
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) {
+    currentUser = session.user;
+    init();
+  } else {
+    showAuthPage('login');
+  }
+}
+
+function showAuthPage(tab) {
+  document.getElementById('authOverlay').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+  switchAuthTab(tab);
+}
+
+function hideAuthPage() {
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'flex';
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(!email||!pass) { toast('ئیمەیل و پاسۆرد پێویستە','error'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'چاوەڕوان...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'داخلبوون';
+  if(error) { toast('ئیمەیل یان پاسۆرد هەڵەیە','error'); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session.user;
+  hideAuthPage();
+  await init();
+}
+
+async function doRegister() {
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const store = document.getElementById('regStore').value.trim() || 'Mobile Store';
+  if(!email||!pass) { toast('ئیمەیل و پاسۆرد پێویستە','error'); return; }
+  if(pass.length < 6) { toast('پاسۆرد کەمتر لە ٦ پیت نەبێت','error'); return; }
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true; btn.textContent = 'چاوەڕوان...';
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'ثبتنام';
+  if(error) { toast('کێشە: '+error.message,'error'); return; }
+  toast('ئەکاونت دروستکرا — داخلبوون...','success');
+  await doLogin();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  CACHE = { products:[], sales:[], repairs:[], debts:[], plans:[], expenses:[], categories:[] };
+  showAuthPage('login');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -4780,16 +4920,6 @@ async function init() {
 
 const SESSION_KEY = 'ms_unlocked';
 
-function checkPin(val) {
-  if(val.length < 4) { document.getElementById('pinError').textContent = ''; return; }
-  if(val === SETTINGS.app_pin) {
-    document.getElementById('lockOverlay').style.display = 'none';
-    document.documentElement.requestFullscreen().catch(()=>{});
-  } else {
-    document.getElementById('pinError').textContent = 'پینکۆد هەڵەیە';
-    document.getElementById('pinInput').value = '';
-  }
-}
 
 (async function preload(){
   try {
@@ -5506,7 +5636,7 @@ function handleBarcodeResult(code) {
   toast('بارکۆد سکانکرا: ' + code, 'success');
 }
 
-init();
+checkAuth();   
 </script>
 </body>
 </html>
